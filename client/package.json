@@ -1,5 +1,5 @@
 {
-	"name": "temSentry",
+	"name": "balloon",
 	"version": "1.0.0",
 	"private": true,
 	"description": "",
@@ -38,8 +38,7 @@
 		"@tarojs/taro": "3.0.15",
 		"lodash": "4.17.15",
 		"vue": "^2.6.0",
-		"vue-template-compiler": "^2.5.0",
-		"vuex": "^3.5.1"
+		"vue-template-compiler": "^2.5.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.8.0",

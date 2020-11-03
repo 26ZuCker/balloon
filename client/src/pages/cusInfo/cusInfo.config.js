@@ -1,5 +1,5 @@
 export default {
-  navigationBarTitleText: '服务器管理',
+  //navigationBarTitleText: '气球实验',
   usingComponents: {
     'van-notify': '../../components/vant-weapp/dist/notify/index',
     'van-circle': '../../components/vant-weapp/dist/circle/index',
@@ -17,6 +17,6 @@ export default {
     'van-cell-group': '../../components/vant-weapp/dist/cell-group/index',
     'van-sticky': '../../components/vant-weapp/dist/sticky/index',
   },
-  enablePullDownRefresh: true,
-  backgroundTextStyle: 'dark',
+  /*   enablePullDownRefresh: true,
+  backgroundTextStyle: 'dark', */
 };

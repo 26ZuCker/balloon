@@ -9,4 +9,4 @@ const errorMsgApiMap = {
 
 const get_error_msg = promisifyHttp(Taro, BASE_API, errorMsgApiMap['get_error_msg']);
 
-export { get_error_msg };
+//export { get_error_msg };

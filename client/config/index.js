@@ -14,9 +14,9 @@ const config = {
   //设置别名，注意可能会出错所以尽量不适合使用
   alias: {
     '@/apis': path.resolve(__dirname, '..', 'src/apis'),
-    '@/components': path.resolve(__dirname, '..', 'src/components'),
+    '@/com': path.resolve(__dirname, '..', 'src/components'),
     '@/utils': path.resolve(__dirname, '..', 'src/utils'),
-    '@/images': path.resolve(__dirname, '..', 'src/images'),
+    '@/img': path.resolve(__dirname, '..', 'src/img'),
   },
   defineConstants: {},
   //直接复制某些组件库而不经过转换，后续优化可不直接复制所有的组件
