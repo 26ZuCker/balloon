@@ -2,7 +2,11 @@ import Vue from 'vue';
 import Taro from '@tarojs/taro';
 
 import './app.scss';
-//import { getOpenId, getUserInfo } from './utils/WeChat';
+//import { getOpenid, getWCInfo } from './utils/WeChat';
+
+//由于taro使用拦截器需要额外安装taro-axios则直接全局挂载响应码即可
+import { cusResCode } from './apis/apiConfig.js';
+Vue.prototype.$cusResCode = cusResCode;
 
 const App = new Vue({
   async mounted() {
