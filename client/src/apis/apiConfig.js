@@ -27,8 +27,4 @@ const cusResCode = {
   SUCCESS: 1,
 };
 
-export default {
-  BASE_API,
-  promisifyHttp,
-  cusResCode,
-};
+export { BASE_API, promisifyHttp, cusResCode };

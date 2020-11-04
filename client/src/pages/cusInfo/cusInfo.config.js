@@ -17,6 +17,8 @@ export default {
     'van-cell-group': '../../components/vant-weapp/dist/cell-group/index',
     'van-sticky': '../../components/vant-weapp/dist/sticky/index',
     'van-field': '../../components/vant-weapp/dist/field/index',
+    'van-button': '../../components/vant-weapp/dist/button/index',
+    'van-cell': '../../components/vant-weapp/dist/cell/index',
   },
   /*   enablePullDownRefresh: true,
   backgroundTextStyle: 'dark', */

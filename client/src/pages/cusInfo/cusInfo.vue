@@ -12,15 +12,17 @@
       ></van-field>
     </van-cell-group>
     <van-button
-      custom-class="van-button--round"
-      type="info"
+      custom-class="van-button--round van-button--large"
+      type="primary"
       :loading="isLoading"
-      @click="submit_userInfo"
-    ></van-button>
+      @tap="submit_userInfo"
+      >提交</van-button
+    >
   </view>
 </template>
 
 <script>
+import Taro from '@tarojs/taro'
 import { get_userInfo_template, submit_userInfo } from '@/apis/user.js'
 
 export default {
@@ -51,6 +53,9 @@ export default {
     },
     async submit_userInfo () {
       this.isLoading = true
+      Taro.navigateTo({
+        url: '../game/game',
+      })
       try {
         const { code, data } = (await submit_userInfo()).data
         if (code !== this.cusResCode.ERROR) {
@@ -84,6 +89,10 @@ export default {
 <style lang='scss' >
 .van-button--round {
   border-radius: 999px !important;
+}
+.van-button--large {
+  width: 100px !important;
+  height: 50px !important;
 }
 .ccc {
   display: flex;

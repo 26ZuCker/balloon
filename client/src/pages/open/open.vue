@@ -1,9 +1,9 @@
 <template>
   <view class="ccc">
-    <van-button type="primary" custom-class="van-button--round" @click="toGame"
+    <van-button type="primary" custom-class="van-button--round" @tap="toGame"
       >进入游戏</van-button
     >
-    <van-button type="info" custom-class="van-button--round" @click="toGame(0)"
+    <van-button type="info" custom-class="van-button--round" @tap="toGame(0)"
       >练习一下</van-button
     >
   </view>

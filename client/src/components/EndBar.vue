@@ -5,7 +5,7 @@
 <script>
 export default {
   inheritAttrs: false,
-  name: 'GameState',
+  name: 'EndBar',
   components: {},
   data: () => ({
 

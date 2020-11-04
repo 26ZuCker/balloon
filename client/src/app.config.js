@@ -1,5 +1,6 @@
 export default {
-  pages: ['pages/cusInfo/cusInfo', 'pages/game/game'],
+  //pages: ['pages/cusInfo/cusInfo', 'pages/game/game'],
+  pages: ['pages/game/game', 'pages/cusInfo/cusInfo'],
   //pages/open/open
   subpackages: [
     {
