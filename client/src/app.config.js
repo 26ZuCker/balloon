@@ -1,11 +1,14 @@
 export default {
-  //pages: ['pages/cusInfo/cusInfo', 'pages/game/game'],
-  pages: ['pages/game/game', 'pages/cusInfo/cusInfo'],
-  //pages/open/open
+  pages: ['pages/cusInfo/cusInfo', 'pages/game/game'],
+  //pages: ['pages/game/game', 'pages/cusInfo/cusInfo'],
   subpackages: [
     {
       root: 'pages/open',
       pages: ['open'],
+    },
+    {
+      root: 'pages/infor',
+      pages: ['infor'],
     },
   ],
   window: {

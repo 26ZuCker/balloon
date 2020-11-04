@@ -2,7 +2,7 @@
   <view class="ccc">
     <van-cell-group>
       <van-field
-        :value="userInfo.i"
+        :value="i.value"
         required
         clearable
         :label="i.title"
@@ -54,22 +54,22 @@ export default {
     async submit_userInfo () {
       this.isLoading = true
       Taro.navigateTo({
-        url: '../game/game',
+        url: '../open/open',
       })
-      try {
-        const { code, data } = (await submit_userInfo()).data
-        if (code !== this.cusResCode.ERROR) {
-          //this.userInfo = data.userInfo
-          this.isLoading = false
-          return Promise.resolve()
-        } else {
-          this.isLoading = false
-          return Promise.reject('http fail')
-        }
-      } catch (error) {
-        this.isLoading = false
-        return Promise.reject(error)
-      }
+      /*       try {
+              const { code, data } = (await submit_userInfo()).data
+              if (code !== this.cusResCode.ERROR) {
+                //this.userInfo = data.userInfo
+                this.isLoading = false
+                return Promise.resolve()
+              } else {
+                this.isLoading = false
+                return Promise.reject('http fail')
+              }
+            } catch (error) {
+              this.isLoading = false
+              return Promise.reject(error)
+            } */
     }
   },
   computed: {
@@ -81,7 +81,11 @@ export default {
   },
   watch: {},
   async created () {
-
+    this.userInfo = {
+      name: { title: '姓名', value: '曾' },
+      collage: { title: '学院', value: '管理' },
+      class: { title: '班级', value: '4班' },
+    }
   }
 }
 </script>
@@ -99,5 +103,8 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+page {
+  height: 100%;
 }
 </style>

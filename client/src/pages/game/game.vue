@@ -4,7 +4,13 @@
     <view class="ccc">{{ title }}</view>
     <!-- 气球主体，建议限制高度为百分比 -->
     <view class="img-container">
-      <image :style="imgStyle" mode="aspectFit" :src="img_src"></image>
+      <image
+        :style="imgStyle"
+        mode="aspectFit"
+        v-if="isBombing"
+        :src="bomb"
+      ></image
+      ><image :style="imgStyle" mode="aspectFit" v-else :src="balloon"></image>
     </view>
     <!-- 状态单元格 -->
     <van-cell-group>
@@ -23,7 +29,7 @@
         custom-class="van-button--round van-button--large"
         type="primary"
         @tap="blow"
-        >充气</van-button
+        >{{ isBombing ? "下一轮" : "充气" }}</van-button
       >
       <van-button
         custom-class="van-button--round van-button--large"
@@ -43,9 +49,12 @@ import bomb from '@/img/bomb.svg'
 //注意：与渲染无关的变量尽量不要存在data内
 let totalCheckpoint = 30
 let mode = ''
-let maxCount = Number.MAX_SAFE_INTEGER
-let timer = null
-
+let maxCount = 3//Number.MAX_SAFE_INTEGER
+/* const timerTar = {
+  timer: null,
+  isBombing: false
+}
+ */
 export default {
   inheritAttrs: false,
   name: 'game',
@@ -58,6 +67,7 @@ export default {
         bomb_src: bomb, */
     //点击次数
     count: 0,
+    isBombing: false,
     statistic_data: {
       round_income: { title: '本轮收益', value: 0 },
       total_income: { title: '总收益', value: 0 },
@@ -70,12 +80,14 @@ export default {
      * 打气
      */
     blow () {
-      this.count += 1
-      if (this.count === maxCount) {
-        const that = this
-        timer = setTimeout(() => {
-          that.accountReceive()
-        }, 1000)
+      if (this.count < maxCount) {
+        this.count += 1
+        if (this.count === maxCount) {
+          this.isBombing = true
+          this.accountReceive()
+        }
+      } else {
+        this.isBombing = false
       }
     },
     /**
@@ -83,26 +95,25 @@ export default {
      */
     accountReceive () {
       this.count = 0
-      timer = null
+      //this.isBombing = false
     }
   },
   computed: {
+    balloon () { return balloon },
+    bomb () { return bomb },
     imgStyle () {
       const width = this.count * 8 + 100
       const height = this.count * 5 + 100
       return `width: ${width}px; height: ${height}px`
     },
-    img_src () {
-      return timer === null ? balloon : bomb
-    }
   },
   watch: {},
   //接收参数判断当前模式是练习还是正式
   async created () {
     //this.leftCheckpoint = mode === 'FORMAL' ? 30 : 2
-    this.$on('beforeDestroy', () => {
-      clearTimeout(timer)
-    })
+    /*     this.$on('beforeDestroy', () => {
+          clearTimeout(timerTar.timer)
+        }) */
   }
 }
 </script>

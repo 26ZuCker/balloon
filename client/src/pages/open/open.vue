@@ -1,10 +1,17 @@
 <template>
   <view class="ccc">
+    <!-- 头像和名字 -->
+    <!--     <image :style="imgStyle" mode="aspectFit" :src=""></image>
+ -->
     <van-button type="primary" custom-class="van-button--round" @tap="toGame"
       >进入游戏</van-button
     >
     <van-button type="info" custom-class="van-button--round" @tap="toGame(0)"
       >练习一下</van-button
+    >
+    <!-- 导出按钮 -->
+    <van-button type="info" custom-class="van-button--round" @tap="toInfor"
+      >导出数据</van-button
     >
   </view>
 </template>
@@ -24,7 +31,10 @@ export default {
     toGame (mode = 1) {
       const modeType = ['TEST', 'FORMAL']
       Taro.navigateTo({
-        url: `game?mode=${modeType[mode]}`,
+        url: '../game/game'
+      })
+      Taro.navigateTo({
+        url: `../game/game?mode=${modeType[mode]}`,
         /*         events: {
                   // 为指定事件添加一个监听器，获取被打开页面传送到当前页面的数据
                   acceptDataFromOpenedPage: function (data) {
@@ -38,6 +48,11 @@ export default {
                   // 通过eventChannel向被打开页面传送数据
                   res.eventChannel.emit('acceptDataFromOpenerPage', { data: 'test' })
                 } */
+      })
+    },
+    toInfor () {
+      Taro.navigateTo({
+        url: '../infor/infor'
       })
     }
   },
@@ -57,6 +72,7 @@ page {
   align-items: center;
 }
 .van-button--round {
+  margin: 20px;
   border-radius: 999px !important;
 }
 </style>
