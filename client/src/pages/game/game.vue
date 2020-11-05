@@ -23,19 +23,19 @@
     </view>
     <!-- 状态单元格 -->
     <van-cell-group>
-      <!--       <van-cell
+      <van-cell
         class="statistic-main"
         v-for="i in statistic_data"
         :key="i.title"
         :title="i.title"
         :value="i.value"
-      ></van-cell> -->
-      <van-cell v-for="(v, i) in statistic_data" :key="v.title">
+      ></van-cell>
+      <!--       <van-cell v-for="(v, i) in statistic_data" :key="v.title">
         <slot-view name="title">
           <van-tag round :type="colors[i % 4]">{{ i.title }}</van-tag>
         </slot-view>
         {{ i.value }}
-      </van-cell>
+      </van-cell> -->
     </van-cell-group>
 
     <!-- 按钮组 -->
@@ -67,10 +67,10 @@
 </template>
 
 <script>
-import { } from '@/apis/game'
-import balloon from '@/img/balloon.svg'
-import bomb from '@/img/bomb.svg'
-import Notify from '@/com/vant-weapp/dist/notify/notify.js';
+import { } from '@api/game'
+import balloon from '@img/balloon.svg'
+import bomb from '@img/bomb.svg'
+import Notify from '@com/vant-weapp/dist/notify/notify.js';
 
 //注意：与渲染无关的变量尽量不要存在data内
 let totalCheckpoint = 30
@@ -151,6 +151,9 @@ export default {
     /*     this.$on('beforeDestroy', () => {
           clearTimeout(timerTar.timer)
         }) */
+  },
+  beforeDestroy () {
+
   }
 }
 </script>

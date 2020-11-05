@@ -27,8 +27,8 @@
 
 <script>
 import Taro from '@tarojs/taro'
-import { get_userInfo_template, submit_userInfo } from '@/apis/user.js'
-import Notify from '@/com/vant-weapp/dist/notify/notify.js';
+import { get_userInfo_template, submit_userInfo } from '@api/user.js'
+import Notify from '@com/vant-weapp/dist/notify/notify.js';
 
 export default {
   inheritAttrs: false,
@@ -86,7 +86,7 @@ export default {
   },
   watch: {},
   async created () {
-    Notify({ type: 'primary', message: '进入游戏前请填写您的个人信息' });
+    Notify({ type: 'primary', message: '进入游戏前请填写您的个人信息', selector: '#custom-selector', });
     this.userInfo = {
       name: { title: '姓名', value: '曾' },
       stu_id: { title: '学号', value: '311' },

@@ -13,10 +13,10 @@ const config = {
   plugins: [],
   //设置别名，注意可能会出错所以尽量不适合使用
   alias: {
-    '@/apis': path.resolve(__dirname, '..', 'src/apis'),
-    '@/com': path.resolve(__dirname, '..', 'src/components'),
-    '@/utils': path.resolve(__dirname, '..', 'src/utils'),
-    '@/img': path.resolve(__dirname, '..', 'src/img'),
+    '@api': path.resolve(__dirname, '..', 'src/apis'),
+    '@com': path.resolve(__dirname, '..', 'src/components'),
+    '@util': path.resolve(__dirname, '..', 'src/utils'),
+    '@img': path.resolve(__dirname, '..', 'src/img'),
   },
   defineConstants: {},
   //直接复制某些组件库而不经过转换，后续优化可不直接复制所有的组件

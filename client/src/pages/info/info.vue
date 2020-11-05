@@ -40,11 +40,8 @@ export default {
   components: {},
   data: () => ({
     searchVal: '',
-    current_round: '',
-    selectRoundList: [
-      { round_count: 1, round_id: '1', round_url: '' },
-      { round_count: 2, round_id: '2', round_url: '' },
-    ]
+    current_round: '3',
+    selectRoundList: null,
   }),
   props: {},
   methods: {
@@ -61,13 +58,35 @@ export default {
   },
   computed: {
     round_num () {
-      return [1, 2, 3]
+      return [
+        { text: '1-20', value: '1' },
+        { text: '20-40', value: '2' },
+        { text: '40-53', value: '3' },
+      ]
     }
   },
   watch: {},
   async created () {
     //当前默认最新
     //this.current_round =
+    this.selectRoundList = Object.freeze(
+      [
+        { round_count: 40, round_id: '40', round_url: '' },
+        { round_count: 41, round_id: '41', round_url: '' },
+        { round_count: 42, round_id: '42', round_url: '' },
+        { round_count: 43, round_id: '43', round_url: '' },
+        { round_count: 44, round_id: '44', round_url: '' },
+        { round_count: 45, round_id: '45', round_url: '' },
+        { round_count: 46, round_id: '46', round_url: '' },
+        { round_count: 47, round_id: '47', round_url: '' },
+        { round_count: 48, round_id: '48', round_url: '' },
+        { round_count: 49, round_id: '49', round_url: '' },
+        { round_count: 50, round_id: '50', round_url: '' },
+        { round_count: 51, round_id: '51', round_url: '' },
+        { round_count: 52, round_id: '52', round_url: '' },
+        { round_count: 53, round_id: '53', round_url: '' },
+      ]
+    )
   }
 }
 </script>
