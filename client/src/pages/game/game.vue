@@ -68,8 +68,8 @@
 
 <script>
 import { } from '@api/game'
-import balloon from '@img/balloon.svg'
-import bomb from '@img/bomb.svg'
+import balloon from '@img/balloon.jpg'
+import bomb from '@img/bomb.jpg'
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 
 //注意：与渲染无关的变量尽量不要存在data内

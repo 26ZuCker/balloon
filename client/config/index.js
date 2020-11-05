@@ -11,7 +11,7 @@ const config = {
   sourceRoot: 'src',
   outputRoot: 'dist',
   plugins: [],
-  //设置别名，注意可能会出错所以尽量不适合使用
+  //设置别名，注意可能会出错所以尽量不适合使用，并且注意不同系统的路径
   alias: {
     '@api': path.resolve(__dirname, '..', 'src/apis'),
     '@com': path.resolve(__dirname, '..', 'src/components'),

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Taro from '@tarojs/taro';
+import store from './store/index';
 
 import './app.scss';
 //import { getOpenid, getWCInfo } from './utils/WeChat';
@@ -9,6 +10,7 @@ import { cusResCode } from './apis/apiConfig.js';
 Vue.prototype.$cusResCode = cusResCode;
 
 const App = new Vue({
+  store,
   async mounted() {
     if (process.env.TARO_ENV === 'weapp') {
       Taro.cloud.init();

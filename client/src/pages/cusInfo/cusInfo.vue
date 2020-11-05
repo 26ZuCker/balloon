@@ -33,7 +33,8 @@ import Notify from '@com/vant-weapp/dist/notify/notify.js';
 export default {
   inheritAttrs: false,
   name: '',
-  components: {},
+  components: {
+  },
   data: () => ({
     userInfo: null,
     isLoading: false,
@@ -57,6 +58,9 @@ export default {
         return Promise.reject(error)
       }
     },
+    /**
+     * 提交用户信息
+     */
     async submit_userInfo () {
       this.isLoading = true
       Taro.navigateTo({
@@ -77,6 +81,9 @@ export default {
               return Promise.reject(error)
             } */
     },
+    /**
+     * 提交更改配置
+     */
     async submit_setting () {
       this.isLoading = true
       Taro.navigateTo({
@@ -97,6 +104,9 @@ export default {
               return Promise.reject(error)
             } */
     },
+    /**
+     * 根据穿路由传参判断当前页面为配置还是个人信息填写
+     */
     submitChange () {
       if (this.pageType === 0) {
         this.submit_userInfo()
@@ -106,29 +116,25 @@ export default {
     }
   },
   computed: {
+    /**
+     * 输入框提示文字
+     */
     placeholderTitle () {
       return function (title) {
         return `请输入${title}`
       }
     },
+    /**
+     * 提交按钮显示文案
+     */
     btnTitle () {
       return this.pageType === 0 ? '生成游戏二维码' : '提交'
     }
   },
   watch: {},
   async created () {
-    Notify({ type: 'primary', message: '进入游戏前请填写您的个人信息', selector: '#custom-selector', });
-    this.userInfo = {
-      name: { title: '姓名', value: '曾' },
-      stu_id: { title: '学号', value: '311' },
-      phone_number: { title: '手机号', value: '123456' },
-    }
-    this.userInfo = {
-      type: { title: '实验类别', value: '1' },
-      limit_time: { title: '本次实验限制时间', value: '5分钟' },
-      round_time: { title: '批次', value: '3' },
-      group_num: { title: '组次', value: '2' },
-    }
+    Notify({ type: 'primary', message: '进入游戏前请填写您的个人信息' });
+    this.userInfo = Object.freeze()
   }
 }
 </script>
