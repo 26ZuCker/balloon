@@ -19,8 +19,8 @@
       class=""
       type="primary"
       :loading="isLoading"
-      @tap="submit_userInfo"
-      >提交</van-button
+      @tap="submitChange"
+      >{{ btnTitle }}</van-button
     >
   </view>
 </template>
@@ -36,7 +36,8 @@ export default {
   components: {},
   data: () => ({
     userInfo: null,
-    isLoading: false
+    isLoading: false,
+    pageType: 0
   }),
   props: {},
   methods: {
@@ -75,6 +76,33 @@ export default {
               this.isLoading = false
               return Promise.reject(error)
             } */
+    },
+    async submit_setting () {
+      this.isLoading = true
+      Taro.navigateTo({
+        url: '../open/open',
+      })
+      /*       try {
+              const { code, data } = (await submit_userInfo()).data
+              if (code !== this.cusResCode.ERROR) {
+                //this.userInfo = data.userInfo
+                this.isLoading = false
+                return Promise.resolve()
+              } else {
+                this.isLoading = false
+                return Promise.reject('http fail')
+              }
+            } catch (error) {
+              this.isLoading = false
+              return Promise.reject(error)
+            } */
+    },
+    submitChange () {
+      if (this.pageType === 0) {
+        this.submit_userInfo()
+      } else if (this.pageType === 1) {
+        this.submit_setting()
+      }
     }
   },
   computed: {
@@ -82,6 +110,9 @@ export default {
       return function (title) {
         return `请输入${title}`
       }
+    },
+    btnTitle () {
+      return this.pageType === 0 ? '生成游戏二维码' : '提交'
     }
   },
   watch: {},
@@ -91,6 +122,10 @@ export default {
       name: { title: '姓名', value: '曾' },
       stu_id: { title: '学号', value: '311' },
       phone_number: { title: '手机号', value: '123456' },
+    }
+    this.userInfo = {
+      type: { title: '实验类别', value: '1' },
+      limit_time: { title: '本次实验限制时间', value: '5分钟' },
       round_time: { title: '批次', value: '3' },
       group_num: { title: '组次', value: '2' },
     }
@@ -103,7 +138,7 @@ export default {
   border-radius: 999px !important;
 }
 .van-button--large {
-  width: 100px !important;
+  width: 130px !important;
   height: 50px !important;
 }
 .ccc {

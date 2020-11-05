@@ -10,13 +10,13 @@
       >练习一下</van-button
     >
     <!-- 配置以及导出数据 -->
-    <van-icon
+    <!--     <van-icon
       name="setting"
       color="info"
       size="50px"
       @tap="toInfo"
       v-if="allowPermission"
-    />
+    /> -->
     <!-- 导出按钮 -->
     <!--     <van-button type="info" custom-class="van-button--round" @tap="toInfo"
       >导出数据</van-button
