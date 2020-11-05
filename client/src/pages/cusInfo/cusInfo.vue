@@ -1,5 +1,8 @@
 <template>
   <view class="ccc">
+    <!-- 顶部通知条 -->
+    <van-notify id="van-notify" />
+    <!-- 顶部提示语 -->
     <van-cell-group>
       <van-field
         :value="i.value"
@@ -12,7 +15,8 @@
       ></van-field>
     </van-cell-group>
     <van-button
-      custom-class="van-button--round van-button--large"
+      custom-class="van-button--round van-button--large ma-3"
+      class=""
       type="primary"
       :loading="isLoading"
       @tap="submit_userInfo"
@@ -24,6 +28,7 @@
 <script>
 import Taro from '@tarojs/taro'
 import { get_userInfo_template, submit_userInfo } from '@/apis/user.js'
+import Notify from '@/com/vant-weapp/dist/notify/notify.js';
 
 export default {
   inheritAttrs: false,
@@ -81,10 +86,13 @@ export default {
   },
   watch: {},
   async created () {
+    Notify({ type: 'primary', message: '进入游戏前请填写您的个人信息' });
     this.userInfo = {
       name: { title: '姓名', value: '曾' },
-      collage: { title: '学院', value: '管理' },
-      class: { title: '班级', value: '4班' },
+      stu_id: { title: '学号', value: '311' },
+      phone_number: { title: '手机号', value: '123456' },
+      round_time: { title: '批次', value: '3' },
+      group_num: { title: '组次', value: '2' },
     }
   }
 }
@@ -103,8 +111,12 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 100%;
 }
 page {
   height: 100%;
+}
+.ma-3 {
+  margin: 30px;
 }
 </style>

@@ -19,6 +19,7 @@ export default {
     'van-field': '../../components/vant-weapp/dist/field/index',
     'van-button': '../../components/vant-weapp/dist/button/index',
     'van-cell': '../../components/vant-weapp/dist/cell/index',
+    'van-notice-bar': '../../components/vant-weapp/dist/notice-bar/index',
   },
   /*   enablePullDownRefresh: true,
   backgroundTextStyle: 'dark', */

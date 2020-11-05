@@ -7,8 +7,8 @@ export default {
       pages: ['open'],
     },
     {
-      root: 'pages/infor',
-      pages: ['infor'],
+      root: 'pages/info',
+      pages: ['info'],
     },
   ],
   window: {

@@ -19,6 +19,8 @@ export default {
     'van-field': '../../components/vant-weapp/dist/field/index',
     'van-button': '../../components/vant-weapp/dist/button/index',
     'van-cell': '../../components/vant-weapp/dist/cell/index',
+    'van-dropdown-menu': '../../components/vant-weapp/dist/dropdown-menu/index',
+    'van-dropdown-item': '../../components/vant-weapp/dist/dropdown-item/index',
   },
   /*   enablePullDownRefresh: true,
   backgroundTextStyle: 'dark', */

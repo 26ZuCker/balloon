@@ -1,7 +1,16 @@
 <template>
-  <view>
+  <view style="height: 100%">
+    <!-- 顶部通知条 -->
+    <van-notify id="van-notify" />
     <!-- 顶部提示语 -->
-    <view class="ccc">{{ title }}</view>
+    <van-notice-bar
+      color="#1989fa"
+      background="#ecf9ff"
+      left-icon="info-o"
+      :text="title"
+    ></van-notice-bar>
+    <!--     <view class="ccc">{{ title }}</view>
+ -->
     <!-- 气球主体，建议限制高度为百分比 -->
     <view class="img-container">
       <image
@@ -14,28 +23,44 @@
     </view>
     <!-- 状态单元格 -->
     <van-cell-group>
-      <van-cell
-        class="statistic_main"
+      <!--       <van-cell
+        class="statistic-main"
         v-for="i in statistic_data"
         :key="i.title"
         :title="i.title"
         :value="i.value"
-      ></van-cell>
+      ></van-cell> -->
+      <van-cell v-for="(v, i) in statistic_data" :key="v.title">
+        <slot-view name="title">
+          <van-tag round :type="colors[i % 4]">{{ i.title }}</van-tag>
+        </slot-view>
+        {{ i.value }}
+      </van-cell>
     </van-cell-group>
 
     <!-- 按钮组 -->
     <view class="rac">
+      <template v-if="statistic_data.left_checkpoint !== 0">
+        <van-button
+          custom-class="van-button--round van-button--large"
+          :type="isBombing ? 'warning' : 'primary'"
+          @tap="blow"
+          >{{ isBombing ? "下一轮" : "充气" }}</van-button
+        >
+        <van-button
+          custom-class="van-button--round van-button--large"
+          type="info"
+          @tap="accountReceive"
+          >收账</van-button
+        >
+      </template>
       <van-button
-        custom-class="van-button--round van-button--large"
-        type="primary"
-        @tap="blow"
-        >{{ isBombing ? "下一轮" : "充气" }}</van-button
-      >
-      <van-button
+        v-else
         custom-class="van-button--round van-button--large"
         type="info"
-        @tap="accountReceive"
-        >收账</van-button
+        @tap="endGame"
+        :loading="isSubmitting"
+        >结束游戏</van-button
       >
     </view>
   </view>
@@ -45,6 +70,7 @@
 import { } from '@/apis/game'
 import balloon from '@/img/balloon.svg'
 import bomb from '@/img/bomb.svg'
+import Notify from '@/com/vant-weapp/dist/notify/notify.js';
 
 //注意：与渲染无关的变量尽量不要存在data内
 let totalCheckpoint = 30
@@ -61,7 +87,7 @@ export default {
   components: {},
   data: () => ({
     //标题
-    title: '当前为你自己游戏',
+    title: '',
     //气球图片
     /*     balloon_src: balloon,
         bomb_src: bomb, */
@@ -73,7 +99,9 @@ export default {
       total_income: { title: '总收益', value: 0 },
       previous_income: { title: '上一轮收益', value: 0 },
       left_checkpoint: { title: '剩余关卡', value: 0 },
-    }
+    },
+    isSubmitting: false,
+    colors: ['primary', 'success', 'danger', 'warning']
   }),
   methods: {
     /**
@@ -84,10 +112,11 @@ export default {
         this.count += 1
         if (this.count === maxCount) {
           this.isBombing = true
-          this.accountReceive()
+          Notify({ type: 'warning', message: '爆炸' });
         }
       } else {
         this.isBombing = false
+        this.accountReceive()
       }
     },
     /**
@@ -96,6 +125,13 @@ export default {
     accountReceive () {
       this.count = 0
       //this.isBombing = false
+    },
+    /**
+     * 结束游戏
+     */
+    async endGame () {
+      this.isSubmitting = true
+      Taro.navigateTo({ url: '../open/open' })
     }
   },
   computed: {
@@ -110,6 +146,7 @@ export default {
   watch: {},
   //接收参数判断当前模式是练习还是正式
   async created () {
+    this.title = '当前为你自己游戏'
     //this.leftCheckpoint = mode === 'FORMAL' ? 30 : 2
     /*     this.$on('beforeDestroy', () => {
           clearTimeout(timerTar.timer)
@@ -152,7 +189,7 @@ page {
   height: 50px !important;
   margin: 10px 30px 10px 30px;
 }
-.statistic_main {
+.statistic-main {
   width: 100%;
   border: 1px solid black;
 }

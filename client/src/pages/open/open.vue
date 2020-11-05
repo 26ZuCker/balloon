@@ -9,10 +9,12 @@
     <van-button type="info" custom-class="van-button--round" @tap="toGame(0)"
       >练习一下</van-button
     >
+    <!-- 配置以及导出数据 -->
+    <van-icon name="setting" color="info" size="50px" @tap="toInfo" />
     <!-- 导出按钮 -->
-    <van-button type="info" custom-class="van-button--round" @tap="toInfor"
+    <!--     <van-button type="info" custom-class="van-button--round" @tap="toInfo"
       >导出数据</van-button
-    >
+    > -->
   </view>
 </template>
 
@@ -50,9 +52,9 @@ export default {
                 } */
       })
     },
-    toInfor () {
+    toInfo () {
       Taro.navigateTo({
-        url: '../infor/infor'
+        url: '../info/info'
       })
     }
   },
@@ -70,6 +72,7 @@ page {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 100%;
 }
 .van-button--round {
   margin: 20px;
