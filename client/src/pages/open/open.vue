@@ -57,13 +57,6 @@ export default {
   },
   computed: {},
   watch: {},
-  /**
-   * 建议挂载全局变量判断cusInfo是否已提交则没必要额外再发送一次login请求
-   * 在进入游戏三个按钮的页面，进入前先传openid到后台，根据传回的自定义状态码判断身份
-   * 获取openid和微信个人信息 -> 发送至后台判断身份
-   * 研究生身份：提供数据导出和实验组批次设置两个url
-   * 参与者身份：直接跳转至cusInfo页面
-   */
   /*   async created () {
       try {
         const { code, res } = (await login).data
