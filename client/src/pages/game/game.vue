@@ -9,8 +9,7 @@
       left-icon="info-o"
       :text="title"
     ></van-notice-bar>
-    <!--     <view class="ccc">{{ title }}</view>
- -->
+    <!--     <view class="ccc">{{ title }}</view>-->
     <!-- 气球主体，建议限制高度为百分比 -->
     <view class="img-container">
       <image

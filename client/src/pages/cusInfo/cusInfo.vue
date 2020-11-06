@@ -96,6 +96,7 @@ export default {
      * 根据路由传参判断当前页面为配置还是个人信息填写
      */
     submitChange () {
+      Notify({ type: 'warning', message: '提交中' });
       if (this.pageType === 0) {
         this.submit_userInfo()
       } else if (this.pageType === 1) {
@@ -146,7 +147,6 @@ export default {
     * 参与者身份：直接跳转至cusInfo页面
     */
   async created () {
-    Notify({ type: 'warning', message: '提交中' });
     this.form = Object.freeze()
   }
 }
