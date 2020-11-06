@@ -9,11 +9,15 @@ const errorMsgApiMap = {
 /**
  * 获取用户所需填写信息模板
  */
-const get_userInfo_template = promisifyHttp(
+/* const get_userInfo_template = promisifyHttp(
   Taro,
   BASE_API,
   errorMsgApiMap['get_userInfo_template']
-);
+); */
+const get_userInfo_template = () => [
+  { title: '姓名', value: '' },
+  { title: '学号', value: '' },
+];
 /**
  * 提交用户所填信息
  */

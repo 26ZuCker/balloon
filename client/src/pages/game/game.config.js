@@ -20,6 +20,7 @@ export default {
     'van-button': '../../components/vant-weapp/dist/button/index',
     'van-cell': '../../components/vant-weapp/dist/cell/index',
     'van-notice-bar': '../../components/vant-weapp/dist/notice-bar/index',
+    'van-dialog': '../../components/vant-weapp/dist/dialog/index',
   },
   /*   enablePullDownRefresh: true,
   backgroundTextStyle: 'dark', */

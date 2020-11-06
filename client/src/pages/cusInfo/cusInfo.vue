@@ -1,47 +1,60 @@
 <template>
-  <view class="ccc">
+  <view style="height: 100%; width: 100%">
     <!-- 顶部通知条 -->
     <van-notify id="van-notify"></van-notify>
     <!-- 顶部提示语 -->
     <van-notice-bar
+      wrapable
       color="#1989fa"
       background="#ecf9ff"
       left-icon="info-o"
-      text="请填写"
+      style="width: 100%"
+      :text="titleNotice"
     ></van-notice-bar>
-    <van-cell-group>
-      <van-field
-        :value="i.value"
-        required
-        clearable
-        :label="i.title"
-        :placeholder="placeholderTitle(i.title)"
-        v-for="i in form"
-        :key="i.title"
-      ></van-field>
-    </van-cell-group>
-    <van-button
-      custom-class="van-button--round van-button--large ma-3"
-      type="primary"
-      :loading="isLoading"
-      @tap="submitChange"
-      >{{ btnTitle }}</van-button
-    >
-    <van-button
-      v-if="pageType === 1"
-      custom-class="van-button--round van-button--large ma-3"
-      type="success"
-      @tap="toInfo"
-      >查看记录</van-button
-    >
+    <view class="cccH ccc">
+      <van-cell-group>
+        <van-field
+          :value="i.value"
+          required
+          clearable
+          :label="i.title"
+          :placeholder="placeholderTitle(i.title)"
+          v-for="i in form"
+          :key="i.title"
+        ></van-field>
+      </van-cell-group>
+      <!-- 根据角色判断权限 -->
+      <van-button
+        custom-class="van-button--round van-button--large ma-3"
+        type="primary"
+        :loading="isLoading"
+        @tap="submitChange"
+        >{{ btnTitle }}</van-button
+      >
+      <!-- 研究生权限可进入信息查看页面 -->
+      <van-button
+        v-if="permission === 1"
+        custom-class="van-button--round van-button--large ma-3"
+        type="success"
+        @tap="toInfo"
+        >查看记录</van-button
+      >
+    </view>
+
+    <!-- 遮掩层显示二维码 -->
     <van-overlay :show="showOverlay" @click="showOverlay = false">
-      <view class="cccH">
+      <view class="cccH ccc">
         <image
-          style="height: 430px; width: 430px"
+          style="height: 350px; width: 350px"
           mode="aspectFit"
           :src="QRCODE_URL"
         ></image>
-        <van-icon name="close" @tap="showOverlay = false" />
+        <van-icon
+          name="close"
+          class="mt-3"
+          size="40px"
+          @tap="showOverlay = false"
+        />
       </view>
     </van-overlay>
   </view>
@@ -50,8 +63,10 @@
 <script>
 import Taro from '@tarojs/taro'
 import { get_userInfo_template, submit_userInfo } from '@api/user.js'
+import { get_game_setting_template, submit_game_setting } from '@api/gameSetting.js'
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import myQRCODE from '@img/myQRCODE.jpg'
+import { mapState } from 'vuex'
 
 export default {
   inheritAttrs: false,
@@ -61,7 +76,6 @@ export default {
   data: () => ({
     form: null,
     isLoading: false,
-    pageType: 0,
     showOverlay: false,
     QRCODE_URL: ''
   }),
@@ -71,16 +85,12 @@ export default {
      * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
      */
     async get_userInfo_template () {
-      try {
-        const { code, data } = (await get_userInfo_template()).data
-        if (code !== this.cusResCode.ERROR) {
-          this.userInfo = data.userInfo
-          return Promise.resolve()
-        } else {
-          return Promise.reject('http fail')
-        }
-      } catch (error) {
-        return Promise.reject(error)
+      const { code, data } = (await get_userInfo_template()).data
+      if (code !== this.cusResCode.ERROR) {
+        this.userInfo = data.userInfo
+        return Promise.resolve()
+      } else {
+        return Promise.reject('http fail')
       }
     },
     /**
@@ -88,18 +98,21 @@ export default {
      */
     async submit_userInfo () {
       this.isLoading = true
-      Taro.navigateTo({
-        url: '../open/open',
-      })
+      const timer = setTimeout(() => {
+        this.isLoading = false
+        Taro.navigateTo({
+          url: '../open/open',
+        })
+      }, 1000)
     },
     /**
      * 根据路由传参判断当前页面为配置还是个人信息填写
      */
     submitChange () {
       Notify({ type: 'warning', message: '提交中' });
-      if (this.pageType === 0) {
+      if (this.permission === 0) {
         this.submit_userInfo()
-      } else if (this.pageType === 1) {
+      } else if (this.permission === 1) {
         this.submit_setting()
       }
     },
@@ -112,7 +125,7 @@ export default {
         this.isLoading = false
         this.showOverlay = true
         this.QRCODE_URL = myQRCODE
-      })
+      }, 1000)
     },
     /**
      * 进入历史记录页面
@@ -134,8 +147,17 @@ export default {
      * 提交按钮显示文案
      */
     btnTitle () {
-      return this.pageType === 0 ? '生成游戏二维码' : '提交'
-    }
+      return this.permission === 0 ? '提交' : '生成游戏二维码'
+    },
+    /**
+     * 顶部提示框
+     */
+    titleNotice () {
+      return this.permission === 0 ? '请填写你的个人信息' : '请填写当前批次游戏的配置，随后会生成二维码'
+    },
+    ...mapState({
+      permission: (state) => state.user.permission
+    })
   },
   watch: {},
   /**
@@ -147,36 +169,12 @@ export default {
     * 参与者身份：直接跳转至cusInfo页面
     */
   async created () {
-    this.form = Object.freeze()
+    const template = this.permission === 0 ? await get_userInfo_template() : await get_game_setting_template()
+    this.form = Object.freeze(template)
   }
 }
 </script>
 
 <style lang='scss' >
-.van-button--round {
-  border-radius: 999px !important;
-}
-.van-button--large {
-  width: 130px !important;
-  height: 50px !important;
-}
-.ccc {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-page {
-  height: 100%;
-}
-.ma-3 {
-  margin: 30px;
-}
-.cccH {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+@import url("./cusInfo.scss");
 </style>

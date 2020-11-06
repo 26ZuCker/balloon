@@ -3,7 +3,8 @@ import { login } from '@api/user.js';
 
 const state = {
   WCUserInfo: {},
-  permission: null,
+  //参与者0研究生1
+  permission: 0,
 };
 
 const mutations = {
@@ -20,43 +21,46 @@ const mutations = {
     state.permission = null;
   },
 };
+/**
+ * 处理getOpenid响应
+ */
+const actionsGetOpenid = async ({ code, data }, commit) => {
+  if (code !== -1) {
+    const { openid } = data;
+    const { code, data } = await login({ openid });
+    if (code !== -1) {
+      const { permission } = data;
+      commit('set_permission', permission);
+      return Promise.resolve();
+    } else {
+      return Promise.reject(data);
+    }
+  }
+};
+/**
+ * 处理getWCInfo响应
+ */
+const actionsGetWCInfo = async ({ code, data }, commit) => {
+  if (code !== -1) {
+    const { userInfo } = data;
+    commit('set_WCUserInfo', userInfo);
+    return Promise.resolve(userInfo);
+  } else {
+    return Promise.reject(data2);
+  }
+};
 
 const actions = {
   /**
    * 后期捋一捋这里的逻辑
    * 登录：并发获取openid和微信用户信息，并在获取openid之后立即发送至后台判断身份
    * 先判断openid的响应因为还有一次异步请求
+   * 注意：由于微信网络请求的api已经配置了失败回调，所以不需要额外包一层try catch
    */
   async login({ commit }) {
-    try {
-      const [res1, res2] = await Promise.all([getOpenid(), getWCInfo()]);
-      const { code: code1, data: data1 } = res1;
-      if (code1 !== -1) {
-        try {
-          const { openid } = data1;
-          const { code, data } = await login({ openid });
-          if (code !== -1) {
-            const { permission } = data;
-            commit('set_permission', permission);
-            return Promise.resolve();
-          } else {
-            return Promise.reject(data);
-          }
-        } catch (error) {
-          return Promise.reject(error);
-        }
-      }
-      const { code: code2, data: data2 } = res2;
-      if (code2 !== -1) {
-        const { userInfo } = data2;
-        commit('set_WCUserInfo', userInfo);
-        return Promise.resolve(userInfo);
-      } else {
-        return Promise.reject(data2);
-      }
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    const [res1, res2] = await Promise.all([getOpenid(), getWCInfo()]);
+    actionsGetOpenid(res1, commit);
+    actionsGetWCInfo(res2, commit);
   },
 };
 
