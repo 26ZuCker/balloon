@@ -3,7 +3,6 @@ import Taro from '@tarojs/taro';
 import store from './store/index';
 
 import './app.scss';
-//import { getOpenid, getWCInfo } from './utils/WeChat';
 
 //由于taro使用拦截器需要额外安装taro-axios则直接全局挂载响应码即可
 import { cusResCode } from './apis/apiConfig.js';
@@ -15,7 +14,7 @@ const App = new Vue({
     if (process.env.TARO_ENV === 'weapp') {
       Taro.cloud.init();
     }
-    //await Promise.all([getOpenId(), getUserInfo()]);
+    //await store.dispatch('user/login');
   },
   onShow(options) {},
   render(h) {

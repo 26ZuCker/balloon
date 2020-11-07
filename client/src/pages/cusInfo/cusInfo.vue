@@ -11,50 +11,48 @@
       style="width: 100%"
       :text="titleNotice"
     ></van-notice-bar>
-    <view class="cccH ccc">
+    <view class="page-y-center">
       <van-cell-group>
         <van-field
           :value="i.value"
+          @change="onInput(key, $event)"
           required
           clearable
           :label="i.title"
           :placeholder="placeholderTitle(i.title)"
-          v-for="i in form"
+          v-for="(i, key) in form"
           :key="i.title"
         ></van-field>
       </van-cell-group>
-      <!-- 根据角色判断权限 -->
-      <van-button
-        custom-class="van-button--round van-button--large ma-3"
-        type="primary"
-        :loading="isLoading"
-        @tap="submitChange"
-        >{{ btnTitle }}</van-button
-      >
-      <!-- 研究生权限可进入信息查看页面 -->
-      <van-button
-        v-if="permission === 1"
-        custom-class="van-button--round van-button--large ma-3"
-        type="success"
-        @tap="toInfo"
-        >查看记录</van-button
-      >
+      <view class="rca mt-3">
+        <!-- 根据角色判断权限 -->
+        <van-button
+          custom-class="van-button--round van-button--large ma-3"
+          type="primary"
+          :loading="isLoading"
+          @tap="submitChange"
+          >{{ btnTitle }}</van-button
+        >
+        <!-- 研究生权限可进入信息查看页面 -->
+        <van-button
+          v-if="permission === 1"
+          custom-class="van-button--round van-button--large ma-3"
+          type="success"
+          @tap="toInfo"
+          >查看记录</van-button
+        >
+      </view>
     </view>
 
     <!-- 遮掩层显示二维码 -->
     <van-overlay :show="showOverlay" @click="showOverlay = false">
-      <view class="cccH ccc">
+      <view class="page-y-center ccc">
         <image
-          style="height: 350px; width: 350px"
+          style="height: 350px; width: 350px; margin-bottom: 50px"
           mode="aspectFit"
           :src="QRCODE_URL"
         ></image>
-        <van-icon
-          name="close"
-          class="mt-3"
-          size="40px"
-          @tap="showOverlay = false"
-        />
+        <van-icon name="close" size="40px" @tap="showOverlay = false" />
       </view>
     </van-overlay>
   </view>
@@ -70,7 +68,7 @@ import { mapState } from 'vuex'
 
 export default {
   inheritAttrs: false,
-  name: '',
+  name: 'cusInfo',
   components: {
   },
   data: () => ({
@@ -81,6 +79,44 @@ export default {
   }),
   props: {},
   methods: {
+    /**
+     * 监听表单输入，后期注意防抖
+     */
+    onInput (key, $event) {
+      this.form[key].value = $event.detail
+    },
+    /**
+    * 根据路由传参判断当前页面为配置还是个人信息填写
+    */
+    submitChange () {
+      Notify({ type: 'warning', message: '提交中' });
+      if (!this.validateForm()) {
+        Notify({ type: 'danger', message: '你尚未填写完毕' });
+        return
+      }
+      if (this.permission === 0) {
+        this.submit_userInfo()
+      } else if (this.permission === 1) {
+        this.submit_setting()
+      }
+    },
+    /**
+    * 校验表单输入值合法性：
+    * 1.是否填写完毕
+    * 2.每一块是否输入有效数值，注意即使输入number也转换为string即可
+    */
+    validateForm () {
+      if (this.form === null) {
+        return false
+      }
+      //目前只校验是否已输入
+      for (const i in this.form) {
+        if (this.form[i].value.length === 0) {
+          return false
+        }
+      }
+      return true
+    },
     /**
      * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
      */
@@ -98,6 +134,7 @@ export default {
      */
     async submit_userInfo () {
       this.isLoading = true
+      //记得清除
       const timer = setTimeout(() => {
         this.isLoading = false
         Taro.navigateTo({
@@ -106,21 +143,11 @@ export default {
       }, 1000)
     },
     /**
-     * 根据路由传参判断当前页面为配置还是个人信息填写
-     */
-    submitChange () {
-      Notify({ type: 'warning', message: '提交中' });
-      if (this.permission === 0) {
-        this.submit_userInfo()
-      } else if (this.permission === 1) {
-        this.submit_setting()
-      }
-    },
-    /**
      * 提交更改配置
      */
     async submit_setting () {
       this.isLoading = true;
+      //记得清除
       const timer = setTimeout(() => {
         this.isLoading = false
         this.showOverlay = true
@@ -132,7 +159,7 @@ export default {
      */
     toInfo () {
       Taro.navigateTo({ url: '../info/info' })
-    }
+    },
   },
   computed: {
     /**
@@ -159,7 +186,6 @@ export default {
       permission: (state) => state.user.permission
     })
   },
-  watch: {},
   /**
     * 统一进入该页面
     * 建议挂载全局变量判断cusInfo是否已提交则没必要额外再发送一次login请求

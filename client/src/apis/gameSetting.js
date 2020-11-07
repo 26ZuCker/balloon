@@ -13,12 +13,14 @@ const errorMsgApiMap = {
   BASE_API,
   errorMsgApiMap['get_game_setting_template']
 ); */
-const get_game_setting_template = () => [
-  { title: '实验类型', value: '' },
-  { title: '本轮批次', value: '' },
-  { title: '本轮组次', value: '' },
-  { title: '实验时间', value: '' },
-];
+const get_game_setting_template = () => {
+  return {
+    experiment_category: { title: '实验类型', value: '' },
+    current_count: { title: '本轮批次', value: '' },
+    current_grou: { title: '本轮组次', value: '' },
+    limit_time: { title: '实验时间', value: '' },
+  };
+};
 
 /**
  * 提交已更改的配置

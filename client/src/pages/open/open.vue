@@ -27,13 +27,9 @@
 <script>
 import Taro from '@tarojs/taro'
 
-import { login } from '@api/user.js'
-import getOpenid from '@util/WeChat/getOpenid'
-import getWCInfo from '@util/WeChat/getWCInfo'
-
 export default {
   inheritAttrs: false,
-  name: '',
+  name: 'open',
   components: {},
   data: () => ({
     allowPermission: false

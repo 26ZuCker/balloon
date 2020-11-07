@@ -49,7 +49,6 @@ const actionsGetWCInfo = async ({ code, data }, commit) => {
     return Promise.reject(data2);
   }
 };
-
 const actions = {
   /**
    * 后期捋一捋这里的逻辑

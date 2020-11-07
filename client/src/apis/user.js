@@ -14,10 +14,13 @@ const errorMsgApiMap = {
   BASE_API,
   errorMsgApiMap['get_userInfo_template']
 ); */
-const get_userInfo_template = () => [
-  { title: '姓名', value: '' },
-  { title: '学号', value: '' },
-];
+const get_userInfo_template = () => {
+  return {
+    name: { title: '姓名', value: '' },
+    stu_id: { title: '学号', value: '' },
+  };
+};
+
 /**
  * 提交用户所填信息
  */
