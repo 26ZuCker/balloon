@@ -93,7 +93,7 @@ const optionalMode = {
 }
 let mode = optionalMode['PERSON']
 //最大点击次数
-let maxCount = Number.MAX_SAFE_INTEGER
+let maxCount = 15
 /* const timerTar = {
   timer: null,
   isBombing: false
@@ -103,7 +103,7 @@ const statics_template = {
   round_income: { title: '本轮收益', value: 0 },
   total_income: { title: '总收益', value: 0 },
   previous_income: { title: '上一轮收益', value: 0 },
-  left_checkpoint: { title: '剩余关卡', value: 5 },
+  left_checkpoint: { title: '剩余关卡', value: 30 },
 }
 //可选颜色
 const colors = ['primary', 'success', 'danger', 'warning']
@@ -132,7 +132,6 @@ export default {
           Notify({ type: 'warning', message: '爆炸' });
         }
       } else {
-        this.isBombing = false
         this.accountReceive()
       }
     },
@@ -140,10 +139,16 @@ export default {
      * 收账
      */
     accountReceive () {
+      let previous_income = this.count
+      if (this.isBombing) {
+        previous_income = 0
+      }
       //需要统计数据
-      this.takeStatistics()
+      this.takeStatistics(previous_income)
       //当前清零
       this.count = 0
+      //视图改变
+      this.isBombing = false
       //this.isBombing = false
     },
     /**
@@ -156,8 +161,8 @@ export default {
     /**
      * 统计和收集每一轮所需的数据
      */
-    takeStatistics () {
-      this.statistics.previous_income.value = this.count
+    takeStatistics (previous_income = 0) {
+      this.statistics.previous_income.value = previous_income
       this.statistics.round_income.value = 0
       this.statistics.total_income.value += this.statistics.previous_income.value
       this.statistics.left_checkpoint.value -= 1
@@ -207,7 +212,6 @@ export default {
   async created () {
     this.title = '当前为你自己游戏'
     this.statistics = statics_template
-    maxCount = 3
     //this.leftCheckpoint = mode === 'TRAIN' ? 2 : 30
     /*     this.$on('beforeDestroy', () => {
           clearTimeout(timerTar.timer)
