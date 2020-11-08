@@ -1,16 +1,13 @@
-/* 
 $red: #ee0a24;
 $blue: #1989fa;
 $orange: #ff976a;
 $green: #07c160;
 $grey-light:#dededebb;
-$white:#fff
-@mixin wd($direction: column) {
+$white:#fff;
+@mixin wd($direction: column,$justify-content:center) {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  place-content: center;
-  place-items: center;
   flex-direction: $direction;
+  align-items: center;
+  justify-content: $justify-content;
 }
- */
+

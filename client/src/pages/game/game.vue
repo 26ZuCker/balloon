@@ -120,7 +120,7 @@ export default {
     isSubmitting: false,
     //需要传给dialog
     isDialog: false,
-    waitingSecond: 2000,
+    waitingSecond: 20000,
     dialogTitle: '',
     //contentMsg: '',
     confirmBtnText: '',
@@ -174,7 +174,7 @@ export default {
       this.statistics.left_checkpoint.value -= 1
       //如果进入16关则需要强制休息15s
       if (this.statistics.left_checkpoint === 15) {
-        showDialog()
+        this.showDialog(15000)
       }
       if (this.statistics.left_checkpoint.value === 0) {
         this.isDialog = true
@@ -183,7 +183,7 @@ export default {
     /**
      * 展示对话框，timeout后才能通过点击按钮触发事件
      */
-    showDialog (timeout = 2000) {
+    showDialog (timeout = 20000) {
       this.isDialog = true
       this.waitingSecond = timeout
     },
