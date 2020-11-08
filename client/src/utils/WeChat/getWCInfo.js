@@ -1,19 +1,17 @@
+import Taro from '@tarojs/taro';
 /**
  * 获取用户信息
  */
 const getWCInfo = function() {
   return new Promise((resolve, reject) => {
-    wx.getSetting({
+    Taro.getSetting({
       success: (res) => {
         if (res.authSetting['scope.userInfo']) {
           // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
-          wx.getUserInfo({
+          Taro.getUserInfo({
             success: (res) => {
-              //console.log(res);
-              this.setData({
-                avatarUrl: res.userInfo.avatarUrl,
-                userInfo: res.userInfo,
-              });
+              console.log('avatarUrl:' + res.userInfo.avatarUrl);
+              console.log('userInfo:' + res.userInfo);
               return resolve(res);
             },
             fail: (error) => {

@@ -7,7 +7,7 @@
       color="#1989fa"
       background="#ecf9ff"
       left-icon="info-o"
-      :text="title"
+      :text="titleNotice"
     ></van-notice-bar>
     <!--     <view class="ccc">{{ title }}</view>-->
     <!-- 气球主体，建议限制高度为百分比 -->
@@ -39,42 +39,42 @@
 
     <!-- 按钮组 -->
     <view class="rac">
-      <template v-if="statistics.left_checkpoint !== 0">
-        <van-button
-          custom-class="van-button--round van-button--large"
-          :type="isBombing ? 'warning' : 'primary'"
-          @tap="blow"
-          >{{ isBombing ? "下一轮" : "充气" }}</van-button
-        >
-        <van-button
-          custom-class="van-button--round van-button--large"
-          type="info"
-          @tap="accountReceive"
-          >收账</van-button
-        >
-      </template>
       <van-button
-        v-else
+        custom-class="van-button--round van-button--large"
+        :type="isBombing ? 'warning' : 'primary'"
+        @tap="blow"
+        >{{ isBombing ? "下一轮" : "充气" }}</van-button
+      >
+      <van-button
         custom-class="van-button--round van-button--large"
         type="info"
-        @tap="endGame"
-        :loading="isSubmitting"
-        >结束游戏</van-button
+        @tap="accountReceive"
+        >收账</van-button
       >
     </view>
     <!-- 弹出层显示游戏结束 -->
-    <van-dialog
-      title="游戏结束"
+    <!--     <van-dialog
+      :title="titleNotice"
       :message="statisticsMsg"
-      :show="showDialog"
+      :show="isDialog"
       theme="round-button"
-      show-cancel-button
+      :show-confirm-button="true"
+      :show-cancel-button="true"
       @close="restart"
       @confirm="endGame"
       cancel-button-text="重新开始"
       confirm-button-text="提交成绩"
     >
-    </van-dialog>
+    </van-dialog> -->
+    <!-- 该组件只需要负责展示以及反馈点击了哪个按钮即可 -->
+    <Dialog
+      @onConfirm="confirmDialog"
+      :dialogTitle="dialogTitle"
+      :isDialog="isDialog"
+      :waitingSecond="waitingSecond"
+      :contentMsg="contentMsg"
+      :confirmBtnText="confirmBtnText"
+    ></Dialog>
   </view>
 </template>
 
@@ -82,42 +82,48 @@
 import { } from '@api/game'
 import balloon from '@img/balloon.jpg'
 import bomb from '@img/bomb.jpg'
-//import Dialog from '@com/vant-weapp/dist/dialog/dialog.js';
+import Dialog from '../../components/common/Dialog.vue';
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
-import taro from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 
 //注意：与渲染无关的变量尽量不要存在data内
-//当前是练习，为自己或为小组即TRAIN，PERSON,GROUP
 const optionalMode = {
-  TRAIN: '练习模式', PERSON: '为自己收账', GROUP: '为队伍收账'
+  TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '结束练习' },
+  PERSON: { title: '为自己收账', tip: '当前为个人模式', btnMsg: '结束游戏' },
+  GROUP: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '结束游戏' }
 }
-let mode = optionalMode['PERSON']
-//最大点击次数
-let maxCount = 15
-/* const timerTar = {
-  timer: null,
-  isBombing: false
-}
- */
 const statics_template = {
   round_income: { title: '本轮收益', value: 0 },
   total_income: { title: '总收益', value: 0 },
   previous_income: { title: '上一轮收益', value: 0 },
   left_checkpoint: { title: '剩余关卡', value: 30 },
 }
-//可选颜色
 const colors = ['primary', 'success', 'danger', 'warning']
+/**
+ * 当前模式
+ */
+let mode = 'TRAIN'
+/**
+ * 最大点击次数
+ */
+let maxCount = 15
+
 export default {
   inheritAttrs: false,
   name: 'game',
-  components: {},
+  components: { Dialog: Dialog },
   data: () => ({
     //点击次数
     count: 0,
     isBombing: false,
     statistics: null,
     isSubmitting: false,
-    showDialog: false
+    //需要传给dialog
+    isDialog: false,
+    waitingSecond: 2000,
+    dialogTitle: '',
+    //contentMsg: '',
+    confirmBtnText: '',
   }),
   methods: {
     /**
@@ -166,9 +172,26 @@ export default {
       this.statistics.round_income.value = 0
       this.statistics.total_income.value += this.statistics.previous_income.value
       this.statistics.left_checkpoint.value -= 1
-      if (this.statistics.left_checkpoint.value === 0) {
-        this.showDialog = true
+      //如果进入16关则需要强制休息15s
+      if (this.statistics.left_checkpoint === 15) {
+        showDialog()
       }
+      if (this.statistics.left_checkpoint.value === 0) {
+        this.isDialog = true
+      }
+    },
+    /**
+     * 展示对话框，timeout后才能通过点击按钮触发事件
+     */
+    showDialog (timeout = 2000) {
+      this.isDialog = true
+      this.waitingSecond = timeout
+    },
+    /**
+     * 关闭对话框
+     */
+    confirmDialog () {
+      this.isDialog = false
     },
     /**
      * 重新开始当前该用户当前批次的游戏
@@ -193,29 +216,53 @@ export default {
      * 顶部标题
      */
     titleNotice () {
-      return optionalMode[mode]
+      return optionalMode[mode].title
+    },
+    /**
+     * dialog内容主体
+     */
+    contentMsg () {
+      if (mode === 'TRAIN') {
+        return optionalMode[mode].tip
+      } else {
+        return this.statisticsMsg()
+      }
     },
     /**
      * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
      */
     statisticsMsg () {
+      if (mode === 'TRAIN') {
+        return '练习模式介绍'
+      } else if (mode === 'PERSON') {
+        return '个人模式介绍'
+      }
       let res = ''
       if (this.statistics === null) { return '' }
       for (const i in this.statistics) {
         res += `${this.statistics[i].title} : ${this.statistics[i].value} \n`
       }
       return res
+    },
+  },
+  watch: {
+    mode: {
+      handler (n) {
+        //isDialog: false,
+        //waitingSecond: 20,
+        this.dialogTitle = optionalMode[mode].title
+        //this.contentMsg = optionalMode[mode].tip
+        this.confirmBtnText = optionalMode[mode].btnMsg
+      }, immediate: true
     }
   },
-  watch: {},
   //接收参数判断当前模式是练习还是正式
   async created () {
     this.title = '当前为你自己游戏'
     this.statistics = statics_template
-    //this.leftCheckpoint = mode === 'TRAIN' ? 2 : 30
-    /*     this.$on('beforeDestroy', () => {
-          clearTimeout(timerTar.timer)
-        }) */
+    //初始化先进行两轮练习
+    mode = 'TRAIN'
+    this.showDialog()
   },
   beforeDestroy () {
 

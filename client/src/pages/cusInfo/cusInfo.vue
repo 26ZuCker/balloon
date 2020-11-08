@@ -202,5 +202,41 @@ export default {
 </script>
 
 <style lang='scss' >
-@import url("./cusInfo.scss");
+.van-button--round {
+  border-radius: 999px !important;
+}
+.van-button--large {
+  width: 130px !important;
+  height: 50px !important;
+}
+@mixin md($direction: row, $justify-content: center) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: center;
+  justify-content: $justify-content;
+}
+.rcc {
+  @include md(column, center);
+}
+.ccc {
+  @include md(column, center);
+}
+.rca {
+  @include md(row, space-around);
+}
+page {
+  height: 100%;
+}
+
+.page-y-center {
+  position: relative;
+  top: 30%;
+  transform: translateY(-30%);
+}
+.mt-3 {
+  margin-top: 30px;
+}
+.mt-5 {
+  margin-top: 50px;
+}
 </style>

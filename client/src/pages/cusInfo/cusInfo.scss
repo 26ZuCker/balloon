@@ -5,23 +5,20 @@
   width: 130px !important;
   height: 50px !important;
 }
-.rcc {
+@mixin md($direction:row,$justify-content:center) {
   display: flex;
-  flex-direction: row;
+  flex-direction: $direction;
   align-items: center;
-  justify-content: center;
+  justify-content: $justify-content;
+}
+.rcc {
+  @include md(column,center)
 }
 .ccc{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  @include md(column,center)
 }
 .rca{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
+  @include md(row,space-around)
 }
 page {
   height: 100%;
