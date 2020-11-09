@@ -209,6 +209,12 @@ export default {
   width: 130px !important;
   height: 50px !important;
 }
+@mixin md($direction, $justify-content) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify-content;
+  align-items: center;
+}
 .rcc {
   @include md(column, center);
 }
