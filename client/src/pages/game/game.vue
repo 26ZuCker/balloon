@@ -59,6 +59,7 @@
       :waitingSecond="waitingSecond"
       :contentMsg="contentMsg"
       :confirmBtnText="confirmBtnText"
+      :current_mode="current_mode"
     ></Dialog>
   </view>
 </template>
@@ -76,9 +77,10 @@ import Notify from '@com/vant-weapp/dist/notify/notify.js';
 
 //注意：与渲染无关的变量尽量不要存在data内
 const optionalMode = {
-  TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '结束练习' },
-  PERSON: { title: '为自己收账', tip: '当前为个人模式', btnMsg: '结束游戏' },
-  GROUP: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '结束游戏' }
+  TRAIN: { title: '练习模式', tip: '当前为练习模式\n当前为练习模式\n当前为练习模式\n当前为练习模式\n当前为练习模式\n当前为练习模式\n', btnMsg: '确认' },
+  PERSON: { title: '为自己收账', tip: '当前为个人模式\n当前为个人模式\n当前为个人模式\n当前为个人模式\n当前为个人模式\n当前为个人模式\n', btnMsg: '确认' },
+  GROUP: { title: '为队伍收账', tip: '当前为队伍模式\n', btnMsg: '确认' },
+  OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
 }
 /**
  * 统计信息模板
@@ -89,11 +91,10 @@ const statics_template = {
   previous_income: { title: '上一轮收益', value: 0 },
   left_checkpoint: { title: '剩余关卡', value: 30 },
 }
-const colors = ['primary', 'success', 'danger', 'warning']
 /**
  * 当前模式
  */
-let mode = 'TRAIN'
+let mode = ''
 /**
  * 最大点击次数
  */
@@ -106,14 +107,16 @@ export default {
   data: () => ({
     //点击次数
     count: 0,
+    //与视图变化有关的数据
     isBombing: false,
-    statistics: null,
     isSubmitting: false,
-    //需要传给dialog
     isDialog: false,
     waitingSecond: 20000,
+    //需要传给子组件的props
     contentMsg: '',
     confirmBtnText: '',
+    //所需收集的数据
+    statistics: null,
   }),
   methods: {
     /**
@@ -166,77 +169,108 @@ export default {
      * 改变模式，只能单向不可逆：TRAIN -> PERSON -> GROUP
      * 需要更改模式只有三种情况：初始化，每一轮游戏结束后
      */
-    changeMode (isTrain = false) {
+    changeMode () {
       //练习模式之前
-      if (isTrain) {
+      if (mode === '') {
         mode = 'TRAIN'
         statics_template.left_checkpoint.value = 2
-        this.confirmBtnText = optionalMode[mode].btnMsg
-        //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
-        this.contentMsg = optionalMode[mode].tip
+        this.changeProps()
       }
-      //练习模式之后，正式模式之前
-      else if (mode === 'TRAIN' && !isTrain) {
+      //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
+      else if (mode === 'TRAIN') {
         mode = 'PERSON'
         statics_template.left_checkpoint.value = 30
-        this.confirmBtnText = optionalMode[mode].btnMsg
-        this.contentMsg = this.statisticsMsg()
         this.restart()
+        const that = this
+        //以下逻辑有待斟酌
+        const timer = setTimeout(() => {
+          that.changeProps()
+        }, 3000)
+        this.$on('beforeDestroy', () => {
+          clearTimeout(timer)
+        })
       }
-      //正式模式之后
-      else if (mode === 'PERSON') {
-        mode = 'GROUP'
-        this.confirmBtnText = optionalMode[mode].btnMsg
-        this.contentMsg = this.statisticsMsg()
-        this.restart()
+      //正式模式30关结束后，包括团队此时需要回调
+      else if (mode === 'PERSON' || mode === 'GROUP') {
+        console.log('else if')
+        mode = 'OVER'
+        this.showDialog()
+        //this.restart()
       }
-      //直接结束游戏
-      else if (mode === 'GROUP') {
-        return
+      //所有模式结束，直接离开
+      else if (mode === 'OVER') {
+        this.showDialog()
+        console.log('else')
+        //Taro.navigateTo({ url: '../open/open' })
       }
-
     },
     /**
-     * 统计和收集每一轮所需的数据
+     * 改变传给dialog的props
+     */
+    changeProps (contentMsg = '', confirmBtnText = '') {
+      if (contentMsg !== '') {
+        this.contentMsg = contentMsg
+      } else {
+        this.confirmBtnText = optionalMode[mode].btnMsg
+      }
+      if (confirmBtnText !== '') {
+        this.confirmBtnText = confirmBtnText
+      }
+      //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
+      else {
+        this.contentMsg = mode === 'TRAIN' ? optionalMode[mode].tip : this.statisticsMsg()
+      }
+    },
+    /**
+     * 派发收账按钮的回调，统计和收集每一轮所需的数据
      */
     takeStatistics (previous_income = 0) {
       this.statistics.previous_income.value = previous_income
       this.statistics.round_income.value = 0
       this.statistics.total_income.value += this.statistics.previous_income.value
       this.statistics.left_checkpoint.value -= 1
-      //如果当前为练习模式则展示
-      if (mode === 'TRAIN' && this.statistics.left_checkpoint === 0) {
+      //如果当前为练习模式则展示即初始化
+      if (mode === 'TRAIN' && this.statistics.left_checkpoint.value === 0) {
         this.changeMode()
         this.showDialog()
         return
       }
       //如果进入16关则需要强制休息15s
-      if (this.statistics.left_checkpoint === 15) {
-        this.showDialog(15000)
+      if (this.statistics.left_checkpoint.value === 15) {
+        this.showDialog(15000, '休息一下', '继续游戏')
       }
-      //游戏全部结束
+      //正式模式及团队模式30关全部结束
       if (this.statistics.left_checkpoint.value === 0) {
-        this.changeMode()
-        this.showDialog()
+        //this.changeMode()
+        //此处不需要等待，但需要展示按钮进行提交选项
+        this.showDialog(0)
       }
     },
     /**
      * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
      */
-    showDialog (timeout = 20000) {
+    showDialog (timeout = 20000, contentMsg = '', confirmBtnText = '') {
       this.isDialog = true
       this.waitingSecond = timeout
+      this.changeProps(contentMsg, confirmBtnText)
     },
     /**
-     * 对话框接收
+     * 监听对话框传的点击确认按钮事件
+     * 回调包括：可能改变模式，改变传入的文案
      */
     confirmDialog () {
-      //练习模式点击只关闭dialog
-      this.isDialog = false
-      //练习模式点击还需要改变模式
-      if (mode !== 'TRAIN') {
+      /**
+       * 以下情况派发按钮的回调不需要改变当前模式
+       * 1.练习模式之前，此时在生命周期内进行初始化的changeMode即可
+       * 2.15关之后的等待
+       * 3.练习模式之后先改变，但是点击时不能进行改变
+       * 如果在正式模式后进行点击，需要进行loading处理
+       */
+      if (mode !== 'TRAIN' && this.statistics.left_checkpoint.value !== 15) {
         this.changeMode()
       }
+      //练习模式点击只关闭dialog
+      this.isDialog = false
     },
     /**
      * 重新开始当前该用户当前批次的游戏，清空整个统计数据，不改变模式
@@ -246,20 +280,22 @@ export default {
       this.statistics = statics_template
     },
     /**
- * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
- */
+     * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
+     */
     statisticsMsg () {
       if (mode === 'TRAIN') {
         return '练习模式介绍'
       } else if (mode === 'PERSON') {
         return '个人模式介绍'
       }
-      let res = ''
-      if (this.statistics === null) { return '' }
-      for (const i in this.statistics) {
-        res += `${this.statistics[i].title} : ${this.statistics[i].value} \n`
-      }
-      return res
+      return this.statistics
+      /*       let res = ''
+            if (this.statistics === null) { return '' }
+            for (const i in this.statistics) {
+              res += `${this.statistics[i].title} : ${this.statistics[i].value}`
+              res += '\r\n'
+            }
+            return res */
     },
   },
   computed: {
@@ -277,26 +313,19 @@ export default {
      * 顶部标题
      */
     titleNotice () {
-      return optionalMode[mode].title
+      return mode === '' ? '' : optionalMode[mode].title
     },
-  },
-  watch: {
-    /*     mode: {
-          handler (n) {
-            //isDialog: false,
-            //waitingSecond: 20,
-            this.dialogTitle = optionalMode[mode].title
-            //this.contentMsg = optionalMode[mode].tip
-            this.confirmBtnText = optionalMode[mode].btnMsg
-          }, immediate: true
-        } */
-    isDialog (n) {
-      console.log(n)
+    /**
+     * 用于传递prop
+     */
+    current_mode () {
+      console.log(mode)
+      return mode
     }
   },
   async created () {
     this.statistics = statics_template
-    this.changeMode(true)
+    this.changeMode()
     //初始化先进行两轮练习
     this.showDialog()
   },

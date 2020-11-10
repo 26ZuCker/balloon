@@ -138,7 +138,7 @@ export default {
       const timer = setTimeout(() => {
         this.isLoading = false
         Taro.navigateTo({
-          url: '../open/open',
+          url: '../game/game',
         })
       }, 1000)
     },

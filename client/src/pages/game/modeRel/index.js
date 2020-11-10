@@ -228,9 +228,6 @@ export default {
             this.confirmBtnText = optionalMode[mode].btnMsg
           }, immediate: true
         } */
-    isDialog(n) {
-      console.log(n);
-    },
   },
   async created() {
     this.statistics = statics_template;

@@ -1,25 +1,16 @@
 <template>
-  <!--   <van-dialog
-    theme="round-button"
-    :title="dialogTitle"
-    :message="contentMsg"
-    :show="isDialog"
-    :confirmButtonText="confirmBtnText"
-    show-cancel-button
-    @confirm="onConfirm"
-    @cancel="onClose"
-    :asyncClose="isSubmitting"
-  >
-  </van-dialog>
- -->
   <van-overlay :show="isDialog">
     <view
       class="page-y-center page-x-center ccc bg-white text-black van-button--round"
       style="width: 60%; padding: 20px"
     >
-      <view class="">
-        {{ contentMsg }}
-      </view>
+      <view v-if="isString">{{ contentMsg }}</view>
+      <template v-else>
+        <view v-for="i in contentMsg" :key="i.title">
+          {{ i.title }} : {{ i.value }}
+        </view>
+      </template>
+
       <van-button
         :type="btnColor"
         custom-class="van-button--round van-button--large"
@@ -43,8 +34,10 @@ export default {
      */
     waitingSecond: { type: Number, default: 0 },
     //以下为展示的具体内容
-    contentMsg: { type: String, default: '' },
+    contentMsg: [Object, String],
     confirmBtnText: { type: String, default: '' },
+    //当前模式，用于判断是否为正式模式的所有关卡结束
+    current_mode: { type: String, required: true },
 
   },
   data: () => ({
@@ -52,12 +45,14 @@ export default {
     currentSecond: 20000
   }),
   computed: {
-    /*     isShow () {
-          console.log(this.currentSecond === 0)
-          return this.currentSecond === 0 ? '' : '#ee0a24'
-        } */
     btnColor () {
+      if (this.current_mode === 'PERSON') {
+        return 'danger'
+      }
       return this.currentSecond === 0 ? 'primary' : 'info'
+    },
+    isString () {
+      return typeof this.contentMsg === 'string'
     }
   },
   methods: {
