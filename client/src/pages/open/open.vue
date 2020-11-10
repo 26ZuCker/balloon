@@ -3,12 +3,13 @@
     <!-- 头像和名字 -->
     <!--     <image :style="imgStyle" mode="aspectFit" :src=""></image>
  -->
-    <van-button type="primary" custom-class="van-button--round" @tap="toGame"
+    <view>游戏结束，请等待下一轮游戏</view>
+    <van-button type="warning" custom-class="van-button--round" @tap="toGame"
       >进入游戏</van-button
     >
-    <van-button type="info" custom-class="van-button--round" @tap="toGame(0)"
+    <!--     <van-button type="info" custom-class="van-button--round" @tap="toGame(0)"
       >练习一下</van-button
-    >
+    > -->
     <!-- 配置以及导出数据 -->
     <!--     <van-icon
       name="setting"
@@ -36,14 +37,15 @@ export default {
   }),
   props: {},
   methods: {
-    toGame (mode = 1) {
-      const modeType = ['TEST', 'FORMAL']
-      Taro.navigateTo({
-        url: '../game/game'
-      })
-      /*       Taro.navigateTo({
-              url: `../game/game?mode=${modeType[mode]}`,
-            }) */
+    /**
+     * 发送请求判断是否能进行下一轮游戏
+     */
+    toGame () {
+      if (!1) {
+        Taro.navigateTo({
+          url: '../game/game'
+        })
+      }
     },
     toInfo () {
       Taro.navigateTo({

@@ -59,7 +59,6 @@
       :waitingSecond="waitingSecond"
       :contentMsg="contentMsg"
       :confirmBtnText="confirmBtnText"
-      :current_mode="current_mode"
     ></Dialog>
   </view>
 </template>
@@ -77,9 +76,9 @@ import Notify from '@com/vant-weapp/dist/notify/notify.js';
 
 //注意：与渲染无关的变量尽量不要存在data内
 const optionalMode = {
-  TRAIN: { title: '练习模式', tip: '当前为练习模式\n当前为练习模式\n当前为练习模式\n当前为练习模式\n当前为练习模式\n当前为练习模式\n', btnMsg: '确认' },
-  PERSON: { title: '为自己收账', tip: '当前为个人模式\n当前为个人模式\n当前为个人模式\n当前为个人模式\n当前为个人模式\n当前为个人模式\n', btnMsg: '确认' },
-  GROUP: { title: '为队伍收账', tip: '当前为队伍模式\n', btnMsg: '确认' },
+  TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '确认' },
+  PERSON: { title: '为自己收账', tip: '当前为个人模式', btnMsg: '确认' },
+  GROUP: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
   OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
 }
 /**
@@ -172,36 +171,31 @@ export default {
     changeMode () {
       //练习模式之前
       if (mode === '') {
+        console.log('1')
         mode = 'TRAIN'
         statics_template.left_checkpoint.value = 2
         this.changeProps()
       }
       //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
       else if (mode === 'TRAIN') {
+        console.log('2')
         mode = 'PERSON'
         statics_template.left_checkpoint.value = 30
         this.restart()
-        const that = this
-        //以下逻辑有待斟酌
-        const timer = setTimeout(() => {
-          that.changeProps()
-        }, 3000)
-        this.$on('beforeDestroy', () => {
-          clearTimeout(timer)
-        })
       }
       //正式模式30关结束后，包括团队此时需要回调
       else if (mode === 'PERSON' || mode === 'GROUP') {
-        console.log('else if')
+        console.log('3')
+        //下一次点击为over
         mode = 'OVER'
-        this.showDialog()
+        //this.showDialog()
+        this.changeProps()
         //this.restart()
       }
       //所有模式结束，直接离开
       else if (mode === 'OVER') {
-        this.showDialog()
-        console.log('else')
-        //Taro.navigateTo({ url: '../open/open' })
+        console.log('4')
+        Taro.navigateTo({ url: '../open/open' })
       }
     },
     /**
@@ -218,7 +212,7 @@ export default {
       }
       //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
       else {
-        this.contentMsg = mode === 'TRAIN' ? optionalMode[mode].tip : this.statisticsMsg()
+        this.contentMsg = this.statisticsMsg()
       }
     },
     /**
@@ -237,7 +231,7 @@ export default {
       }
       //如果进入16关则需要强制休息15s
       if (this.statistics.left_checkpoint.value === 15) {
-        this.showDialog(15000, '休息一下', '继续游戏')
+        this.showDialog(15000, ['休息一下'], '继续游戏')
       }
       //正式模式及团队模式30关全部结束
       if (this.statistics.left_checkpoint.value === 0) {
@@ -249,7 +243,7 @@ export default {
     /**
      * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
      */
-    showDialog (timeout = 20000, contentMsg = '', confirmBtnText = '') {
+    showDialog (timeout = 20000, contentMsg = [''], confirmBtnText = '') {
       this.isDialog = true
       this.waitingSecond = timeout
       this.changeProps(contentMsg, confirmBtnText)
@@ -267,7 +261,20 @@ export default {
        * 如果在正式模式后进行点击，需要进行loading处理
        */
       if (mode !== 'TRAIN' && this.statistics.left_checkpoint.value !== 15) {
-        this.changeMode()
+        //正式游戏之前再点击确认一遍，此时只需要关闭即可
+        if (mode === 'PERSON') {
+          const that = this
+          //以下逻辑有待斟酌
+          const timer = setTimeout(() => {
+            that.changeMode()
+          }, 1500)
+          this.$on('beforeDestroy', () => {
+            clearTimeout(timer)
+          })
+        }
+        else if (mode === 'OVER') {
+          this.changeMode()
+        }
       }
       //练习模式点击只关闭dialog
       this.isDialog = false
@@ -284,9 +291,38 @@ export default {
      */
     statisticsMsg () {
       if (mode === 'TRAIN') {
-        return '练习模式介绍'
+        return [
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+          '练习模式介绍',
+        ]
       } else if (mode === 'PERSON') {
-        return '个人模式介绍'
+        return [
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+          '个人模式介绍',
+        ]
       }
       return this.statistics
       /*       let res = ''
@@ -314,13 +350,6 @@ export default {
      */
     titleNotice () {
       return mode === '' ? '' : optionalMode[mode].title
-    },
-    /**
-     * 用于传递prop
-     */
-    current_mode () {
-      console.log(mode)
-      return mode
     }
   },
   async created () {

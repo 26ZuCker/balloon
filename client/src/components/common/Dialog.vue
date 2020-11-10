@@ -1,15 +1,12 @@
 <template>
   <van-overlay :show="isDialog">
     <view
-      class="page-y-center page-x-center ccc bg-white text-black van-button--round"
+      class="page-y-center page-x-center ccc bg-white text-black border"
       style="width: 60%; padding: 20px"
     >
-      <view v-if="isString">{{ contentMsg }}</view>
-      <template v-else>
-        <view v-for="i in contentMsg" :key="i.title">
-          {{ i.title }} : {{ i.value }}
-        </view>
-      </template>
+      <view v-for="i in contentMsg" :key="i.title">
+        {{ content(i) }}
+      </view>
 
       <van-button
         :type="btnColor"
@@ -34,11 +31,10 @@ export default {
      */
     waitingSecond: { type: Number, default: 0 },
     //以下为展示的具体内容
-    contentMsg: [Object, String],
+    contentMsg: [Object, Array],
     confirmBtnText: { type: String, default: '' },
     //当前模式，用于判断是否为正式模式的所有关卡结束
     current_mode: { type: String, required: true },
-
   },
   data: () => ({
     //dialog内部属性，默认20s
@@ -51,8 +47,13 @@ export default {
       }
       return this.currentSecond === 0 ? 'primary' : 'info'
     },
-    isString () {
-      return typeof this.contentMsg === 'string'
+    /**
+     * 主体内容，可能传入字符串数组或对象
+     */
+    content () {
+      return function (i) {
+        return typeof i === 'string' ? i : `${i.title} : ${i.value}`
+      }
     }
   },
   methods: {
@@ -109,6 +110,9 @@ export default {
 }
 </script>
 <style lang="scss">
+.border {
+  border-radius: 5%;
+}
 .van-button--round {
   border-radius: 999px !important;
 }
@@ -118,8 +122,8 @@ export default {
 }
 .page-y-center {
   position: relative;
-  top: 30%;
-  transform: translateY(-30%);
+  top: 20%;
+  transform: translateY(50%);
 }
 @mixin md($direction, $justify-content) {
   display: flex;
