@@ -59,6 +59,7 @@
       :waitingSecond="waitingSecond"
       :contentMsg="contentMsg"
       :confirmBtnText="confirmBtnText"
+      :showBtn="showBtn"
     ></Dialog>
   </view>
 </template>
@@ -116,6 +117,7 @@ export default {
     confirmBtnText: '',
     //所需收集的数据
     statistics: null,
+    showBtn: true
   }),
   methods: {
     /**
@@ -153,19 +155,7 @@ export default {
       this.isBombing = false
     },
     /**
-     * 响应dialog的结束游戏按钮
-     */
-    async endGame () {
-      if (mode === 'TRAIN') {
-        this.changeMode()
-      } else {
-        this.changeMode()
-        this.isSubmitting = true
-        Taro.navigateTo({ url: '../open/open' })
-      }
-    },
-    /**
-     * 改变模式，只能单向不可逆：TRAIN -> PERSON -> GROUP
+     * 改变模式，只能单向不可逆：TRAIN -> PERSON -> OVER -> GROUP
      * 需要更改模式只有三种情况：初始化，每一轮游戏结束后
      */
     changeMode () {
@@ -188,31 +178,23 @@ export default {
         console.log('3')
         //下一次点击为over
         mode = 'OVER'
-        //this.showDialog()
-        this.changeProps()
-        //this.restart()
       }
       //所有模式结束，直接离开
       else if (mode === 'OVER') {
         console.log('4')
-        Taro.navigateTo({ url: '../open/open' })
+        this.changeProps('', '', false)
+        this.showDialog(0)
       }
     },
     /**
      * 改变传给dialog的props
      */
-    changeProps (contentMsg = '', confirmBtnText = '') {
-      if (contentMsg !== '') {
-        this.contentMsg = contentMsg
-      } else {
-        this.confirmBtnText = optionalMode[mode].btnMsg
-      }
-      if (confirmBtnText !== '') {
-        this.confirmBtnText = confirmBtnText
-      }
+    changeProps (contentMsg = [''], confirmBtnText = '', showBtn = !0) {
       //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
-      else {
-        this.contentMsg = this.statisticsMsg()
+      this.contentMsg = contentMsg[0] === '' ? this.statisticsMsg() : contentMsg
+      this.confirmBtnText = confirmBtnText === '' ? optionalMode[mode].btnMsg : confirmBtnText
+      if (!showBtn) {
+        this.showBtn = showBtn
       }
     },
     /**
@@ -237,16 +219,16 @@ export default {
       if (this.statistics.left_checkpoint.value === 0) {
         //this.changeMode()
         //此处不需要等待，但需要展示按钮进行提交选项
-        this.showDialog(0)
+        this.showDialog(0, [''], '', false)
       }
     },
     /**
      * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
      */
-    showDialog (timeout = 20000, contentMsg = [''], confirmBtnText = '') {
+    showDialog (timeout = 20000, contentMsg = [''], confirmBtnText = '', showBtn = !0) {
       this.isDialog = true
       this.waitingSecond = timeout
-      this.changeProps(contentMsg, confirmBtnText)
+      this.changeProps(contentMsg, confirmBtnText, showBtn)
     },
     /**
      * 监听对话框传的点击确认按钮事件
@@ -254,7 +236,7 @@ export default {
      */
     confirmDialog () {
       /**
-       * 以下情况派发按钮的回调不需要改变当前模式
+       * 以下情况派发按钮的回调不需要改变当前模式，有两次点击时不能更改模式的
        * 1.练习模式之前，此时在生命周期内进行初始化的changeMode即可
        * 2.15关之后的等待
        * 3.练习模式之后先改变，但是点击时不能进行改变
@@ -262,19 +244,7 @@ export default {
        */
       if (mode !== 'TRAIN' && this.statistics.left_checkpoint.value !== 15) {
         //正式游戏之前再点击确认一遍，此时只需要关闭即可
-        if (mode === 'PERSON') {
-          const that = this
-          //以下逻辑有待斟酌
-          const timer = setTimeout(() => {
-            that.changeMode()
-          }, 1500)
-          this.$on('beforeDestroy', () => {
-            clearTimeout(timer)
-          })
-        }
-        else if (mode === 'OVER') {
-          this.changeMode()
-        }
+        this.changeMode()
       }
       //练习模式点击只关闭dialog
       this.isDialog = false

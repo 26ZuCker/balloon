@@ -9,6 +9,7 @@
       </view>
 
       <van-button
+        v-if="showBtn"
         :type="btnColor"
         custom-class="van-button--round van-button--large"
         :loading="currentSecond !== 0"
@@ -19,6 +20,7 @@
   </van-overlay>
 </template>
 <script>
+import { connectSocket } from '@tarojs/taro'
 
 export default {
   inheritAttrs: false,
@@ -26,6 +28,7 @@ export default {
   props: {
     isDialog: { type: Boolean, default: false },
     isSubmitting: { type: Boolean, default: false },
+    showBtn: { type: Boolean, default: true },
     /**
      * 等待20或15s才能点击按钮
      */
@@ -34,7 +37,7 @@ export default {
     contentMsg: [Object, Array],
     confirmBtnText: { type: String, default: '' },
     //当前模式，用于判断是否为正式模式的所有关卡结束
-    current_mode: { type: String, required: true },
+    current_mode: { type: String },
   },
   data: () => ({
     //dialog内部属性，默认20s
@@ -58,23 +61,11 @@ export default {
   },
   methods: {
     /**
-     * 响应关闭
-     */
-    /*     onClose () {
-          if (this.currentSecond === 0) {
-            this.$emit('onClose')
-          } else {
-            console.log('no confirm')
-          }
-        }, */
-    /**
      * 响应确认
      */
     onConfirm () {
       if (this.currentSecond === 0) {
         this.$emit('onConfirm')
-      } else {
-        console.log('no confirm')
       }
     },
     /**
@@ -102,6 +93,9 @@ export default {
     },
     isDialog (n) {
       this.showSelf()
+    },
+    showBtn (n) {
+      console.log(n)
     }
   },
   created () {
