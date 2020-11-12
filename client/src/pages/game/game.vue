@@ -66,8 +66,7 @@
 
 <script>
 import Taro from '@tarojs/taro';
-//api
-import { } from '@api/game'
+import { mapState, mapGetters } from 'vuex'
 //图片
 import balloon from '@img/balloon.jpg'
 import bomb from '@img/bomb.jpg'
@@ -76,10 +75,16 @@ import Dialog from '@com/common/Dialog.vue';
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 
 //注意：与渲染无关的变量尽量不要存在data内
+/**
+ * 并非所有都需要渲染，后续需要重整结构
+ * title顶部标题语
+ * tip弹出框提示语
+ */
 const optionalMode = {
   TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '确认' },
-  PERSON: { title: '为自己收账', tip: '当前为个人模式', btnMsg: '确认' },
-  GROUP: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
+  ROUND1: { title: '', tip: '', btnMsg: '确认' },
+  ROUND2: { title: '', tip: '', btnMsg: '确认' },
+  ROUND3: { title: '', tip: '', btnMsg: '确认' },
   OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
 }
 /**
@@ -108,16 +113,16 @@ export default {
     //点击次数
     count: 0,
     //与视图变化有关的数据
-    isBombing: false,
-    isSubmitting: false,
-    isDialog: false,
-    waitingSecond: 20000,
+    isBombing: !1,
+    isSubmitting: !1,
+    isDialog: !1,
+    waitingSecond: 2000,
     //需要传给子组件的props
     contentMsg: '',
     confirmBtnText: '',
     //所需收集的数据
     statistics: null,
-    showBtn: true
+    showBtn: !0
   }),
   methods: {
     /**
@@ -130,7 +135,7 @@ export default {
         this.statistics.round_income.value = this.count
         //这次点击达到爆炸点
         if (this.count === maxCount) {
-          this.isBombing = true
+          this.isBombing = !0
           Notify({ type: 'warning', message: '爆炸' });
         }
       }
@@ -155,8 +160,7 @@ export default {
       this.isBombing = false
     },
     /**
-     * 改变模式，只能单向不可逆：TRAIN -> PERSON -> OVER -> GROUP
-     * 需要更改模式只有三种情况：初始化，每一轮游戏结束后
+     * 改变模式，只能单向不可逆
      */
     changeMode () {
       //练习模式之前
@@ -169,19 +173,43 @@ export default {
       //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
       else if (mode === 'TRAIN') {
         console.log('2')
-        mode = 'PERSON'
+        mode = 'ROUND1'
         statics_template.left_checkpoint.value = 30
         this.restart()
+        this.changeProps()
       }
       //正式模式30关结束后，包括团队此时需要回调
-      else if (mode === 'PERSON' || mode === 'GROUP') {
+      else if (mode === 'ROUND1') {
         console.log('3')
-        //下一次点击为over
+        if (this.maxRound === 1) {
+          mode = 'OVER'
+        } else {
+          console.log('ROUND2')
+          mode = 'ROUND2'
+          this.restart()
+          this.changeProps()
+        }
+      }
+      else if (mode === 'ROUND2') {
+        console.log('4')
+        if (this.maxRound === 2) {
+          mode = 'OVER'
+        } else {
+          console.log('ROUND3')
+          mode = 'ROUND3'
+          this.restart()
+          this.changeProps()
+        }
+      }
+      else if (mode === 'ROUND3') {
+        console.log('5')
         mode = 'OVER'
+        this.restart()
+        this.changeProps()
       }
       //所有模式结束，直接离开
       else if (mode === 'OVER') {
-        console.log('4')
+        console.log('6')
         this.changeProps('', '', false)
         this.showDialog(0)
       }
@@ -213,20 +241,22 @@ export default {
       }
       //如果进入16关则需要强制休息15s
       if (this.statistics.left_checkpoint.value === 15) {
-        this.showDialog(15000, ['休息一下'], '继续游戏')
+        this.showDialog(1500, ['休息一下'], '继续游戏')
       }
       //正式模式及团队模式30关全部结束
       if (this.statistics.left_checkpoint.value === 0) {
-        //this.changeMode()
-        //此处不需要等待，但需要展示按钮进行提交选项
-        this.showDialog(0, [''], '', false)
+        this.changeMode()
+        if (mode === 'OVER') {
+          //此处不需要等待，但需要展示按钮进行提交选项
+          this.showDialog(0, [''], '', false)
+        }
       }
     },
     /**
      * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
      */
-    showDialog (timeout = 20000, contentMsg = [''], confirmBtnText = '', showBtn = !0) {
-      this.isDialog = true
+    showDialog (timeout = 2000, contentMsg = [''], confirmBtnText = '', showBtn = !0) {
+      this.isDialog = !0
       this.waitingSecond = timeout
       this.changeProps(contentMsg, confirmBtnText, showBtn)
     },
@@ -242,57 +272,29 @@ export default {
        * 3.练习模式之后先改变，但是点击时不能进行改变
        * 如果在正式模式后进行点击，需要进行loading处理
        */
-      if (mode !== 'TRAIN' && this.statistics.left_checkpoint.value !== 15) {
-        //正式游戏之前再点击确认一遍，此时只需要关闭即可
-        this.changeMode()
-      }
+      /*       if (mode !== 'TRAIN' && this.statistics.left_checkpoint.value !== 15) {
+              //正式游戏之前再点击确认一遍，此时只需要关闭即可
+              this.changeMode()
+            } */
       //练习模式点击只关闭dialog
       this.isDialog = false
     },
     /**
-     * 重新开始当前该用户当前批次的游戏，清空整个统计数据，不改变模式
+     * 重新开始当前该用户当前批次的游戏，不必清空整个统计数据而只重置剩余关卡，不改变模式
      */
     restart () {
       this.count = 0
-      this.statistics = statics_template
+      //this.statistics = statics_template
+      this.statistics.left_checkpoint.value = 30
     },
     /**
      * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
      */
     statisticsMsg () {
       if (mode === 'TRAIN') {
-        return [
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-          '练习模式介绍',
-        ]
-      } else if (mode === 'PERSON') {
-        return [
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-          '个人模式介绍',
-        ]
+        return [`${this.train_dialog}`]
+      } else if (mode === 'ROUND1') {
+        return [`${this.game_dialog}`]
       }
       return this.statistics
       /*       let res = ''
@@ -303,6 +305,13 @@ export default {
             }
             return res */
     },
+    iniOptionalMode () {
+      optionalMode.TRAIN.tip = this.train_dialog
+      optionalMode.ROUND1.tip = this.game_dialog
+      optionalMode.ROUND1.title = this.round1_notice
+      optionalMode.ROUND2.title = this.round2_notice
+      optionalMode.ROUND3.title = this.round3_notice
+    }
   },
   computed: {
     balloon () { return balloon },
@@ -320,13 +329,25 @@ export default {
      */
     titleNotice () {
       return mode === '' ? '' : optionalMode[mode].title
-    }
+    },
+    ...mapState({
+      train_dialog: (state) => state.game.train_dialog,
+      game_dialog: (state) => state.game.game_dialog,
+      round1_notice: (state) => state.game.round1_notice,
+      round2_notice: (state) => state.game.round2_notice,
+      round3_notice: (state) => state.game.round3_notice,
+    }),
+    ...mapGetters({
+      maxRound: 'game/maxRound'
+    })
   },
   async created () {
     this.statistics = statics_template
     this.changeMode()
     //初始化先进行两轮练习
     this.showDialog()
+    //初始化optionmode
+    this.iniOptionalMode()
   },
   beforeDestroy () {
 

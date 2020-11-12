@@ -44,7 +44,7 @@ export default {
     isSubmitting: false,
     //需要传给dialog
     isDialog: false,
-    waitingSecond: 20000,
+    waitingSecond: 2000,
     contentMsg: '',
     confirmBtnText: '',
   }),
@@ -155,7 +155,7 @@ export default {
     /**
      * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
      */
-    showDialog(timeout = 20000) {
+    showDialog(timeout = 2000) {
       this.isDialog = true;
       this.waitingSecond = timeout;
     },

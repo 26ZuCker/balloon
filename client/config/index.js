@@ -35,14 +35,14 @@ const config = {
     },
     postcss: {
       pxtransform: {
-        enable: true,
+        enable: !0,
         config: {
           //由于taro默认小程序使用单位转换为rpx而vant使用px所以需要禁止转换
           selectorBlackList: [/^.van-.*?$/],
         },
       },
       url: {
-        enable: true,
+        enable: !0,
         config: {
           limit: 1024, // 设定转换尺寸上限
         },

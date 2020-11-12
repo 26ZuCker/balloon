@@ -22,7 +22,13 @@
           :placeholder="placeholderTitle(i.title)"
           v-for="(i, key) in form"
           :key="i.title"
-        ></van-field>
+          use-button-slot
+          :disabled="!openField[i.id || 0]"
+        >
+          <slot-view name="button" v-if="isDialog(i.title)">
+            <van-switch :checked="openField[i.id]" active-color="#07c160" />
+          </slot-view>
+        </van-field>
       </van-cell-group>
       <view class="rca mt-3">
         <!-- 根据角色判断权限 -->
@@ -60,11 +66,15 @@
 
 <script>
 import Taro from '@tarojs/taro'
+//预加载配置
+import { get_game_setting } from '@api/game'
+//参与者
 import { get_userInfo_template, submit_userInfo } from '@api/user.js'
+//管理者
 import { get_game_setting_template, submit_game_setting } from '@api/gameSetting.js'
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import myQRCODE from '@img/myQRCODE.jpg'
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   inheritAttrs: false,
@@ -75,10 +85,18 @@ export default {
     form: null,
     isLoading: false,
     showOverlay: false,
-    QRCODE_URL: ''
+    QRCODE_URL: '',
+    openField: [!0, !0, !1, !1]
   }),
   props: {},
   methods: {
+    /**
+     * 点击可开启
+     */
+    openFieldFn (id) {
+      this.openField[id] = !this.openField[id]
+      console.log(this.openField)
+    },
     /**
      * 监听表单输入，后期注意防抖
      */
@@ -115,7 +133,7 @@ export default {
           return false
         }
       }
-      return true
+      return !0
     },
     /**
      * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
@@ -133,10 +151,10 @@ export default {
      * 提交用户信息
      */
     async submit_userInfo () {
-      this.isLoading = true
+      this.isLoading = !0
       //记得清除
       const timer = setTimeout(() => {
-        this.isLoading = false
+        this.isLoading = !1
         Taro.navigateTo({
           url: '../game/game',
         })
@@ -146,11 +164,11 @@ export default {
      * 提交更改配置
      */
     async submit_setting () {
-      this.isLoading = true;
+      this.isLoading = !0;
       //记得清除
       const timer = setTimeout(() => {
-        this.isLoading = false
-        this.showOverlay = true
+        this.isLoading = !1
+        this.showOverlay = !0
         this.QRCODE_URL = myQRCODE
       }, 1000)
     },
@@ -160,6 +178,9 @@ export default {
     toInfo () {
       Taro.navigateTo({ url: '../info/info' })
     },
+    ...mapMutations(
+      { setDialog: 'game/setDialog' }
+    )
   },
   computed: {
     /**
@@ -182,6 +203,15 @@ export default {
     titleNotice () {
       return this.permission === 0 ? '请填写你的个人信息' : '请填写当前批次游戏的配置，随后会生成二维码'
     },
+    /**
+     * 判断是否为轮提示语
+     */
+    isDialog () {
+      return function (title) {
+        const reg = /^第(二|三)轮提示语?$/
+        return reg.test(title)
+      }
+    },
     ...mapState({
       permission: (state) => state.user.permission
     })
@@ -192,11 +222,18 @@ export default {
     * 在进入游戏三个按钮的页面，进入前先传openid到后台，根据传回的自定义状态码判断身份
     * 获取openid和微信个人信息 -> 发送至后台判断身份
     * 研究生身份：提供数据导出和实验组批次设置两个url
-    * 参与者身份：直接跳转至cusInfo页面
+    * 参与者身份：直接跳转至cusInfo，注意此时需要初始化研究生的模板存入vuex
     */
   async created () {
-    const template = this.permission === 0 ? await get_userInfo_template() : await get_game_setting_template()
+    const bool = this.permission === 0
+    //填写的模板
+    const template = bool ? await get_userInfo_template() : await get_game_setting_template()
+    //const res = Object.freeze(template)
     this.form = Object.freeze(template)
+    if (bool) {
+      const settings = await get_game_setting()
+      this.setDialog(settings)
+    }
   }
 }
 </script>

@@ -4,10 +4,11 @@
       class="page-y-center page-x-center ccc bg-white text-black border"
       style="width: 60%; padding: 20px"
     >
+      <!-- 主体tip -->
       <view v-for="i in contentMsg" :key="i.title">
         {{ content(i) }}
       </view>
-
+      <!-- 底部关闭按钮 -->
       <van-button
         v-if="showBtn"
         :type="btnColor"
@@ -20,15 +21,13 @@
   </van-overlay>
 </template>
 <script>
-import { connectSocket } from '@tarojs/taro'
-
 export default {
   inheritAttrs: false,
   name: 'Dialog',
   props: {
     isDialog: { type: Boolean, default: false },
     isSubmitting: { type: Boolean, default: false },
-    showBtn: { type: Boolean, default: true },
+    showBtn: { type: Boolean, default: !0 },
     /**
      * 等待20或15s才能点击按钮
      */
@@ -41,7 +40,7 @@ export default {
   },
   data: () => ({
     //dialog内部属性，默认20s
-    currentSecond: 20000
+    currentSecond: 2000
   }),
   computed: {
     btnColor () {
@@ -69,7 +68,7 @@ export default {
       }
     },
     /**
-     * 
+     * 定时展示关闭按钮
      */
     showSelf () {
       this.currentSecond = this.waitingSecond
@@ -89,14 +88,11 @@ export default {
     waitingSecond: {
       handler (n) {
         this.currentSecond = n
-      }, immediate: true
+      }, immediate: !0
     },
     isDialog (n) {
       this.showSelf()
     },
-    showBtn (n) {
-      console.log(n)
-    }
   },
   created () {
     this.showSelf()

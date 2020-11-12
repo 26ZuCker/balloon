@@ -20,11 +20,10 @@ const get_userInfo_template = () => {
     stu_id: { title: '学号', value: '' },
     Alipay: { title: '支付宝账号', value: '' },
     phone_number: { title: '电话', value: '' },
-    round_num: { title: '场次', value: '' },
+    batch: { title: '批次', value: '' },
     group_num: { title: '组次', value: '' },
   };
 };
-
 /**
  * 提交用户所填信息
  */

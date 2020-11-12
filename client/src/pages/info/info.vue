@@ -1,26 +1,29 @@
 <template>
   <view>
-    <view class="rcc">
-      <van-search
-        v-model="searchVal"
-        input-align="center"
-        shape="round"
-        @change="onSearch"
-        placeholder="请输入目标批次"
-      >
-        <slot-view name="actions" @tap="onSearch">搜索</slot-view>
-      </van-search>
+    <van-search
+      v-model="searchVal"
+      input-align="center"
+      shape="round"
+      @change="onSearch"
+      placeholder="请输入目标批次"
+    >
+      <slot-view name="actions" @tap="onSearch">搜索</slot-view>
+    </van-search>
+    <!--     <view class="rcc">
       <van-dropdown-menu>
         <van-dropdown-item :value="current_round" :options="round_num" />
       </van-dropdown-menu>
-    </view>
+    </view> -->
     <van-cell-group>
       <van-cell
         :title="`第${i.round_count}批`"
         v-for="i in selectRoundList"
         :key="i.id"
       >
-        <van-button plain type="info" @tap="download(i.round_url)"
+        <van-button
+          custom-class="van-button--round"
+          type="info"
+          @tap="download(i.round_url)"
           >下载</van-button
         >
       </van-cell>
@@ -107,5 +110,8 @@ export default {
 }
 .bg-grey {
   background-color: #dfdbdb;
+}
+.van-button--round {
+  border-radius: 999px !important;
 }
 </style>
