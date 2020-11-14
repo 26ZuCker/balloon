@@ -4,7 +4,7 @@ import { BASE_API, promisifyHttp } from './apiConfig.js';
 const errorMsgApiMap = {
   get_form_template: { method: 'POST', url: 'get_form_template' },
   get_game_setting: { method: 'POST', url: 'get_game_setting' },
-  get_bomb_arr: { method: 'POST', url: 'get_bomb_arr' },
+  get_blast_point_list: { method: 'POST', url: 'get_blast_point_list' },
 };
 
 /**
@@ -26,8 +26,8 @@ const get_game_setting = () => {
 /**
  * 获取爆破点数组
  */
-//const get_bomb_arr = promisifyHttp(Taro, BASE_API, errorMsgApiMap['get_bomb_arr']);
-const get_bomb_arr = () => {
+//const get_blast_point_list = promisifyHttp(Taro, BASE_API, errorMsgApiMap['get_blast_point_list']);
+const get_blast_point_list = () => {
   return Array.from({ length: 30 }, (_, i) => i + 1);
 };
-export { get_form_template, get_game_setting, get_bomb_arr };
+export { get_form_template, get_game_setting, get_blast_point_list };

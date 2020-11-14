@@ -9,7 +9,6 @@
       left-icon="info-o"
       :text="titleNotice"
     ></van-notice-bar>
-    <!--     <view class="ccc">{{ title }}</view>-->
     <!-- 气球主体，建议限制高度为百分比 -->
     <view class="img-container">
       <image
@@ -29,14 +28,7 @@
         :title="i.title"
         :value="i.value"
       ></van-cell>
-      <!--       <van-cell v-for="(v, i) in statistics" :key="v.title">
-        <slot-view name="title">
-          <van-tag round :type="colors[i % 4]">{{ i.title }}</van-tag>
-        </slot-view>
-        {{ i.value }}
-      </van-cell> -->
     </van-cell-group>
-
     <!-- 按钮组 -->
     <view class="rac">
       <van-button
@@ -84,7 +76,6 @@ const optionalMode = {
   TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '确认' },
   ROUND1: { title: '', tip: '', btnMsg: '确认' },
   ROUND2: { title: '', tip: '', btnMsg: '确认' },
-  ROUND3: { title: '', tip: '', btnMsg: '确认' },
   OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
 }
 /**
@@ -122,7 +113,8 @@ export default {
     confirmBtnText: '',
     //所需收集的数据
     statistics: null,
-    showBtn: !0
+    showBtn: !0,
+    mode: ''
   }),
   methods: {
     /**
@@ -164,51 +156,35 @@ export default {
      */
     changeMode () {
       //练习模式之前
-      if (mode === '') {
+      if (this.mode === '') {
         console.log('1')
-        mode = 'TRAIN'
+        this.mode = 'TRAIN'
         statics_template.left_checkpoint.value = 2
         this.changeProps()
       }
       //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
-      else if (mode === 'TRAIN') {
+      else if (this.mode === 'TRAIN') {
         console.log('2')
-        mode = 'ROUND1'
+        this.mode = 'ROUND1'
         statics_template.left_checkpoint.value = 30
         this.restart()
         this.changeProps()
       }
       //正式模式30关结束后，包括团队此时需要回调
-      else if (mode === 'ROUND1') {
+      else if (this.mode === 'ROUND1') {
         console.log('3')
-        /*         if (this.maxRound === 1) {
-                  mode = 'OVER'
-                } else {
-                  console.log('ROUND2') */
-        mode = 'ROUND2'
+        this.mode = 'ROUND2'
         this.restart()
         this.changeProps()
-        //}
       }
-      /*       else if (mode === 'ROUND2') {
-              console.log('4')
-              if (this.maxRound === 2) {
-                mode = 'OVER'
-              } else {
-                console.log('ROUND3')
-                mode = 'ROUND3'
-                this.restart()
-                this.changeProps()
-              }
-            } */
-      else if (mode === 'ROUND2') {
+      else if (this.mode === 'ROUND2') {
         console.log('4')
-        mode = 'OVER'
+        this.mode = 'OVER'
         this.restart()
         this.changeProps()
       }
       //所有模式结束，直接离开
-      else if (mode === 'OVER') {
+      else if (this.mode === 'OVER') {
         console.log('5')
         this.changeProps('', '', false)
         this.showDialog(0)
@@ -220,7 +196,7 @@ export default {
     changeProps (contentMsg = [''], confirmBtnText = '', showBtn = !0) {
       //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
       this.contentMsg = contentMsg[0] === '' ? this.statisticsMsg() : contentMsg
-      this.confirmBtnText = confirmBtnText === '' ? optionalMode[mode].btnMsg : confirmBtnText
+      this.confirmBtnText = confirmBtnText === '' ? optionalMode[this.mode].btnMsg : confirmBtnText
       if (!showBtn) {
         this.showBtn = showBtn
       }
@@ -234,7 +210,7 @@ export default {
       this.statistics.total_income.value += this.statistics.previous_income.value
       this.statistics.left_checkpoint.value -= 1
       //如果当前为练习模式则展示即初始化
-      if (mode === 'TRAIN' && this.statistics.left_checkpoint.value === 0) {
+      if (this.mode === 'TRAIN' && this.statistics.left_checkpoint.value === 0) {
         this.changeMode()
         this.showDialog()
         return
@@ -246,7 +222,7 @@ export default {
       //正式模式及团队模式30关全部结束
       if (this.statistics.left_checkpoint.value === 0) {
         this.changeMode()
-        if (mode === 'OVER') {
+        if (this.mode === 'OVER') {
           //此处不需要等待，但需要展示按钮进行提交选项
           this.showDialog(0, [''], '', false)
         }
@@ -263,20 +239,13 @@ export default {
     /**
      * 监听对话框传的点击确认按钮事件
      * 回调包括：可能改变模式，改变传入的文案
+     * 以下情况派发按钮的回调不需要改变当前模式，有两次点击时不能更改模式的
+     * 1.练习模式之前，此时在生命周期内进行初始化的changeMode即可
+     * 2.15关之后的等待
+     * 3.练习模式之后先改变，但是点击时不能进行改变
+     * 如果在正式模式后进行点击，需要进行loading处理
      */
     confirmDialog () {
-      /**
-       * 以下情况派发按钮的回调不需要改变当前模式，有两次点击时不能更改模式的
-       * 1.练习模式之前，此时在生命周期内进行初始化的changeMode即可
-       * 2.15关之后的等待
-       * 3.练习模式之后先改变，但是点击时不能进行改变
-       * 如果在正式模式后进行点击，需要进行loading处理
-       */
-      /*       if (mode !== 'TRAIN' && this.statistics.left_checkpoint.value !== 15) {
-              //正式游戏之前再点击确认一遍，此时只需要关闭即可
-              this.changeMode()
-            } */
-      //练习模式点击只关闭dialog
       this.isDialog = false
     },
     /**
@@ -291,25 +260,14 @@ export default {
      * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
      */
     statisticsMsg () {
-      if (mode === 'TRAIN') {
-        return [`${this.train_dialog}`]
-      } else if (mode === 'ROUND1') {
-        return [`${this.game_dialog}`]
-      }
-      return this.statistics
-      /*       let res = ''
-            if (this.statistics === null) { return '' }
-            for (const i in this.statistics) {
-              res += `${this.statistics[i].title} : ${this.statistics[i].value}`
-              res += '\r\n'
-            }
-            return res */
+      return this.mode === 'TRAIN' ? [`${this.train_dialog}`]
+        : (this.mode === 'ROUND1' ? [`${this.game_dialog}`] : this.statistics)
     },
-    iniOptionalMode (reverse) {
-      optionalMode.TRAIN.tip = this.train_dialog
-      optionalMode.ROUND1.tip = this.game_dialog
-      optionalMode.ROUND1.title = reverse ? this.round2_notice : this.round1_notice
-      optionalMode.ROUND2.title = reverse ? this.round1_notice : this.round2_notice
+    iniOptionalMode (personOnGroup) {
+      [optionalMode.TRAIN.tip, optionalMode.ROUND1.tip] = [this.train_dialog, this.game_dialog]
+      [optionalMode.ROUND1.title, optionalMode.ROUND2.title] =
+        personOnGroup ? [this.round1_notice, this.round2_notice]
+          : [this.round2_notice, this.round1_notice]
     }
   },
   computed: {
@@ -327,14 +285,14 @@ export default {
      * 顶部标题
      */
     titleNotice () {
-      return mode === '' ? '' : optionalMode[mode].title
+      return this.mode === '' ? '' : optionalMode[this.mode].title
     },
     ...mapState({
       train_dialog: (state) => state.game.train_dialog,
       game_dialog: (state) => state.game.game_dialog,
       round1_notice: (state) => state.game.round1_notice,
       round2_notice: (state) => state.game.round2_notice,
-      reverse: (state) => state.game.reverse
+      personOnGroup: (state) => state.game.personOnGroup
     }),
     ...mapGetters({
       maxRound: 'game/maxRound'
@@ -346,7 +304,7 @@ export default {
     //初始化先进行两轮练习
     this.showDialog()
     //初始化optionmode
-    this.iniOptionalMode(reverse)
+    this.iniOptionalMode(this.personOnGroup)
   },
   beforeDestroy () {
 

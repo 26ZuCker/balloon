@@ -1,5 +1,5 @@
 <template>
-  <view>
+  <!--   <view>
     <van-search
       v-model="searchVal"
       input-align="center"
@@ -14,21 +14,21 @@
         <van-dropdown-item :value="current_round" :options="round_num" />
       </van-dropdown-menu>
     </view> -->
-    <van-cell-group>
-      <van-cell
-        :title="`第${i.round_count}批`"
-        v-for="i in selectRoundList"
-        :key="i.id"
+  <van-cell-group>
+    <van-cell
+      :title="`第${i.round_count}批`"
+      v-for="i in selectRoundList"
+      :key="i.id"
+    >
+      <van-button
+        custom-class="van-button--round"
+        type="info"
+        @tap="download(i.round_url)"
+        >下载</van-button
       >
-        <van-button
-          custom-class="van-button--round"
-          type="info"
-          @tap="download(i.round_url)"
-          >下载</van-button
-        >
-      </van-cell>
-    </van-cell-group>
-  </view>
+    </van-cell>
+  </van-cell-group>
+  <!--   </view> -->
 </template>
 
 <script>

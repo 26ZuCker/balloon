@@ -3,17 +3,17 @@
  */
 const promisifyHttp = (Taro, BASE_API, { url, method }) => (data = {}) =>
   new Promise((resolve, reject) => {
-    Taro.request({
-      url: `${BASE_API}/${url}`,
-      method: method,
-      data: data,
-      success: function(res) {
+    Taro.cloud
+      .callFunction({
+        name: url,
+        data: data,
+      })
+      .then((res) => {
         resolve(res);
-      },
-      fail: function(error) {
+      })
+      .catch((error) => {
         reject(error);
-      },
-    });
+      });
   });
 /**
  * 基地址

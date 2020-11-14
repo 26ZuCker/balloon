@@ -14,6 +14,83 @@ const App = new Vue({
     if (process.env.TARO_ENV === 'weapp') {
       Taro.cloud.init();
     }
+    Taro.cloud
+      .callFunction({
+        name: 'downloadExcel',
+        data: {},
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    Taro.cloud
+      .callFunction({
+        name: 'getAllBatch',
+        data: {},
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    Taro.cloud
+      .callFunction({
+        name: 'getGameSettings',
+        data: {},
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    Taro.cloud
+      .callFunction({
+        name: 'login',
+        data: {},
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    Taro.cloud
+      .callFunction({
+        name: 'setup',
+        data: {},
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    Taro.cloud
+      .callFunction({
+        name: 'submit',
+        data: {},
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    Taro.cloud
+      .callFunction({
+        name: 'update',
+        data: {},
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     //await store.dispatch('user/login');
   },
   onShow(options) {},

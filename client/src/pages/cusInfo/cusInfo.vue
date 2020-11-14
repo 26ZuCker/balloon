@@ -100,15 +100,14 @@ export default {
      * 监听表单输入，后期注意防抖
      */
     onInput (key, $event) {
-
       this.form[key].value = $event.detail
-
     },
     /**
     * 根据路由传参判断当前页面为配置还是个人信息填写
     */
     submitChange () {
       Notify({ type: 'warning', message: '提交中' });
+      console.log(this.form)
       if (!this.validateForm()) {
         Notify({ type: 'danger', message: '你尚未填写完毕' });
         return
@@ -225,9 +224,8 @@ export default {
   async created () {
     const bool = this.permission === 0
     //填写的模板
-    const template = bool ? await get_userInfo_template() : await get_game_setting_template()
-    this.form = Object.freeze(template)
-    //填写时后台预加载和存储即可
+    this.form = bool ? await get_userInfo_template() : await get_game_setting_template()
+    //填写时预加载和存储游戏配置
     if (bool) {
       const settings = await get_game_setting()
       this.setDialog(settings)
