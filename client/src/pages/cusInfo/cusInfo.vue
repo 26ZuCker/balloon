@@ -11,27 +11,34 @@
       style="width: 100%"
       :text="titleNotice"
     ></van-notice-bar>
+    <!-- 主体 -->
     <view class="page-y-center">
+      <!-- 输入框 -->
       <van-cell-group>
+        <!-- 基本框 -->
         <van-field
           :value="i.value"
           @change="onInput(key, $event)"
           required
           clearable
           :label="i.title"
-          :placeholder="placeholderTitle(i.title)"
+          :placeholder="`请输入${i.title}`"
           v-for="(i, key) in form"
           :key="i.title"
           use-button-slot
-          :disabled="!openField[i.id || 0]"
         >
-          <slot-view name="button" v-if="isDialog(i.title)">
-            <van-switch :checked="openField[i.id]" active-color="#07c160" />
-          </slot-view>
         </van-field>
+        <!-- 开关判断是否需要团队模式先于个人 -->
+        <van-cell v-if="permission === 1" title="个人模式先于团队模式">
+          <van-switch
+            active-color="#07c160"
+            :checked="personOnGroup"
+            @change="personOnGroup = !personOnGroup"
+          ></van-switch>
+        </van-cell>
       </van-cell-group>
       <view class="rca mt-3">
-        <!-- 根据角色判断权限 -->
+        <!-- 根据角色判断权限，底部交互按钮 -->
         <van-button
           custom-class="van-button--round van-button--large ma-3"
           type="primary"
@@ -49,7 +56,6 @@
         >
       </view>
     </view>
-
     <!-- 遮掩层显示二维码 -->
     <van-overlay :show="showOverlay" @click="showOverlay = false">
       <view class="page-y-center ccc">
@@ -65,7 +71,7 @@
 </template>
 
 <script>
-import Taro from '@tarojs/taro'
+import Taro, { onLocalServiceLost } from '@tarojs/taro'
 //预加载配置
 import { get_game_setting } from '@api/game'
 //参与者
@@ -86,22 +92,17 @@ export default {
     isLoading: false,
     showOverlay: false,
     QRCODE_URL: '',
-    openField: [!0, !0, !1, !1]
+    personOnGroup: true
   }),
   props: {},
   methods: {
     /**
-     * 点击可开启
-     */
-    openFieldFn (id) {
-      this.openField[id] = !this.openField[id]
-      console.log(this.openField)
-    },
-    /**
      * 监听表单输入，后期注意防抖
      */
     onInput (key, $event) {
+
       this.form[key].value = $event.detail
+
     },
     /**
     * 根据路由传参判断当前页面为配置还是个人信息填写
@@ -133,7 +134,7 @@ export default {
           return false
         }
       }
-      return !0
+      return true
     },
     /**
      * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
@@ -165,6 +166,12 @@ export default {
      */
     async submit_setting () {
       this.isLoading = !0;
+      //浅拷贝
+      const params = {
+        ...this.form,
+        personOnGroup: { title: '个人模式先于团队模式', value: this.personOnGroup }
+      }
+      console.log(params)
       //记得清除
       const timer = setTimeout(() => {
         this.isLoading = !1
@@ -203,15 +210,6 @@ export default {
     titleNotice () {
       return this.permission === 0 ? '请填写你的个人信息' : '请填写当前批次游戏的配置，随后会生成二维码'
     },
-    /**
-     * 判断是否为轮提示语
-     */
-    isDialog () {
-      return function (title) {
-        const reg = /^第(二|三)轮提示语?$/
-        return reg.test(title)
-      }
-    },
     ...mapState({
       permission: (state) => state.user.permission
     })
@@ -228,8 +226,8 @@ export default {
     const bool = this.permission === 0
     //填写的模板
     const template = bool ? await get_userInfo_template() : await get_game_setting_template()
-    //const res = Object.freeze(template)
     this.form = Object.freeze(template)
+    //填写时后台预加载和存储即可
     if (bool) {
       const settings = await get_game_setting()
       this.setDialog(settings)
@@ -239,41 +237,5 @@ export default {
 </script>
 
 <style lang='scss' >
-.van-button--round {
-  border-radius: 999px !important;
-}
-.van-button--large {
-  width: 130px !important;
-  height: 50px !important;
-}
-@mixin md($direction, $justify-content) {
-  display: flex;
-  flex-direction: $direction;
-  justify-content: $justify-content;
-  align-items: center;
-}
-.rcc {
-  @include md(column, center);
-}
-.ccc {
-  @include md(column, center);
-}
-.rca {
-  @include md(row, space-around);
-}
-page {
-  height: 100%;
-}
-
-.page-y-center {
-  position: relative;
-  top: 30%;
-  transform: translateY(-30%);
-}
-.mt-3 {
-  margin-top: 30px;
-}
-.mt-5 {
-  margin-top: 50px;
-}
+@import url("./cusInfo.scss");
 </style>

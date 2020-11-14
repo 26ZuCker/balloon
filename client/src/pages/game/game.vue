@@ -181,35 +181,35 @@ export default {
       //正式模式30关结束后，包括团队此时需要回调
       else if (mode === 'ROUND1') {
         console.log('3')
-        if (this.maxRound === 1) {
-          mode = 'OVER'
-        } else {
-          console.log('ROUND2')
-          mode = 'ROUND2'
-          this.restart()
-          this.changeProps()
-        }
+        /*         if (this.maxRound === 1) {
+                  mode = 'OVER'
+                } else {
+                  console.log('ROUND2') */
+        mode = 'ROUND2'
+        this.restart()
+        this.changeProps()
+        //}
       }
+      /*       else if (mode === 'ROUND2') {
+              console.log('4')
+              if (this.maxRound === 2) {
+                mode = 'OVER'
+              } else {
+                console.log('ROUND3')
+                mode = 'ROUND3'
+                this.restart()
+                this.changeProps()
+              }
+            } */
       else if (mode === 'ROUND2') {
         console.log('4')
-        if (this.maxRound === 2) {
-          mode = 'OVER'
-        } else {
-          console.log('ROUND3')
-          mode = 'ROUND3'
-          this.restart()
-          this.changeProps()
-        }
-      }
-      else if (mode === 'ROUND3') {
-        console.log('5')
         mode = 'OVER'
         this.restart()
         this.changeProps()
       }
       //所有模式结束，直接离开
       else if (mode === 'OVER') {
-        console.log('6')
+        console.log('5')
         this.changeProps('', '', false)
         this.showDialog(0)
       }
@@ -305,12 +305,11 @@ export default {
             }
             return res */
     },
-    iniOptionalMode () {
+    iniOptionalMode (reverse) {
       optionalMode.TRAIN.tip = this.train_dialog
       optionalMode.ROUND1.tip = this.game_dialog
-      optionalMode.ROUND1.title = this.round1_notice
-      optionalMode.ROUND2.title = this.round2_notice
-      optionalMode.ROUND3.title = this.round3_notice
+      optionalMode.ROUND1.title = reverse ? this.round2_notice : this.round1_notice
+      optionalMode.ROUND2.title = reverse ? this.round1_notice : this.round2_notice
     }
   },
   computed: {
@@ -335,7 +334,7 @@ export default {
       game_dialog: (state) => state.game.game_dialog,
       round1_notice: (state) => state.game.round1_notice,
       round2_notice: (state) => state.game.round2_notice,
-      round3_notice: (state) => state.game.round3_notice,
+      reverse: (state) => state.game.reverse
     }),
     ...mapGetters({
       maxRound: 'game/maxRound'
@@ -347,7 +346,7 @@ export default {
     //初始化先进行两轮练习
     this.showDialog()
     //初始化optionmode
-    this.iniOptionalMode()
+    this.iniOptionalMode(reverse)
   },
   beforeDestroy () {
 
