@@ -22,18 +22,11 @@
     <!-- 状态单元格 -->
     <van-cell-group>
       <!-- 展示实时 -->
-      <van-cell>
-        <slot-view name="title">
-          实时数据
-          <van-switch
-            active-color="#07c160"
-            :checked="showCurrent"
-            @change="showCurrent = !showCurrent"
-          ></van-switch>
-        </slot-view>
-        <view v-if="showCurrent">{{}}</view>
-        <van-icon v-else name="browsing-history-o"></van-icon>
-      </van-cell>
+      <van-cell
+        v-if="is_update"
+        title="实时数据"
+        :value="average_income"
+      ></van-cell>
       <!-- 主体 -->
       <van-cell
         class="statistic-main"
@@ -79,11 +72,17 @@ import bomb from '@img/bomb.jpg'
 //组件
 import Dialog from '@com/common/Dialog.vue';
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
-//api
-import { submit } from '@api/game.js'
 //hook
 import { blow, accountReceive, showDialog, confirmDialog } from './hook/view.js'
-import { changeMode, changeProps, takeStatistics, iniOptionalMode, optionalMode, statics_template } from './hook/model.js'
+import {
+  changeMode,
+  changeProps,
+  takeStatistics,
+  iniOptionalMode,
+  statics_template,
+  optionalMode,
+  update,
+} from './hook/model.js'
 /**
  * 爆破点
  */
@@ -108,7 +107,8 @@ export default {
     showBtn: !0,
     mode: '',
     //展示实时数据
-    showCurrent: true
+    showCurrent: true,
+    average_income: 0
   }),
   methods: {
     blow () {
@@ -134,6 +134,9 @@ export default {
     },
     confirmDialog () {
       confirmDialog.call(this, ...arguments)
+    },
+    update () {
+      update.call(this, ...arguments)
     },
     /**
      * 重新开始当前该用户当前批次的游戏，不必清空整个统计数据而只重置剩余关卡，不改变模式
@@ -175,6 +178,7 @@ export default {
       round2_notice: (state) => state.game.round2_notice,
       personOnGroup: (state) => state.game.personOnGroup,
       blast_point_list: (state) => state.game.blast_point_list,
+      is_update: (state) => state.game.is_update
     }),
   },
   async created () {
@@ -184,6 +188,15 @@ export default {
     this.showDialog()
     //初始化optionmode
     this.iniOptionalMode(this.personOnGroup)
+    //实时更新
+    if (this.is_update) {
+      const timer = setInterval(() => {
+        this.update()
+      }, 2000)
+      this.$on('beforeDestroy', () => {
+        clearInterval(timer)
+      })
+    }
   },
   beforeDestroy () {
 

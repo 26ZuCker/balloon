@@ -1,3 +1,4 @@
+import { _update, _submit } from '@api/game';
 /**
  * title顶部标题语
  * tip弹出框提示语
@@ -107,4 +108,19 @@ function iniOptionalMode(personOnGroup) {
     ? [this.round1_notice, this.round2_notice]
     : [this.round2_notice, this.round1_notice];
 }
-export { changeMode, changeProps, takeStatistics, iniOptionalMode, statics_template, optionalMode };
+/**
+ * 实时更新平均收入
+ */
+async function update() {
+  const res = await _update();
+  this.average_income = res.average_income;
+}
+export {
+  changeMode,
+  changeProps,
+  takeStatistics,
+  iniOptionalMode,
+  statics_template,
+  optionalMode,
+  update,
+};

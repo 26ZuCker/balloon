@@ -13,11 +13,12 @@
 </template>
 
 <script>
+import Taro from '@tarojs/taro'
 /**
  * 缓存已请求的数据
  */
 const hash = new Map()
-import { getAllBatch, downloadExcel } from '@api/info.js'
+import { get_all_batch, download_excel } from '@api/info.js'
 
 export default {
   inheritAttrs: false,
@@ -42,11 +43,21 @@ export default {
      */
     async download (i) {
       const params = { batch: i }
-      const res = await downloadExcel(params)
+      const res = await download_excel(params)
+      const { path } = res
+      Taro.downloadFile({
+        url: path,
+        success: function (res) {
+          console.log(res)
+        },
+        fail: function (error) {
+          console.log(error)
+        }
+      });
     }
   },
   async created () {
-    this.allBatch = await getAllBatch()
+    this.allBatch = await get_all_batch()
   }
 }
 </script>
