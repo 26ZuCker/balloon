@@ -5,8 +5,8 @@ import { _update, _submit } from '@api/game';
  */
 const optionalMode = {
   TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '确认' },
-  PERSON: { title: '', tip: '', btnMsg: '确认' },
-  GROUP: { title: '', tip: '', btnMsg: '确认' },
+  personal: { title: '', tip: '', btnMsg: '确认' },
+  team: { title: '', tip: '', btnMsg: '确认' },
   OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
 };
 /**
@@ -17,6 +17,13 @@ const statics_template = {
   total_income: { title: '总收益', value: 0 },
   previous_income: { title: '上一轮收益', value: 0 },
   left_checkpoint: { title: '剩余关卡', value: 30 },
+};
+/**
+ * 爆破点，由于view需要使用，所以通过esm导出以共用
+ */
+const blast_point_list = {
+  team: [],
+  personal: [],
 };
 /**
  * 改变模式，只能单向不可逆
@@ -32,18 +39,18 @@ function changeMode() {
   //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
   else if (this.mode === 'TRAIN') {
     console.log('2');
-    this.mode = 'PERSON';
+    this.mode = 'personal';
     statics_template.left_checkpoint.value = 30;
     this.restart();
     this.changeProps();
   }
   //正式模式30关结束后，包括团队此时需要回调
-  else if (this.mode === 'PERSON') {
+  else if (this.mode === 'personal') {
     console.log('3');
-    this.mode = 'GROUP';
+    this.mode = 'team';
     this.restart();
     this.changeProps();
-  } else if (this.mode === 'GROUP') {
+  } else if (this.mode === 'team') {
     console.log('4');
     this.mode = 'OVER';
     this.restart();
@@ -62,7 +69,6 @@ function changeMode() {
 function changeProps(contentMsg = [''], confirmBtnText = '', showBtn = !0) {
   //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
   this.contentMsg = contentMsg[0] === '' ? this.statisticsMsg() : contentMsg;
-  this.confirmBtnText = confirmBtnText === '' ? optionalMode[this.mode].btnMsg : confirmBtnText;
   if (!showBtn) {
     this.showBtn = showBtn;
   }
@@ -99,20 +105,25 @@ function takeStatistics(previous_income = 0) {
  * @param {number} personOnGroup
  */
 function iniOptionalMode(personOnGroup) {
-  [blast_point_list, optionalMode.TRAIN.tip, optionalMode.PERSON.tip] = [
+  [blast_point_list, optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
     blast_point_list,
-    this.train_dialog,
-    this.game_dialog,
+    this.viewSettings.practice_tips,
+    this.viewSettings.game_tips,
   ];
-  [optionalMode.PERSON.title, optionalMode.GROUP.title] = personOnGroup
-    ? [this.round1_notice, this.round2_notice]
-    : [this.round2_notice, this.round1_notice];
+  [optionalMode.personal.title, optionalMode.team.title] = personOnGroup
+    ? [this.round_tips.personal, this.round_tips.team]
+    : [this.round_tips.team, this.round_tips.personal];
 }
 /**
  * 实时更新平均收入
  */
 async function update() {
-  const res = await _update();
+  let res;
+  try {
+    res = await _update();
+  } catch (error) {
+    console.log(error);
+  }
   this.average_income = res.average_income;
 }
 export {
@@ -123,4 +134,5 @@ export {
   statics_template,
   optionalMode,
   update,
+  blast_point_list,
 };

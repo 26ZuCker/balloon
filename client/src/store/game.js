@@ -4,39 +4,57 @@
  * 本次游戏用户所填信息
  */
 const state = {
-  practice_tips: '',
-  game_tips: '',
-  round_tips: {},
-  blast_point_list: [],
-  personOnGroup: 0,
-  round: Number.MAX_SAFE_INTEGER,
-  batch: Number.MAX_SAFE_INTEGER,
-  blast_type: 0,
-  end_time: Number.MAX_SAFE_INTEGER,
+  //游戏配置
+  viewSettings: {
+    practice_tips: '',
+    game_tips: '',
+    personOnGroup: 0,
+    round_tips: {
+      team: '',
+      personal: '',
+    },
+    game_mode,
+    blast_point_distribution: 0,
+    is_update: true,
+    money: Number.MIN_SAFE_INTEGER,
+    blast_point: {
+      team: [],
+      personal: [],
+    },
+  },
+  //提交配置
+  submitSettings: {
+    group: Number.MAX_SAFE_INTEGER,
+    batch: Number.MAX_SAFE_INTEGER,
+    end_time: Number.MAX_SAFE_INTEGER,
+  },
 };
 const mutations = {
   setSettings(state, res) {
-    console.log(res);
-    const {
+    /*     const {
       practice_tips,
+      game_mode,
       game_tips,
-      personOnGroup,
+      blast_point_distribution,
+      is_update,
+      money,
       round_tips,
-      blast_point_list,
-      round,
+      blast_point,
+      //
       batch,
-      blast_type,
       end_time,
-    } = res;
-    state.practice_tips = practice_tips;
-    state.game_tips = game_tips;
-    state.personOnGroup = personOnGroup;
-    state.blast_point_list = blast_point_list;
-    state.batch = batch;
-    state.round = round;
-    state.round_tips = round_tips;
-    state.blast_type = blast_type;
-    state.end_time = end_time;
+      group,
+    } = res; */
+    for (const key in res) {
+      if (key === 'batch' || key === 'end_time' || key === 'group') {
+        state.submitSettings[key] = res[key];
+      } else {
+        state.viewSettings[key] = res[key];
+      }
+    }
+  },
+  setPastRound(state, res) {
+    state.set_past_round = res;
   },
 };
 const actions = {};

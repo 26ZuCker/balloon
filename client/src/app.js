@@ -4,17 +4,21 @@ import store from './store/index';
 
 import './app.scss';
 
-//由于taro使用拦截器需要额外安装taro-axios则直接全局挂载响应码即可
+/* //由于taro使用拦截器需要额外安装taro-axios则直接全局挂载响应码即可
 import { cusResCode } from './apis/config.js';
-Vue.prototype.$cusResCode = cusResCode;
+Vue.prototype.$cusResCode = cusResCode; */
 
 const App = new Vue({
   store,
-  async mounted() {
+  /**
+   * 同步获取
+   */
+  mounted() {
     if (process.env.TARO_ENV === 'weapp') {
       Taro.cloud.init();
     }
-    Taro.cloud
+    store.dispatch('user/login');
+    /*     Taro.cloud
       .callFunction({
         name: 'downloadExcel',
         data: {},
@@ -39,17 +43,6 @@ const App = new Vue({
     Taro.cloud
       .callFunction({
         name: 'getGameSettings',
-        data: {},
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    Taro.cloud
-      .callFunction({
-        name: 'login',
         data: {},
       })
       .then((res) => {
@@ -90,8 +83,7 @@ const App = new Vue({
       })
       .catch((error) => {
         console.log(error);
-      });
-    //await store.dispatch('user/login');
+      }); */
   },
   onShow(options) {},
   render(h) {

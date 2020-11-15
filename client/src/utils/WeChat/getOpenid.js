@@ -5,10 +5,10 @@ import Taro from '@tarojs/taro';
 const getOpenid = function() {
   return new Promise((resolve, reject) => {
     Taro.cloud.callFunction({
-      name: 'login',
+      name: 'getOpenid',
       data: {},
       success: (res) => {
-        app.globalData.openid = res.result.openid;
+        //app.globalData.openid = res.result.openid;
         return resolve(res);
       },
       fail: (err) => {

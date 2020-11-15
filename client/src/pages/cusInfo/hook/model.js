@@ -1,18 +1,17 @@
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
-
+import myQRCODE from '@img/myQRCODE.jpg';
 //参与者
-import { get_userInfo_template, submit_userInfo } from '@api/user.js';
+import { get_userInfo_template, submit_userInfo, login } from '@api/user.js';
 //管理者
 import { get_game_setting_template, submit_game_setting } from '@api/setting.js';
 //预加载配置
-import { get_game_setting } from '@api/game';
+import { get_game_settings, _update, _submit } from '@api/game';
 /**
  * 监听表单输入，后期注意防抖
  */
 function onInput(key, $event) {
   this.form[key].value = $event.detail;
 }
-
 /**
  * 校验表单输入值合法性：
  * 1.是否填写完毕
@@ -31,17 +30,6 @@ function validateForm() {
   return true;
 }
 /**
- * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
- */
-async function getUserInfoTemplate() {
-  const res = await get_userInfo_template();
-  return res;
-}
-async function getGameSettingTemplate() {
-  const res = await get_game_setting_template();
-  return res;
-}
-/**
  * 根据路由传参判断当前页面为配置还是个人信息填写
  */
 function submitChange() {
@@ -58,22 +46,34 @@ function submitChange() {
   }
 }
 /**
- * 提交用户信息
+ * 提交用户信息之后再获取游戏参数
  */
 async function submitUserInfo() {
   this.isLoading = !0;
+  //先提交
   const params = {};
   for (const key in this.form) {
     params[key] = this.form[key].value;
   }
-  console.log(params);
-  //记得清除
-  const timer = setTimeout(() => {
-    this.isLoading = !1;
-    Taro.navigateTo({
-      url: '../game/game',
-    });
-  }, 1000);
+  try {
+    await _submit(params);
+  } catch (error) {
+    return error;
+  }
+  //后获取此批游戏配置
+  const batch = this.form.batch.value;
+  let res;
+  try {
+    res = await getGameSetting({ batch: batch });
+  } catch (error) {
+    return error;
+  }
+  this.setSettings(res);
+  //调整视图
+  this.isLoading = !1;
+  Taro.navigateTo({
+    url: '../game/game',
+  });
 }
 /**
  * 提交更改配置
@@ -85,16 +85,38 @@ async function submitSetting() {
     params[key] = this.form[key].value;
   }
   params[game_mode] = this.personOnGroup ? 0 : 1;
-  console.log(params);
-  //记得清除
-  const timer = setTimeout(() => {
-    this.isLoading = !1;
-    this.showOverlay = !0;
-    this.QRCODE_URL = myQRCODE;
-  }, 1000);
+  try {
+    await submit_game_setting();
+  } catch (error) {
+    return erro;
+  }
+  //改变视图
+  this.isLoading = !1;
+  this.showOverlay = !0;
+  this.QRCODE_URL = myQRCODE;
 }
-async function getGameSetting() {
-  const res = await get_game_setting();
+/**
+ * 获取游戏配置
+ */
+async function getGameSetting(params) {
+  try {
+    return await get_game_settings(params);
+  } catch (error) {
+    console.log(error);
+  }
+}
+/**
+ * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
+ */
+async function getUserInfoTemplate() {
+  const res = await get_userInfo_template();
+  return res;
+}
+/**
+ * 获取游戏配置填写模板
+ */
+async function getGameSettingTemplate() {
+  const res = await get_game_setting_template();
   return res;
 }
 export {

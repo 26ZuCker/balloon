@@ -57,7 +57,6 @@
       :isDialog="isDialog"
       :waitingSecond="waitingSecond"
       :contentMsg="contentMsg"
-      :confirmBtnText="confirmBtnText"
       :showBtn="showBtn"
     ></Dialog>
   </view>
@@ -83,10 +82,6 @@ import {
   optionalMode,
   update,
 } from './hook/model.js'
-/**
- * 爆破点
- */
-const blast_point_list = []
 export default {
   inheritAttrs: false,
   name: 'game',
@@ -101,7 +96,6 @@ export default {
     waitingSecond: 2000,
     //需要传给子组件的props
     contentMsg: '',
-    confirmBtnText: '',
     //所需收集的数据
     statistics: null,
     showBtn: !0,
@@ -150,8 +144,8 @@ export default {
      * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
      */
     statisticsMsg () {
-      return this.mode === 'TRAIN' ? [`${this.train_dialog}`]
-        : (this.mode === 'PERSON' ? [`${this.game_dialog}`] : this.statistics)
+      return this.mode === 'TRAIN' ? [`${this.viewSettings.practice_tips}`]
+        : (this.mode === 'personal' ? [`${this.viewSettings.game_tips}`] : this.statistics)
     }
   },
   computed: {
@@ -172,13 +166,8 @@ export default {
       return this.mode === '' ? '' : optionalMode[this.mode].title
     },
     ...mapState({
-      train_dialog: (state) => state.game.train_dialog,
-      game_dialog: (state) => state.game.game_dialog,
-      round1_notice: (state) => state.game.round1_notice,
-      round2_notice: (state) => state.game.round2_notice,
-      personOnGroup: (state) => state.game.personOnGroup,
-      blast_point_list: (state) => state.game.blast_point_list,
-      is_update: (state) => state.game.is_update
+      viewSettings: (state) => state.viewSettings,
+      submitSettings: (state) => state.submitSettings,
     }),
   },
   async created () {

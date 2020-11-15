@@ -9,21 +9,13 @@ const errorMsgApiMap = {
 /**
  * 获取游戏配置
  */
-const get_game_settings = () => {
-  return {
-    game_type: { title: '随机爆破点分布方式', value: '' },
-    train_dialog: { title: '练习模式提示语', value: '' },
-    game_dialog: { title: '正式模式提示语', value: '' },
-    round1_notice: { title: '第一轮提示语', value: '' },
-    round2_notice: { title: '第二轮提示语', value: '' },
-  };
-};
+const get_game_settings = promisifyHttp(Taro, BASE_API, errorMsgApiMap['get_game_settings']);
 /**
  * 获取实时更新数据
  */
 const _update = promisifyHttp(Taro, BASE_API, errorMsgApiMap['_update']);
 /**
- * 提交游戏数据
+ * 提交游戏数据和个人信息
  */
 const _submit = promisifyHttp(Taro, BASE_API, errorMsgApiMap['_submit']);
 

@@ -15,7 +15,7 @@
         custom-class="van-button--round van-button--large"
         :loading="currentSecond !== 0"
         @tap="onConfirm"
-        >{{ confirmBtnText }}</van-button
+        >确认</van-button
       >
     </view>
   </van-overlay>
@@ -34,7 +34,6 @@ export default {
     waitingSecond: { type: Number, default: 0 },
     //以下为展示的具体内容
     contentMsg: [Object, Array],
-    confirmBtnText: { type: String, default: '' },
     //当前模式，用于判断是否为正式模式的所有关卡结束
     current_mode: { type: String },
   },
@@ -44,7 +43,7 @@ export default {
   }),
   computed: {
     btnColor () {
-      if (this.current_mode === 'PERSON') {
+      if (this.current_mode === 'personal') {
         return 'danger'
       }
       return this.currentSecond === 0 ? 'primary' : 'info'

@@ -1,11 +1,13 @@
+import { _update, _submit } from '@api/game';
+import { blast_point_list } from './model.js';
 /**
  * 打气
  */
 function blow() {
   //未达到爆炸点前点击
-  const current_point = blast_point_list[30 - this.statistics.left_checkpoint.value];
+  const current_point = blast_point_list[this.mode][30 - this.statistics.left_checkpoint.value];
   if (this.count < current_point) {
-    this.count += 1;
+    this.count += this.viewSettings.money;
     this.statistics.round_income.value = this.count;
     //这次点击达到爆炸点
     if (this.count === current_point) {
@@ -34,7 +36,7 @@ async function accountReceive() {
   this.isBombing = false;
   //发送数据，注意不能影响下一次
   try {
-    await submit(this.statistics);
+    await _submit(this.statistics);
   } catch (error) {
     console.log(error);
   }
@@ -42,10 +44,10 @@ async function accountReceive() {
 /**
  * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
  */
-function showDialog(timeout = 2000, contentMsg = [''], confirmBtnText = '', showBtn = !0) {
+function showDialog(timeout = 2000, contentMsg = [''], showBtn = !0) {
   this.isDialog = !0;
   this.waitingSecond = timeout;
-  this.changeProps(contentMsg, confirmBtnText, showBtn);
+  this.changeProps(contentMsg, showBtn);
 }
 /**
  * 监听对话框传的点击确认按钮事件

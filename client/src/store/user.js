@@ -4,7 +4,7 @@ import { login } from '@api/user.js';
 const state = {
   WCUserInfo: {},
   //参与者0研究生1
-  permission: 0,
+  permission: undefined,
 };
 
 const mutations = {
@@ -57,19 +57,38 @@ const actions = {
    * 注意：由于微信网络请求的api已经配置了失败回调，所以不需要额外包一层try catch
    */
   async login({ commit }) {
-    const [res1, res2] = await Promise.all([getOpenid(), getWCInfo()]);
+    /*     const [res1, res2] = await Promise.all([getOpenid(), getWCInfo()]);
     actionsGetOpenid(res1, commit);
-    actionsGetWCInfo(res2, commit);
+    actionsGetWCInfo(res2, commit); */
+    /*     const { result } = getOpenid();
+    const { openid } = result; */
+    Taro.cloud
+      .callFunction({
+        name: 'login',
+        data: { openid: openid },
+      })
+      .then((res) => {
+        const { code, message, data } = res;
+        if (code === '100') {
+          commit('user/set_permission', 1);
+          const past_round = data;
+          commit('game/setPastRound', past_round);
+        } else {
+          commit('user/set_permission', 0);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        commit('user/set_permission', 0);
+      });
   },
 };
-
 const getters = {
   /**
    * 满足其一即视作未登录
    */
-  isLogin: (state) => Object.keys(state.WCUserInfo).length === 0 || state.permission === null,
+  isLogin: (state) => Object.keys(state.WCUserInfo).length === 0 || state.permission === undefined,
 };
-
 export default {
   namespaced: true,
   state,

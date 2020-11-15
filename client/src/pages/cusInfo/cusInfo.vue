@@ -72,7 +72,6 @@
 
 <script>
 import Taro from '@tarojs/taro'
-import myQRCODE from '@img/myQRCODE.jpg'
 import { mapState, mapMutations } from 'vuex'
 
 import {
@@ -165,11 +164,6 @@ export default {
     const bool = this.permission === 0
     //填写的模板
     this.form = bool ? await getUserInfoTemplate() : await getGameSettingTemplate()
-    //填写时预加载和存储游戏配置
-    if (bool) {
-      const res = await getGameSetting()
-      this.setSettings(res)
-    }
   }
 }
 </script>

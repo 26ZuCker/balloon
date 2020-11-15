@@ -1,5 +1,6 @@
 /**
  * 封装taro的网络请求
+ * 注意：该方法只用于返回值而不做错误或成功后的处理因为前者有差异
  */
 const promisifyHttp = (Taro, BASE_API, { url, method }) => (data = {}) =>
   new Promise((resolve, reject) => {
