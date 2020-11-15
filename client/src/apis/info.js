@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { BASE_API, promisifyHttp } from './apiConfig.js';
+import { BASE_API, promisifyHttp } from './config.js';
 
 const errorMsgApiMap = {
   getAllBatch: { method: 'POST', url: 'getAllBatch' },

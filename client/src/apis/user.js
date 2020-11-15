@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { BASE_API, promisifyHttp } from './apiConfig.js';
+import { BASE_API, promisifyHttp } from './config.js';
 
 const errorMsgApiMap = {
   get_userInfo_template: { method: 'POST', url: 'get_userInfo_template' },

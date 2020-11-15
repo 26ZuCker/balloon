@@ -1,25 +1,37 @@
 const state = {
-  train_dialog: '',
-  game_dialog: '',
-  round1_notice: '',
-  round2_notice: '',
+  practice_tips: '',
+  game_tips: '',
+  round_tips: {},
   blast_point_list: [],
-  personOnGroup: 1,
+  personOnGroup: 0,
+  round: Number.MAX_SAFE_INTEGER,
+  batch: Number.MAX_SAFE_INTEGER,
+  blast_type: 0,
+  end_time: Number.MAX_SAFE_INTEGER,
 };
 const mutations = {
-  setDialog(state, form) {
-    //console.log(form);
-    const { train_dialog, game_dialog, round1_notice, round2_notice, personOnGroup } = form;
-    state.train_dialog = '练习模式介绍'; //train_dialog.value;
-    state.game_dialog = '正式模式介绍'; //game_dialog.value;
-    state.round1_notice = '个人模式提示语'; //round1_notice.value;
-    state.round2_notice = '团队模式提示语'; //round2_notice.value;
-    if (personOnGroup) {
-      state.personOnGroup = personOnGroup.value;
-    }
-  },
-  setBombArr(state, blast_point_list) {
+  setSettings(state, res) {
+    console.log(res);
+    const {
+      practice_tips,
+      game_tips,
+      personOnGroup,
+      round_tips,
+      blast_point_list,
+      round,
+      batch,
+      blast_type,
+      end_time,
+    } = res;
+    state.practice_tips = practice_tips;
+    state.game_tips = game_tips;
+    state.personOnGroup = personOnGroup;
     state.blast_point_list = blast_point_list;
+    state.batch = batch;
+    state.round = round;
+    state.round_tips = round_tips;
+    state.blast_type = blast_type;
+    state.end_time = end_time;
   },
 };
 const actions = {};

@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro';
-import { BASE_API, promisifyHttp } from './apiConfig.js';
+import { BASE_API, promisifyHttp } from './config.js';
 
 const errorMsgApiMap = {
   get_game_setting_template: { method: 'POST', url: 'get_userInfo_template' },
@@ -16,14 +16,23 @@ const errorMsgApiMap = {
  * 该批结束时间
  */
 const get_game_setting_template = () => {
-  return {
+  /*   return {
     batch: { title: '批次', value: '', validator: {} },
     end_time: { title: '结束时间', value: '', validator: {} },
-    blast_point_distribution: { title: '随机爆破点分布方式', value: '', validator: {} },
+    blast_point_distribution: { title: '随机爆破点分布方式', value: '0', validator: {} },
     practice_tips: { title: '练习模式提示语', value: '', validator: {} },
     game_tips: { title: '正式模式提示语', value: '', validator: {} },
     round1_notice: { title: '个人模式提示语', value: '', validator: {} },
     round2_notice: { title: '团队模式提示语', value: '', validator: {} },
+  }; */
+  return {
+    batch: { title: '批次', value: '', validator: {} },
+    round: { title: '组次', value: '', validator: {} },
+    blast_point_distribution: { title: '', value: '', validator: {} },
+    is_update: { title: '', value: '', validator: {} },
+    game_mode: { title: '', value: '', validator: {} },
+    practice_tips: { title: '', value: '', validator: {} },
+    end_time: { title: '', value: '', validator: {} },
   };
 };
 /**

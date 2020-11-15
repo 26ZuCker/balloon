@@ -41,7 +41,8 @@ export default {
      * 下载
      */
     async download (i) {
-      const res = await downloadExcel({ i })
+      const params = { batch: i }
+      const res = await downloadExcel(params)
     }
   },
   async created () {

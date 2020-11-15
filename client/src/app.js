@@ -5,7 +5,7 @@ import store from './store/index';
 import './app.scss';
 
 //由于taro使用拦截器需要额外安装taro-axios则直接全局挂载响应码即可
-import { cusResCode } from './apis/apiConfig.js';
+import { cusResCode } from './apis/config.js';
 Vue.prototype.$cusResCode = cusResCode;
 
 const App = new Vue({

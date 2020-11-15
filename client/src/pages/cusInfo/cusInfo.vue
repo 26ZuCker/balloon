@@ -71,16 +71,20 @@
 </template>
 
 <script>
-import Taro, { onLocalServiceLost } from '@tarojs/taro'
-//预加载配置
-import { get_game_setting } from '@api/game'
-//参与者
-import { get_userInfo_template, submit_userInfo } from '@api/user.js'
-//管理者
-import { get_game_setting_template, submit_game_setting } from '@api/gameSetting.js'
-import Notify from '@com/vant-weapp/dist/notify/notify.js';
+import Taro from '@tarojs/taro'
 import myQRCODE from '@img/myQRCODE.jpg'
 import { mapState, mapMutations } from 'vuex'
+
+import {
+  onInput,
+  submitChange,
+  submitUserInfo,
+  getUserInfoTemplate,
+  validateForm,
+  submitSetting,
+  getGameSettingTemplate,
+  getGameSetting
+} from './hook/model.js'
 
 export default {
   inheritAttrs: false,
@@ -96,87 +100,23 @@ export default {
   }),
   props: {},
   methods: {
-    /**
-     * 监听表单输入，后期注意防抖
-     */
-    onInput (key, $event) {
-      this.form[key].value = $event.detail
+    onInput () {
+      onInput.call(this, ...arguments)
     },
-    /**
-    * 根据路由传参判断当前页面为配置还是个人信息填写
-    */
-    submitChange () {
-      Notify({ type: 'warning', message: '提交中' });
-      console.log(this.form)
-      if (!this.validateForm()) {
-        Notify({ type: 'danger', message: '你尚未填写完毕' });
-        return
-      }
-      if (this.permission === 0) {
-        this.submit_userInfo()
-      } else if (this.permission === 1) {
-        this.submit_setting()
-      }
+    getUserInfoTemplate () {
+      getUserInfoTemplate.call(this, ...arguments)
     },
-    /**
-    * 校验表单输入值合法性：
-    * 1.是否填写完毕
-    * 2.每一块是否输入有效数值，注意即使输入number也转换为string即可
-    */
     validateForm () {
-      if (this.form === null) {
-        return false
-      }
-      //目前只校验是否已输入
-      for (const i in this.form) {
-        if (this.form[i].value.length === 0) {
-          return false
-        }
-      }
-      return true
+      validateForm.call(this, ...arguments)
     },
-    /**
-     * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
-     */
-    async get_userInfo_template () {
-      const { code, data } = (await get_userInfo_template()).data
-      if (code !== this.cusResCode.ERROR) {
-        this.userInfo = data.userInfo
-        return Promise.resolve()
-      } else {
-        return Promise.reject('http fail')
-      }
+    submitChange () {
+      submitChange.call(this, ...arguments)
     },
-    /**
-     * 提交用户信息
-     */
-    async submit_userInfo () {
-      this.isLoading = !0
-      //记得清除
-      const timer = setTimeout(() => {
-        this.isLoading = !1
-        Taro.navigateTo({
-          url: '../game/game',
-        })
-      }, 1000)
+    submit_userInfo () {
+      submit_userInfo.call(this, ...arguments)
     },
-    /**
-     * 提交更改配置
-     */
-    async submit_setting () {
-      this.isLoading = !0;
-      //浅拷贝
-      const params = {
-        ...this.form,
-        personOnGroup: { title: '个人模式先于团队模式', value: this.personOnGroup }
-      }
-      console.log(params)
-      //记得清除
-      const timer = setTimeout(() => {
-        this.isLoading = !1
-        this.showOverlay = !0
-        this.QRCODE_URL = myQRCODE
-      }, 1000)
+    submit_setting () {
+      submit_setting.call(this, ...arguments)
     },
     /**
      * 进入历史记录页面
@@ -185,7 +125,7 @@ export default {
       Taro.navigateTo({ url: '../info/info' })
     },
     ...mapMutations(
-      { setDialog: 'game/setDialog' }
+      { setSettings: 'game/setSettings' }
     )
   },
   computed: {
@@ -224,11 +164,11 @@ export default {
   async created () {
     const bool = this.permission === 0
     //填写的模板
-    this.form = bool ? await get_userInfo_template() : await get_game_setting_template()
+    this.form = bool ? await getUserInfoTemplate() : await getGameSettingTemplate()
     //填写时预加载和存储游戏配置
     if (bool) {
-      const settings = await get_game_setting()
-      this.setDialog(settings)
+      const res = await getGameSetting()
+      this.setSettings(res)
     }
   }
 }

@@ -21,6 +21,20 @@
     </view>
     <!-- 状态单元格 -->
     <van-cell-group>
+      <!-- 展示实时 -->
+      <van-cell>
+        <slot-view name="title">
+          实时数据
+          <van-switch
+            active-color="#07c160"
+            :checked="showCurrent"
+            @change="showCurrent = !showCurrent"
+          ></van-switch>
+        </slot-view>
+        <view v-if="showCurrent">{{}}</view>
+        <van-icon v-else name="browsing-history-o"></van-icon>
+      </van-cell>
+      <!-- 主体 -->
       <van-cell
         class="statistic-main"
         v-for="i in statistics"
@@ -92,7 +106,9 @@ export default {
     //所需收集的数据
     statistics: null,
     showBtn: !0,
-    mode: ''
+    mode: '',
+    //展示实时数据
+    showCurrent: true
   }),
   methods: {
     blow () {
