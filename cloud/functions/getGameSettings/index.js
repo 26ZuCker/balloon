@@ -72,14 +72,21 @@ exports.main = async (event, context) => {
     }
     // 生成爆破点
     try {
-      var blast_point_list = generate_blast_point_list(game_settings.blast_type);
+      var blast_point_list_team = generate_blast_point_list(game_settings.blast_point_distribution);
+      var blast_point_list_personal = generate_blast_point_list(
+        game_settings.blast_point_distribution
+      );
     } catch (e) {
       return {
         code: '103',
         message: 'Illegal blasting point parameter in setting!',
       };
     }
-    game_settings.blast_point_list = blast_point_list;
+    blast_point = {
+      team: blast_point_list_team,
+      personal: blast_point_list_personal,
+    };
+    game_settings.blast_point = blast_point;
     return {
       code: '100',
       message: 'success',

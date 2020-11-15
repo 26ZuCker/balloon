@@ -1,7 +1,7 @@
 {
   "miniprogramRoot": "client/dist/",
   "cloudfunctionRoot": "cloud/functions/",
-  "projectname": "temSentry",
+  "projectname": "balloon",
   "description": "",
   "appid": "wx6d14f707de91ec7e",
   "setting": {

@@ -65,37 +65,15 @@ import bomb from '@img/bomb.jpg'
 //组件
 import Dialog from '@com/common/Dialog.vue';
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
-
-//注意：与渲染无关的变量尽量不要存在data内
+//api
+import { submit } from '@api/game.js'
+//hook
+import { blow, accountReceive, showDialog, confirmDialog } from './hook/view.js'
+import { changeMode, changeProps, takeStatistics, iniOptionalMode, optionalMode, statics_template } from './hook/model.js'
 /**
- * 并非所有都需要渲染，后续需要重整结构
- * title顶部标题语
- * tip弹出框提示语
+ * 爆破点
  */
-const optionalMode = {
-  TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '确认' },
-  ROUND1: { title: '', tip: '', btnMsg: '确认' },
-  ROUND2: { title: '', tip: '', btnMsg: '确认' },
-  OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
-}
-/**
- * 统计信息模板
- */
-const statics_template = {
-  round_income: { title: '本轮收益', value: 0 },
-  total_income: { title: '总收益', value: 0 },
-  previous_income: { title: '上一轮收益', value: 0 },
-  left_checkpoint: { title: '剩余关卡', value: 30 },
-}
-/**
- * 当前模式
- */
-let mode = ''
-/**
- * 最大点击次数
- */
-let maxCount = 15
-
+const blast_point_list = []
 export default {
   inheritAttrs: false,
   name: 'game',
@@ -117,136 +95,29 @@ export default {
     mode: ''
   }),
   methods: {
-    /**
-     * 打气
-     */
     blow () {
-      //未达到爆炸点前点击
-      if (this.count < maxCount) {
-        this.count += 1
-        this.statistics.round_income.value = this.count
-        //这次点击达到爆炸点
-        if (this.count === maxCount) {
-          this.isBombing = !0
-          Notify({ type: 'warning', message: '爆炸' });
-        }
-      }
-      //再点击一次则统计本轮收益
-      else {
-        this.accountReceive()
-      }
+      blow.call(this, ...arguments)
     },
-    /**
-     * 收账
-     */
     accountReceive () {
-      let previous_income = this.count
-      if (this.isBombing) {
-        previous_income = 0
-      }
-      //需要统计数据
-      this.takeStatistics(previous_income)
-      //当前清零
-      this.count = 0
-      //视图改变
-      this.isBombing = false
+      accountReceive.call(this, ...arguments)
     },
-    /**
-     * 改变模式，只能单向不可逆
-     */
     changeMode () {
-      //练习模式之前
-      if (this.mode === '') {
-        console.log('1')
-        this.mode = 'TRAIN'
-        statics_template.left_checkpoint.value = 2
-        this.changeProps()
-      }
-      //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
-      else if (this.mode === 'TRAIN') {
-        console.log('2')
-        this.mode = 'ROUND1'
-        statics_template.left_checkpoint.value = 30
-        this.restart()
-        this.changeProps()
-      }
-      //正式模式30关结束后，包括团队此时需要回调
-      else if (this.mode === 'ROUND1') {
-        console.log('3')
-        this.mode = 'ROUND2'
-        this.restart()
-        this.changeProps()
-      }
-      else if (this.mode === 'ROUND2') {
-        console.log('4')
-        this.mode = 'OVER'
-        this.restart()
-        this.changeProps()
-      }
-      //所有模式结束，直接离开
-      else if (this.mode === 'OVER') {
-        console.log('5')
-        this.changeProps('', '', false)
-        this.showDialog(0)
-      }
+      changeMode.call(this, ...arguments)
     },
-    /**
-     * 改变传给dialog的props
-     */
-    changeProps (contentMsg = [''], confirmBtnText = '', showBtn = !0) {
-      //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
-      this.contentMsg = contentMsg[0] === '' ? this.statisticsMsg() : contentMsg
-      this.confirmBtnText = confirmBtnText === '' ? optionalMode[this.mode].btnMsg : confirmBtnText
-      if (!showBtn) {
-        this.showBtn = showBtn
-      }
+    changeProps () {
+      changeProps.call(this, ...arguments)
     },
-    /**
-     * 派发收账按钮的回调，统计和收集每一轮所需的数据
-     */
-    takeStatistics (previous_income = 0) {
-      this.statistics.previous_income.value = previous_income
-      this.statistics.round_income.value = 0
-      this.statistics.total_income.value += this.statistics.previous_income.value
-      this.statistics.left_checkpoint.value -= 1
-      //如果当前为练习模式则展示即初始化
-      if (this.mode === 'TRAIN' && this.statistics.left_checkpoint.value === 0) {
-        this.changeMode()
-        this.showDialog()
-        return
-      }
-      //如果进入16关则需要强制休息15s
-      if (this.statistics.left_checkpoint.value === 15) {
-        this.showDialog(1500, ['休息一下'], '继续游戏')
-      }
-      //正式模式及团队模式30关全部结束
-      if (this.statistics.left_checkpoint.value === 0) {
-        this.changeMode()
-        if (this.mode === 'OVER') {
-          //此处不需要等待，但需要展示按钮进行提交选项
-          this.showDialog(0, [''], '', false)
-        }
-      }
+    iniOptionalMode () {
+      iniOptionalMode.call(this, ...arguments)
     },
-    /**
-     * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
-     */
-    showDialog (timeout = 2000, contentMsg = [''], confirmBtnText = '', showBtn = !0) {
-      this.isDialog = !0
-      this.waitingSecond = timeout
-      this.changeProps(contentMsg, confirmBtnText, showBtn)
+    takeStatistics () {
+      takeStatistics.call(this, ...arguments)
     },
-    /**
-     * 监听对话框传的点击确认按钮事件
-     * 回调包括：可能改变模式，改变传入的文案
-     * 以下情况派发按钮的回调不需要改变当前模式，有两次点击时不能更改模式的
-     * 1.练习模式之前，此时在生命周期内进行初始化的changeMode即可
-     * 2.15关之后的等待
-     * 3.练习模式之后先改变，但是点击时不能进行改变
-     * 如果在正式模式后进行点击，需要进行loading处理
-     */
+    showDialog () {
+      showDialog.call(this, ...arguments)
+    },
     confirmDialog () {
-      this.isDialog = false
+      confirmDialog.call(this, ...arguments)
     },
     /**
      * 重新开始当前该用户当前批次的游戏，不必清空整个统计数据而只重置剩余关卡，不改变模式
@@ -261,13 +132,7 @@ export default {
      */
     statisticsMsg () {
       return this.mode === 'TRAIN' ? [`${this.train_dialog}`]
-        : (this.mode === 'ROUND1' ? [`${this.game_dialog}`] : this.statistics)
-    },
-    iniOptionalMode (personOnGroup) {
-      [optionalMode.TRAIN.tip, optionalMode.ROUND1.tip] = [this.train_dialog, this.game_dialog]
-      [optionalMode.ROUND1.title, optionalMode.ROUND2.title] =
-        personOnGroup ? [this.round1_notice, this.round2_notice]
-          : [this.round2_notice, this.round1_notice]
+        : (this.mode === 'PERSON' ? [`${this.game_dialog}`] : this.statistics)
     }
   },
   computed: {
@@ -292,14 +157,12 @@ export default {
       game_dialog: (state) => state.game.game_dialog,
       round1_notice: (state) => state.game.round1_notice,
       round2_notice: (state) => state.game.round2_notice,
-      personOnGroup: (state) => state.game.personOnGroup
+      personOnGroup: (state) => state.game.personOnGroup,
+      blast_point_list: (state) => state.game.blast_point_list,
     }),
-    ...mapGetters({
-      maxRound: 'game/maxRound'
-    })
   },
   async created () {
-    this.statistics = statics_template
+    this.statistics = statics_template;
     this.changeMode()
     //初始化先进行两轮练习
     this.showDialog()

@@ -11,9 +11,9 @@ const db = cloud.database();
 // 云函数入口函数
 exports.main = async (event, context) => {
   try {
-    const excel_name = '第' + event.batch + '批次数据.xlsx';
-    const all_data = [];
-    const head = [
+    let excel_name = '第' + event.batch + '批次数据.xlsx';
+    let all_data = [];
+    let head = [
       '姓名',
       '学号',
       '支付宝账号',
@@ -73,12 +73,11 @@ exports.main = async (event, context) => {
       temp_array.push(agd.name);
       temp_array.push(agd.school_number);
       temp_array.push(agd.alipay);
-      temp_array.push(agd.phone);
-      temp_array.push(agd.name);
+      temp_array.push(agd.phone_number);
       temp_array.push(agd.batch);
       temp_array.push(agd.group);
 
-      if (agd.game_data.personal.size != 30 || agd.game_data.team.size != 30) {
+      if (agd.game_data.personal.length != 30 || agd.game_data.team.length != 30) {
         all_data.push(temp_array);
         return true;
       }
@@ -109,7 +108,7 @@ exports.main = async (event, context) => {
         if (once_data.is_blast == false) {
           // team
           unexploded_balloons_sum_team += 1;
-          unexploded_balloons_blown_team += once_data.hit_coount;
+          unexploded_balloons_blown_team += once_data.hit_count;
 
           // 面临正反馈未爆气球被吹的平均次数(team)
           if (
@@ -118,13 +117,13 @@ exports.main = async (event, context) => {
             once_data.is_blast == false
           ) {
             positive_feedback_unexploded_balloons_sum_team += 1;
-            positive_feedback_unexploded_balloons_blown_team += once_data.hit_coount;
+            positive_feedback_unexploded_balloons_blown_team += once_data.hit_count;
           }
 
           // 面临负反馈未爆气球被吹的平均次数(team)
           if (i != 0 && agd.game_data.team[i - 1].is_blast == true && once_data.is_blast == false) {
             negative_feedback_unexploded_balloons_sum_team += 1;
-            negative_feedback_unexploded_balloons_blown_team += once_data.hit_coount;
+            negative_feedback_unexploded_balloons_blown_team += once_data.hit_count;
           }
         } else {
           exploded_balloons_sum_team += 1;
@@ -132,30 +131,30 @@ exports.main = async (event, context) => {
       }
 
       for (var j = 0; j < 30; j++) {
-        let once_data = agd.game_data.personal[i];
+        let once_data = agd.game_data.personal[j];
         total_income_personal += once_data.income;
         // personal
         unexploded_balloons_sum_personal += 1;
-        unexploded_balloons_blown_persoanl += once_data.hit_coount;
+        unexploded_balloons_blown_persoanl += once_data.hit_count;
 
         // 面临正反馈未爆气球被吹的平均次数(personal)
         if (
-          i != 0 &&
-          agd.game_data.personal[i - 1].is_blast == false &&
+          j != 0 &&
+          agd.game_data.personal[j - 1].is_blast == false &&
           once_data.is_blast == false
         ) {
           positive_feedback_unexploded_balloons_sum_personal += 1;
-          positive_feedback_unexploded_balloons_blown_personal += once_data.hit_coount;
+          positive_feedback_unexploded_balloons_blown_personal += once_data.hit_count;
         }
 
         // 面临负反馈未爆气球被吹的平均次数(personal)
         if (
-          i != 0 &&
-          agd.game_data.personal[i - 1].is_blast == true &&
+          j != 0 &&
+          agd.game_data.personal[j - 1].is_blast == true &&
           once_data.is_blast == false
         ) {
           negative_feedback_unexploded_balloons_sum_personal += 1;
-          negative_feedback_unexploded_balloons_blown_personal += once_data.hit_coount;
+          negative_feedback_unexploded_balloons_blown_personal += once_data.hit_count;
         }
       }
 
@@ -173,7 +172,7 @@ exports.main = async (event, context) => {
       temp_array[18] = total_income_team;
 
       // personal
-      temp_array[7] = unexploded_balloons_blown_personal / unexploded_balloons_sum_personal;
+      temp_array[7] = unexploded_balloons_blown_persoanl / unexploded_balloons_sum_personal;
       temp_array[9] = exploded_balloons_sum_personal;
       temp_array[12] =
         positive_feedback_unexploded_balloons_blown_personal /
@@ -188,19 +187,19 @@ exports.main = async (event, context) => {
       all_data.push(temp_array);
     });
 
-    const buffer = await xlsx.build([
+    var buffer = await xlsx.build([
       {
         name: 'mySheetName',
         data: all_data,
       },
     ]);
 
-    const file_id = await cloud.uploadFile({
+    let file_id = await cloud.uploadFile({
       cloudPath: excel_name,
       fileContent: buffer,
     });
 
-    const path = await cloud.getTempFileURL({
+    let path = await cloud.getTempFileURL({
       fileList: [file_id.fileID],
     });
 

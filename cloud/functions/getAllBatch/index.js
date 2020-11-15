@@ -10,28 +10,28 @@ const MAX_LIMIT = 100;
 exports.main = async (event, context) => {
   //获取所有的数据
   try {
-    const countResult = await db.collection('game_data').count();
+    const countResult = await db.collection('settings').count();
     const total = countResult.total;
     const batchTimes = Math.ceil(total / 100);
 
     const tasks = [];
-    for (const i = 0; i < batchTimes; i++) {
+    for (let i = 0; i < batchTimes; i++) {
       const promise = db
-        .collection('game_data')
+        .collection('settings')
         .skip(i * MAX_LIMIT)
         .limit(MAX_LIMIT)
         .get();
       tasks.push(promise);
     }
     // 等待所有
-    const data = (await Promise.all(tasks)).reduce((acc, cur) => {
+    let data = (await Promise.all(tasks)).reduce((acc, cur) => {
       return {
         data: acc.data.concat(cur.data),
         errMsg: acc.errMsg,
       };
     }).data;
 
-    const used_list = [];
+    let used_list = Array();
     data.forEach((v) => {
       used_list.push(v.batch);
     });

@@ -3,7 +3,7 @@ const state = {
   game_dialog: '',
   round1_notice: '',
   round2_notice: '',
-  bomb_arr: [],
+  blast_point_list: [],
   personOnGroup: 1,
 };
 const mutations = {
@@ -18,8 +18,8 @@ const mutations = {
       state.personOnGroup = personOnGroup.value;
     }
   },
-  setBombArr(state, bomb_arr) {
-    state.bomb_arr = bomb_arr;
+  setBombArr(state, blast_point_list) {
+    state.blast_point_list = blast_point_list;
   },
 };
 const actions = {};
