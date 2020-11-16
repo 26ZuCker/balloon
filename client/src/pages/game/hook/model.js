@@ -112,7 +112,7 @@ function takeStatistics(previous_income = 0) {
   }
 }
 /**
- * 初始化提示语
+ * 初始化四个提示语：练习模式和正式模式dialog，个人和团队的顶部title
  * @param {boolean} personOnGroup
  */
 function iniOptionalMode(personOnGroup) {

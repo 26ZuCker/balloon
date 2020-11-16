@@ -55,7 +55,6 @@ const mutations = {
       res[key] = userInfo[key];
     }
     state.userInfo = { ...res };
-    console.log(userInfo);
   },
 };
 /**

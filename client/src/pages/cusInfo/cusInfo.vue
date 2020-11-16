@@ -167,13 +167,17 @@ export default {
       const batch = this.form.batch.value;
       let res;
       try {
-        res = await getGameSetting({ batch: batch });
+        res = await this.getGameSetting({ batch: batch });
+        this.isLoading = !1;
+        if (typeof res === 'string') {
+          Notify({ type: 'danger', message: res });
+          return
+        }
       } catch (error) {
         return error;
       }
       this.setSettings(res);
       //调整视图
-      this.isLoading = !1;
       Taro.navigateTo({
         url: '../game/game',
       });
