@@ -1,7 +1,7 @@
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import myQRCODE from '@img/myQRCODE.jpg';
 //参与者
-import { get_userInfo_template, submit_userInfo, login } from '@api/user.js';
+import { get_userInfo_template } from '@api/user.js';
 //管理者
 import { get_game_setting_template, submit_game_setting } from '@api/setting.js';
 //预加载配置
@@ -19,30 +19,29 @@ function onInput(key, $event) {
  */
 function validateForm() {
   if (this.form === null) {
-    return false;
+    return !1;
   }
   //目前只校验是否已输入
-  for (const i in this.form) {
-    if (this.form[i].value.length === 0) {
-      return false;
+  for (const key in this.form) {
+    if (this.form[key].value.length === 0) {
+      return !1;
     }
   }
-  return true;
+  return !0;
 }
 /**
  * 根据路由传参判断当前页面为配置还是个人信息填写
  */
 function submitChange() {
   Notify({ type: 'warning', message: '提交中' });
-  console.log(this.form);
   if (!this.validateForm()) {
     Notify({ type: 'danger', message: '你尚未填写完毕' });
     return;
   }
   if (this.permission === 0) {
-    this.submit_userInfo();
+    this.submitUserInfo();
   } else if (this.permission === 1) {
-    this.submit_setting();
+    this.submitSetting();
   }
 }
 /**

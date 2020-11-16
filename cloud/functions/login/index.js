@@ -17,43 +17,52 @@ const MAX_LIMIT = 100
  * 
  */
 exports.main = async (event, context) => {
-  
-  const wxContext = cloud.getWXContext()
-  if (wxContext.OPENID == "okhxZ46ZE-j-eU6JHfI-bpEGzgN") {
-    //获取所有的数据
-    const countResult = await db.collection('settings').count()
-    const total = countResult.total
 
-    const batchTimes = Math.ceil(total / 100)
+  try {
+    const wxContext = cloud.getWXContext()
+    if (wxContext.OPENID == "okhxZ46ZE-j-eU6JHfI-bpEGzgN") {
+      //获取所有的数据
+      const countResult = await db.collection('settings').count()
+      const total = countResult.total
 
-    const tasks = []
-    for (let i = 0; i < batchTimes; i++) {
-      const promise = db.collection('settings').skip(i * MAX_LIMIT).limit(MAX_LIMIT)
-        .get()
-      tasks.push(promise)
-    }
-    // 等待所有
-    let data = (await Promise.all(tasks)).reduce((acc, cur) => {
-      return {
-        data: acc.data.concat(cur.data),
-        errMsg: acc.errMsg,
+      const batchTimes = Math.ceil(total / 100)
+
+      const tasks = []
+      for (let i = 0; i < batchTimes; i++) {
+        const promise = db.collection('settings').skip(i * MAX_LIMIT).limit(MAX_LIMIT)
+          .get()
+        tasks.push(promise)
       }
-    }).data
+      // 等待所有
+      let data = (await Promise.all(tasks)).reduce((acc, cur) => {
+        return {
+          data: acc.data.concat(cur.data),
+          errMsg: acc.errMsg,
+        }
+      }).data
 
-    let used_list = Array()
-    data.forEach(v => {
-      used_list.push(v.batch)
-    })
+      let used_list = Array()
+      data.forEach(v => {
+        used_list.push(v.batch)
+      })
 
-    return {
-      code: "100",
-      message: "success",
-      data: used_list
+      return {
+        code: "100",
+        message: "success",
+        data: used_list
+      }
+    } else {
+      return {
+        code: "102",
+        message: "Authentication failed"
+      }
     }
-  } else {
+
+  } catch (e) {
     return {
       code: "101",
-      message: "fail"
+      message: e
     }
   }
+
 }

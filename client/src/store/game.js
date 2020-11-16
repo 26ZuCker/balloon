@@ -8,7 +8,6 @@ const state = {
   viewSettings: {
     practice_tips: '',
     game_tips: '',
-    personOnGroup: 0,
     round_tips: {
       team: '',
       personal: '',
@@ -44,6 +43,7 @@ const mutations = {
       end_time,
       group,
     } = res; */
+    console.log(res);
     for (const key in res) {
       if (key === 'batch' || key === 'end_time' || key === 'group') {
         state.submitSettings[key] = res[key];

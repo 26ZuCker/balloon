@@ -177,7 +177,7 @@ export default {
     //初始化先进行两轮练习
     this.showDialog()
     //初始化optionmode
-    this.iniOptionalMode(this.personOnGroup)
+    this.iniOptionalMode(this.viewSettings.game_mode === 0)
     //实时更新
     if (this.viewSettings.is_update) {
       const timer = setInterval(() => {

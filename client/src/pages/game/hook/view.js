@@ -6,7 +6,7 @@ import Taro from '@tarojs/taro';
  */
 function blow() {
   //未达到爆炸点前点击
-  const current_point = this.viewSettings.blast_point_list[this.mode][
+  const current_point = this.viewSettings.blast_point[this.mode][
     30 - this.statistics.left_checkpoint.value
   ];
   if (this.count < current_point) {

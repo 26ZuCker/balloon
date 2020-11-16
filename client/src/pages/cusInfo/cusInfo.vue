@@ -28,22 +28,20 @@
         >
         </van-field>
         <!-- 开关判断是否需要团队模式先于个人 -->
-        <template>
-          <van-cell title="实时更新">
-            <van-switch
-              active-color="#07c160"
-              :checked="is_update"
-              @change="is_update = !is_update"
-            ></van-switch>
-          </van-cell>
-          <van-cell title="个人模式优先">
-            <van-switch
-              active-color="#07c160"
-              :checked="game_mode"
-              @change="game_mode = !game_mode"
-            ></van-switch>
-          </van-cell>
-        </template>
+        <van-cell title="实时更新" v-if="permission === 1">
+          <van-switch
+            active-color="#07c160"
+            :checked="is_update"
+            @change="is_update = !is_update"
+          ></van-switch>
+        </van-cell>
+        <van-cell title="个人模式优先" v-if="permission === 1">
+          <van-switch
+            active-color="#07c160"
+            :checked="game_mode"
+            @change="game_mode = !game_mode"
+          ></van-switch>
+        </van-cell>
       </van-cell-group>
       <view class="rca mt-3">
         <!-- 根据角色判断权限，底部交互按钮 -->
@@ -82,7 +80,15 @@
 import Taro from '@tarojs/taro'
 import { mapState, mapMutations } from 'vuex'
 
-import {
+import Notify from '@com/vant-weapp/dist/notify/notify.js';
+import myQRCODE from '@img/myQRCODE.jpg';
+//参与者
+import { get_userInfo_template } from '@api/user.js';
+//管理者
+import { get_game_setting_template, submit_game_setting } from '@api/setting.js';
+//预加载配置
+import { get_game_settings, _update, _submit } from '@api/game';
+/* import {
   onInput,
   submitChange,
   submitUserInfo,
@@ -91,7 +97,7 @@ import {
   submitSetting,
   getGameSettingTemplate,
   getGameSetting
-} from './hook/model.js'
+} from './hook/model.js' */
 
 export default {
   inheritAttrs: false,
@@ -108,23 +114,115 @@ export default {
   }),
   props: {},
   methods: {
-    onInput () {
-      onInput.call(this, ...arguments)
+    /**
+     * 监听表单输入，后期注意防抖
+     */
+    onInput (key, $event) {
+      this.form[key].value = $event.detail;
     },
-    getUserInfoTemplate () {
-      getUserInfoTemplate.call(this, ...arguments)
-    },
+    /**
+     * 校验表单输入值合法性：
+     * 1.是否填写完毕
+     * 2.每一块是否输入有效数值，注意即使输入number也转换为string即可
+     */
     validateForm () {
-      validateForm.call(this, ...arguments)
+      if (this.form === null) {
+        return !1;
+      }
+      //目前只校验是否已输入
+      for (const key in this.form) {
+        if (this.form[key].value.length === 0) {
+          return !1;
+        }
+      }
+      return !0;
     },
+    /**
+     * 根据路由传参判断当前页面为配置还是个人信息填写
+     */
     submitChange () {
-      submitChange.call(this, ...arguments)
+      Notify({ type: 'warning', message: '提交中' });
+      if (!this.validateForm()) {
+        Notify({ type: 'danger', message: '你尚未填写完毕' });
+        return;
+      }
+      if (this.permission === 0) {
+        this.submitUserInfo();
+      } else if (this.permission === 1) {
+        this.submitSetting();
+      }
     },
-    submit_userInfo () {
-      submit_userInfo.call(this, ...arguments)
+    /**
+     * 提交用户信息之后再获取游戏参数
+     */
+    async submitUserInfo () {
+      this.isLoading = !0;
+      //先提交
+      const params = {};
+      for (const key in this.form) {
+        params[key] = this.form[key].value;
+      }
+      this.setUserInfo(params);
+      //后获取此批游戏配置
+      const batch = this.form.batch.value;
+      let res;
+      try {
+        res = await getGameSetting({ batch: batch });
+      } catch (error) {
+        return error;
+      }
+      this.setSettings(res);
+      //调整视图
+      this.isLoading = !1;
+      Taro.navigateTo({
+        url: '../game/game',
+      });
     },
-    submit_setting () {
-      submit_setting.call(this, ...arguments)
+    /**
+     * 提交更改配置
+     */
+    async submitSetting () {
+      this.isLoading = !0;
+      const params = {};
+      for (const key in this.form) {
+        params[key] = this.form[key].value;
+      }
+      params['is_update'] = this.is_update;
+      params['blast_point_distribution'] = 0;
+      params['game_mode'] = this.game_mode ? 0 : 1;
+      try {
+        await submit_game_setting(params);
+      } catch (error) {
+        return error;
+      }
+      //改变视图
+      this.isLoading = !1;
+      this.showOverlay = !0;
+      this.QRCODE_URL = myQRCODE;
+    },
+    /**
+     * 获取游戏配置
+     */
+    async getGameSetting (params) {
+      try {
+        return await get_game_settings(params);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /**
+     * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
+     */
+    async getUserInfoTemplate () {
+      const res = await get_userInfo_template();
+      return res;
+    },
+    /**
+     * 获取游戏配置填写模板
+     */
+    async getGameSettingTemplate () {
+      const res = await get_game_setting_template();
+      return res;
     },
     /**
      * 进入历史记录页面
@@ -172,7 +270,7 @@ export default {
   async created () {
     const bool = this.permission === 0
     //填写的模板
-    this.form = bool ? await getUserInfoTemplate() : await getGameSettingTemplate()
+    this.form = bool ? await this.getUserInfoTemplate() : await this.getGameSettingTemplate()
   }
 }
 </script>

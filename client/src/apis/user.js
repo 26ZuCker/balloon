@@ -29,7 +29,7 @@ const get_userInfo_template = () => {
  */
 const submit_userInfo = promisifyHttp(Taro, BASE_API, errorMsgApiMap['submit_userInfo']);
 /**
- * 根据openid登录获取角色
+ * 获取角色
  */
 const login = promisifyHttp(Taro, BASE_API, errorMsgApiMap['login']);
 

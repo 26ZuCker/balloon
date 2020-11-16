@@ -113,17 +113,16 @@ function takeStatistics(previous_income = 0) {
 }
 /**
  * 初始化提示语
- * @param {number} personOnGroup
+ * @param {boolean} personOnGroup
  */
 function iniOptionalMode(personOnGroup) {
-  [blast_point, optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
-    this.viewSettings.blast_point,
+  [optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
     this.viewSettings.practice_tips,
     this.viewSettings.game_tips,
   ];
   [optionalMode.personal.title, optionalMode.team.title] = personOnGroup
-    ? [this.round_tips.personal, this.round_tips.team]
-    : [this.round_tips.team, this.round_tips.personal];
+    ? [this.viewSettings.round_tips.personal, this.viewSettings.round_tips.team]
+    : [this.viewSettings.round_tips.team, this.viewSettings.round_tips.personal];
 }
 /**
  * 实时更新平均收入

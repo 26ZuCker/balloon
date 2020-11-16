@@ -5,7 +5,7 @@ import Taro from '@tarojs/taro';
 const state = {
   WCUserInfo: {},
   //参与者0研究生1
-  permission: undefined,
+  permission: 0,
   //填写信息先存在本地
   userInfo: {
     batch: undefined,
@@ -18,17 +18,31 @@ const state = {
 };
 
 const mutations = {
-  set_WCUserInfo(state, WCUserInfo) {
-    state.WCUserInfo = WCUserInfo;
-  },
+  /**
+   * 设置角色
+   * @param {any} state
+   * @param {object} userInfo
+   */
   set_permission(state, permission) {
     state.permission = permission;
   },
-  reset_WCUserInfo(state) {
-    state.WCUserInf = {};
-  },
   reset_permission(state) {
     state.permission = null;
+  },
+  /**
+   * 清空用户信息
+   * @param {any} state
+   * @param {object} userInfo
+   */
+  resetUserInfo(state) {
+    state.userInfo = {
+      batch: undefined,
+      alipay: '',
+      group: '',
+      name: '',
+      phone_number: '',
+      school_number: '',
+    };
   },
   /**
    * 存储用户填写信息在vuex
@@ -38,10 +52,10 @@ const mutations = {
   setUserInfo(state, userInfo) {
     const res = {};
     for (const key in userInfo) {
-      res[key] = userInfo[key].value;
+      res[key] = userInfo[key];
     }
-    //浅拷贝即可
     state.userInfo = { ...res };
+    console.log(userInfo);
   },
 };
 /**
@@ -91,7 +105,8 @@ const actions = {
         data: {},
       })
       .then((res) => {
-        const { code, message, data } = res;
+        const { result } = res;
+        const { code, message, data } = result;
         if (code === '100') {
           commit('set_permission', 1);
           const past_round = data;
