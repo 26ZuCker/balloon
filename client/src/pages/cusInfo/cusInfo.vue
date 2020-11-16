@@ -79,7 +79,7 @@
 <script>
 import Taro from '@tarojs/taro'
 import { mapState, mapMutations } from 'vuex'
-
+import validate from '@util/validate'
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import myQRCODE from '@img/myQRCODE.jpg';
 //参与者
@@ -131,11 +131,20 @@ export default {
       }
       //目前只校验是否已输入
       for (const key in this.form) {
-        if (this.form[key].value.length === 0) {
-          return !1;
+        const cur = this.form[key]
+        if (Object.keys(cur.validator) !== 0
+          && !validate(cur.value, cur.validator.eleType, cur.validator.validType)) {
+          Notify({ type: 'danger', message: '格式填写错误' })
+          return false
+        }
+        else {
+          if (this.form[key].value.length === 0) {
+            Notify({ type: 'danger', message: '你尚未填写完毕' })
+            return false
+          }
         }
       }
-      return !0;
+      return true
     },
     /**
      * 根据路由传参判断当前页面为配置还是个人信息填写
@@ -143,7 +152,6 @@ export default {
     submitChange () {
       Notify({ type: 'warning', message: '提交中' });
       if (!this.validateForm()) {
-        Notify({ type: 'danger', message: '你尚未填写完毕' });
         return;
       }
       if (this.permission === 0) {
@@ -160,6 +168,7 @@ export default {
       //先提交
       const params = {};
       for (const key in this.form) {
+
         params[key] = this.form[key].value;
       }
       this.setUserInfo(params);

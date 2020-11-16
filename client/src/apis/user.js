@@ -16,9 +16,17 @@ const errorMsgApiMap = {
 ); */
 const get_userInfo_template = () => {
   return {
-    batch: { title: '批次', value: '', validator: {} },
+    batch: {
+      title: '批次',
+      value: '',
+      validator: { validType: 'REG', eleType: 'positiveInteger' },
+    },
     alipay: { title: '支付宝账号', value: '', validator: {} },
-    group: { title: '组次', value: '', validator: {} },
+    group: {
+      title: '组次',
+      value: '',
+      validator: { validType: 'REG', eleType: 'positiveInteger' },
+    },
     name: { title: '姓名', value: '', validator: {} },
     phone_number: { title: '手机号码', value: '', validator: {} },
     school_number: { title: '学号', value: '', validator: {} },

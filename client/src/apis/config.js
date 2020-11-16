@@ -10,6 +10,7 @@ const promisifyHttp = (Taro, BASE_API, { url, method }) => (data = {}) =>
         data: data,
       })
       .then((res) => {
+        console.log(res);
         const { result } = res;
         const { code, message, data } = result;
         if (code === cusResCode.SUCCESS) {

@@ -10,7 +10,7 @@ const errorMsgApiMap = {
  */
 const get_game_setting_template = () => {
   return {
-    batch: { title: '批次', value: '', validator: {} },
+    batch: { title: '批次', value: '', validator: { type: 'REG', reg: 'positiveInteger' } },
     money: { title: '每次点击收益', value: '', validator: {} },
     team_tips: { title: '团队提示', value: '', validator: {} },
     personal_tips: { title: '个人提示', value: '', validator: {} },

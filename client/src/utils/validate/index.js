@@ -1,18 +1,25 @@
 //正则
-export { phoneReg, nameReg, positiveInteger } from './reg';
+import { phone, name, positiveInteger } from './reg';
 //类型
 import getType from './type';
-export { getType };
-export { isArray, isObject } from './type';
+import { isArray, isObject } from './type';
 /**
- * 柯里化入口函数，根据传入的校验类型返回相应的校验函数，后期必须检查能否tree-shaking
+ * 正则映射
+ */
+const regMap = {
+  positiveInteger: positiveInteger,
+  phone: phone,
+  name: name,
+};
+/**
+ * 根据传入的校验类型返回相应的校验函数，后期必须检查能否tree-shaking
  * @param {string} validType 可选：TYPE，REG
  */
-const validate = (validType = 'TYPE') => {
+const validate = (target, eleType, validType = 'TYPE') => {
   if (validType === 'TYPE') {
-    return validateType;
+    return regMap[eleType]?.test(target) || true;
   } else if (validType === 'REG') {
-    return validateReg;
+    return regMap[eleType]?.test(target) || true;
   }
 };
 /**
@@ -20,7 +27,9 @@ const validate = (validType = 'TYPE') => {
  * @param {any} target
  * @param {string} type
  */
-function validateReg(target, type) {}
+function validateReg(target, type) {
+  return regMap[type].test(target);
+}
 /**
  * 校验数据类型
  * @param {any} target

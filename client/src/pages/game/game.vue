@@ -179,14 +179,14 @@ export default {
     //初始化optionmode
     this.iniOptionalMode(this.viewSettings.game_mode === 0)
     //实时更新
-    if (this.viewSettings.is_update) {
-      const timer = setInterval(() => {
-        this.update()
-      }, 2000)
-      this.$on('beforeDestroy', () => {
-        clearInterval(timer)
-      })
-    }
+    /*     if (this.viewSettings.is_update) {
+          const timer = setInterval(() => {
+            this.update()
+          }, 2000)
+          this.$on('beforeDestroy', () => {
+            clearInterval(timer)
+          })
+        } */
   },
   beforeDestroy () {
 
