@@ -19,12 +19,13 @@ const statics_template = {
   left_checkpoint: { title: '剩余关卡', value: 30 },
 };
 /**
- * 爆破点，由于view需要使用，所以通过esm导出以共用
+ * 重新开始当前该用户当前批次的游戏，不必清空整个统计数据而只重置剩余关卡，不改变模式
  */
-const blast_point_list = {
-  team: [],
-  personal: [],
-};
+function restart() {
+  this.count = 0;
+  //this.statistics = statics_template
+  this.statistics.left_checkpoint.value = 30;
+}
 /**
  * 改变模式，只能单向不可逆
  */
@@ -74,6 +75,16 @@ function changeProps(contentMsg = [''], confirmBtnText = '', showBtn = !0) {
   }
 }
 /**
+ * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
+ */
+function statisticsMsg() {
+  return this.mode === 'TRAIN'
+    ? [`${this.viewSettings.practice_tips}`]
+    : this.mode === 'personal'
+    ? [`${this.viewSettings.game_tips}`]
+    : this.statistics;
+}
+/**
  * 派发收账按钮的回调，统计和收集每一轮所需的数据
  */
 function takeStatistics(previous_income = 0) {
@@ -105,8 +116,8 @@ function takeStatistics(previous_income = 0) {
  * @param {number} personOnGroup
  */
 function iniOptionalMode(personOnGroup) {
-  [blast_point_list, optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
-    blast_point_list,
+  [blast_point, optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
+    this.viewSettings.blast_point,
     this.viewSettings.practice_tips,
     this.viewSettings.game_tips,
   ];
@@ -134,5 +145,6 @@ export {
   statics_template,
   optionalMode,
   update,
-  blast_point_list,
+  statisticsMsg,
+  restart,
 };

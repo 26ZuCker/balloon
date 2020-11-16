@@ -1,10 +1,20 @@
 import { getOpenid, getWCInfo } from '@util/WeChat';
 import { login } from '@api/user.js';
+import Taro from '@tarojs/taro';
 
 const state = {
   WCUserInfo: {},
   //参与者0研究生1
   permission: undefined,
+  //填写信息先存在本地
+  userInfo: {
+    batch: undefined,
+    alipay: '',
+    group: '',
+    name: '',
+    phone_number: '',
+    school_number: '',
+  },
 };
 
 const mutations = {
@@ -19,6 +29,19 @@ const mutations = {
   },
   reset_permission(state) {
     state.permission = null;
+  },
+  /**
+   * 存储用户填写信息在vuex
+   * @param {any} state
+   * @param {object} userInfo
+   */
+  setUserInfo(state, userInfo) {
+    const res = {};
+    for (const key in userInfo) {
+      res[key] = userInfo[key].value;
+    }
+    //浅拷贝即可
+    state.userInfo = { ...res };
   },
 };
 /**
@@ -65,21 +88,21 @@ const actions = {
     Taro.cloud
       .callFunction({
         name: 'login',
-        data: { openid: openid },
+        data: {},
       })
       .then((res) => {
         const { code, message, data } = res;
         if (code === '100') {
-          commit('user/set_permission', 1);
+          commit('set_permission', 1);
           const past_round = data;
           commit('game/setPastRound', past_round);
         } else {
-          commit('user/set_permission', 0);
+          commit('set_permission', 0);
         }
       })
       .catch((error) => {
         console.log(error);
-        commit('user/set_permission', 0);
+        commit('set_permission', 0);
       });
   },
 };

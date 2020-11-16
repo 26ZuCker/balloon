@@ -23,7 +23,7 @@
     <van-cell-group>
       <!-- 展示实时 -->
       <van-cell
-        v-if="is_update"
+        v-if="viewSettings.is_update"
         title="实时数据"
         :value="average_income"
       ></van-cell>
@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import Taro from '@tarojs/taro';
 import { mapState, mapGetters } from 'vuex'
 //图片
@@ -70,9 +71,8 @@ import balloon from '@img/balloon.jpg'
 import bomb from '@img/bomb.jpg'
 //组件
 import Dialog from '@com/common/Dialog.vue';
-import Notify from '@com/vant-weapp/dist/notify/notify.js';
 //hook
-import { blow, accountReceive, showDialog, confirmDialog } from './hook/view.js'
+import { blow, accountReceive, showDialog, confirmDialog, judgeOK } from './hook/view.js'
 import {
   changeMode,
   changeProps,
@@ -81,6 +81,8 @@ import {
   statics_template,
   optionalMode,
   update,
+  statisticsMsg,
+  restart,
 } from './hook/model.js'
 export default {
   inheritAttrs: false,
@@ -105,6 +107,9 @@ export default {
     average_income: 0
   }),
   methods: {
+    judgeOK () {
+      judgeOK.call(this, ...arguments)
+    },
     blow () {
       blow.call(this, ...arguments)
     },
@@ -132,20 +137,11 @@ export default {
     update () {
       update.call(this, ...arguments)
     },
-    /**
-     * 重新开始当前该用户当前批次的游戏，不必清空整个统计数据而只重置剩余关卡，不改变模式
-     */
     restart () {
-      this.count = 0
-      //this.statistics = statics_template
-      this.statistics.left_checkpoint.value = 30
+      restart.call(this, ...arguments)
     },
-    /**
-     * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
-     */
     statisticsMsg () {
-      return this.mode === 'TRAIN' ? [`${this.viewSettings.practice_tips}`]
-        : (this.mode === 'personal' ? [`${this.viewSettings.game_tips}`] : this.statistics)
+      statisticsMsg.call(this, ...arguments)
     }
   },
   computed: {
@@ -166,11 +162,16 @@ export default {
       return this.mode === '' ? '' : optionalMode[this.mode].title
     },
     ...mapState({
-      viewSettings: (state) => state.viewSettings,
-      submitSettings: (state) => state.submitSettings,
+      viewSettings: (state) => state.game.viewSettings,
+      submitSettings: (state) => state.game.submitSettings,
+      userInfo: (state) => state.user.userInfo,
     }),
+    ...mapGetters({
+      isOk: 'game/isOk'
+    })
   },
   async created () {
+    this.judgeOK()
     this.statistics = statics_template;
     this.changeMode()
     //初始化先进行两轮练习
@@ -178,7 +179,7 @@ export default {
     //初始化optionmode
     this.iniOptionalMode(this.personOnGroup)
     //实时更新
-    if (this.is_update) {
+    if (this.viewSettings.is_update) {
       const timer = setInterval(() => {
         this.update()
       }, 2000)
@@ -192,7 +193,6 @@ export default {
   }
 }
 </script>
-
 <style lang='scss'>
 @import url("./game.scss");
 </style>

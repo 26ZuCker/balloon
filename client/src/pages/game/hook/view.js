@@ -1,11 +1,14 @@
 import { _update, _submit } from '@api/game';
-import { blast_point_list } from './model.js';
+import Notify from '@com/vant-weapp/dist/notify/notify.js';
+import Taro from '@tarojs/taro';
 /**
  * 打气
  */
 function blow() {
   //未达到爆炸点前点击
-  const current_point = blast_point_list[this.mode][30 - this.statistics.left_checkpoint.value];
+  const current_point = this.viewSettings.blast_point_list[this.mode][
+    30 - this.statistics.left_checkpoint.value
+  ];
   if (this.count < current_point) {
     this.count += this.viewSettings.money;
     this.statistics.round_income.value = this.count;
@@ -28,15 +31,30 @@ async function accountReceive() {
   if (this.isBombing) {
     previous_income = 0;
   }
+  //发送数据，注意不能影响下一次
+  const params = {
+    batch: this.submitSettings.batch,
+    alipay: this.userInfo.alipay,
+    group: this.userInfo.group,
+    name: this.userInfo.name,
+    phone_number: this.userInfo.phone_number,
+    school_number: this.userInfo.school_number,
+    type: this.mode === 'team' ? 1 : 0,
+    /*     submit_data: {
+      blast_point: this.statistics,
+      hit_count: 12,
+      income: 12999990,
+      is_blast: this.isBombing,
+    }, */
+  };
   //需要统计数据
   this.takeStatistics(previous_income);
   //当前清零
   this.count = 0;
   //视图改变
   this.isBombing = false;
-  //发送数据，注意不能影响下一次
   try {
-    await _submit(this.statistics);
+    await _submit(params);
   } catch (error) {
     console.log(error);
   }
@@ -61,4 +79,20 @@ function showDialog(timeout = 2000, contentMsg = [''], showBtn = !0) {
 function confirmDialog() {
   this.isDialog = false;
 }
-export { blow, accountReceive, showDialog, confirmDialog };
+/**
+ * 判断是否正确获取到游戏配置
+ */
+function judgeOK() {
+  if (!this.isOk) {
+    Notify({ type: 'danger', message: '网络请求错误，请重新输入' });
+    const timer = setTimeout(() => {
+      Taro.redirectTo({
+        url: '../cusInfo/cusInfo',
+      });
+    }, 1000);
+    this.$on('beforeDestroy', () => {
+      clearTimeout(timer);
+    });
+  }
+}
+export { blow, accountReceive, showDialog, confirmDialog, judgeOK };

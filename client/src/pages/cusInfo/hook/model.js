@@ -55,11 +55,7 @@ async function submitUserInfo() {
   for (const key in this.form) {
     params[key] = this.form[key].value;
   }
-  try {
-    await _submit(params);
-  } catch (error) {
-    return error;
-  }
+  this.setUserInfo(params);
   //后获取此批游戏配置
   const batch = this.form.batch.value;
   let res;
@@ -84,11 +80,13 @@ async function submitSetting() {
   for (const key in this.form) {
     params[key] = this.form[key].value;
   }
-  params[game_mode] = this.personOnGroup ? 0 : 1;
+  params['is_update'] = this.is_update;
+  params['blast_point_distribution'] = 0;
+  params['game_mode'] = this.game_mode ? 0 : 1;
   try {
-    await submit_game_setting();
+    await submit_game_setting(params);
   } catch (error) {
-    return erro;
+    return error;
   }
   //改变视图
   this.isLoading = !1;

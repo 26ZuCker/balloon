@@ -13,7 +13,7 @@ const state = {
       team: '',
       personal: '',
     },
-    game_mode,
+    game_mode: 0,
     blast_point_distribution: 0,
     is_update: true,
     money: Number.MIN_SAFE_INTEGER,
@@ -40,7 +40,6 @@ const mutations = {
       money,
       round_tips,
       blast_point,
-      //
       batch,
       end_time,
       group,
@@ -58,7 +57,11 @@ const mutations = {
   },
 };
 const actions = {};
-const getters = {};
+const getters = {
+  isOk(state) {
+    return state.viewSettings.practice_tips !== '';
+  },
+};
 export default {
   namespaced: true,
   state,

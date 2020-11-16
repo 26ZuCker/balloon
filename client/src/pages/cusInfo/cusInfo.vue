@@ -25,17 +25,25 @@
           :placeholder="`请输入${i.title}`"
           v-for="(i, key) in form"
           :key="i.title"
-          use-button-slot
         >
         </van-field>
         <!-- 开关判断是否需要团队模式先于个人 -->
-        <van-cell v-if="permission === 1" title="个人模式先于团队模式">
-          <van-switch
-            active-color="#07c160"
-            :checked="personOnGroup"
-            @change="personOnGroup = !personOnGroup"
-          ></van-switch>
-        </van-cell>
+        <template>
+          <van-cell title="实时更新">
+            <van-switch
+              active-color="#07c160"
+              :checked="is_update"
+              @change="is_update = !is_update"
+            ></van-switch>
+          </van-cell>
+          <van-cell title="个人模式优先">
+            <van-switch
+              active-color="#07c160"
+              :checked="game_mode"
+              @change="game_mode = !game_mode"
+            ></van-switch>
+          </van-cell>
+        </template>
       </van-cell-group>
       <view class="rca mt-3">
         <!-- 根据角色判断权限，底部交互按钮 -->
@@ -95,7 +103,8 @@ export default {
     isLoading: false,
     showOverlay: false,
     QRCODE_URL: '',
-    personOnGroup: true
+    is_update: true,
+    game_mode: true
   }),
   props: {},
   methods: {
@@ -124,7 +133,7 @@ export default {
       Taro.navigateTo({ url: '../info/info' })
     },
     ...mapMutations(
-      { setSettings: 'game/setSettings' }
+      { setSettings: 'game/setSettings', setUserInfo: 'user/setUserInfo' }
     )
   },
   computed: {

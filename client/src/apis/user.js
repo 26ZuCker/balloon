@@ -16,12 +16,12 @@ const errorMsgApiMap = {
 ); */
 const get_userInfo_template = () => {
   return {
-    name: { title: '姓名', value: '' },
-    stu_id: { title: '学号', value: '' },
-    Alipay: { title: '支付宝账号', value: '' },
-    phone_number: { title: '电话', value: '' },
-    batch: { title: '批次', value: '' },
-    group_num: { title: '组次', value: '' },
+    batch: { title: '批次', value: '', validator: {} },
+    alipay: { title: '支付宝账号', value: '', validator: {} },
+    group: { title: '组次', value: '', validator: {} },
+    name: { title: '姓名', value: '', validator: {} },
+    phone_number: { title: '手机号码', value: '', validator: {} },
+    school_number: { title: '学号', value: '', validator: {} },
   };
 };
 /**
