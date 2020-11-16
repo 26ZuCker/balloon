@@ -10,9 +10,10 @@ const MAX_LIMIT = 100
 exports.main = async (event, context) => {
   try {
     //获取所有的数据
+    let batch = Number(batch)
     const countResult = await db.collection('game_data').where({
-      batch: event.batch,
-      group: event.group
+      batch: batch,
+      group: Number(event.group)
     }).count()
     const total = countResult.total
 
@@ -22,7 +23,7 @@ exports.main = async (event, context) => {
     for (let i = 0; i < batchTimes; i++) {
       const promise = db.collection('game_data').where({
           batch: event.batch,
-          group: event.group
+          group: Number(event.group)
         }).skip(i * MAX_LIMIT).limit(MAX_LIMIT)
         .get()
       tasks.push(promise)

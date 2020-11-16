@@ -2,15 +2,14 @@
 const cloud = require('wx-server-sdk')
 
 cloud.init()
-const wxContext = cloud.getWXContext()
 const db = cloud.database()
 const MAX_LIMIT = 100
 
 // 云函数入口函数
 exports.main = async (event, context) => {
-
   //获取所有的数据
   try {
+    const wxContext = cloud.getWXContext()
     const countResult = await db.collection('settings').count()
     const total = countResult.total
     const batchTimes = Math.ceil(total / 100)

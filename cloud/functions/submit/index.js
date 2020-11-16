@@ -3,16 +3,18 @@ const cloud = require('wx-server-sdk')
 
 cloud.init()
 const db = cloud.database()
-const wxContext = cloud.getWXContext()
+
 
 // 云函数入口函数
 exports.main = async (event, context) => {
 
   try {
+    let batch = event.batch
+    const wxContext = cloud.getWXContext()
     const _ = db.command
 
     let data = await db.collection('game_data').where({
-      batch: event.batch,
+      batch: batch,
       open_id: wxContext.OPENID
     }).get()
 
@@ -20,9 +22,9 @@ exports.main = async (event, context) => {
     if (data.data.length == 0) {
       await db.collection('game_data').add({
         data: {
-          batch: event.batch,
+          batch: batch,
           alipay: event.alipay,
-          group: event.group,
+          group: Number(event.group),
           name: event.name,
           phone_number: event.phone_number,
           school_number: event.school_number,
@@ -37,7 +39,7 @@ exports.main = async (event, context) => {
 
     if (event.type == 0) {
       await db.collection('game_data').where({
-        batch: event.batch,
+        batch: batch,
         open_id: wxContext.OPENID
       }).update({
         data: {
@@ -49,7 +51,7 @@ exports.main = async (event, context) => {
       })
     } else {
       await db.collection('game_data').where({
-        batch: event.batch,
+        batch: batch,
         open_id: wxContext.OPENID
       }).update({
         data: {

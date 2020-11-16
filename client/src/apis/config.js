@@ -10,11 +10,11 @@ const promisifyHttp = (Taro, BASE_API, { url, method }) => (data = {}) =>
         data: data,
       })
       .then((res) => {
-        console.log(res);
+        //console.log(res);
         const { result } = res;
         const { code, message, data } = result;
         if (code === cusResCode.SUCCESS) {
-          resolve(data || message);
+          resolve(data);
         } else {
           resolve(message);
         }
@@ -32,8 +32,8 @@ const BASE_API = 'http://192.168.43.75:5000';
  * 自定义响应码，有别于状态码，必须提前放置于前端
  */
 const cusResCode = {
-  ERROR: 101,
-  SUCCESS: 100,
+  ERROR: '101',
+  SUCCESS: '100',
 };
 
 export { BASE_API, promisifyHttp, cusResCode };

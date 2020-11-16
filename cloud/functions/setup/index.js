@@ -8,13 +8,14 @@ const db = cloud.database()
 exports.main = async (event, context) => {
 
   try {
+    let batch = Number(event.batch)
     let data = await db.collection('settings').where({
-      batch: event.batch
+      batch: batch
     }).get()
     if (data.data.length == 0) {
       await db.collection("settings").add({
         data: {
-          batch: event.batch,
+          batch: batch,
           money: event.money,
           round_tips: {
             team: event.team_tips,
@@ -35,11 +36,11 @@ exports.main = async (event, context) => {
 
     } else {
       await db.collection('settings').where({
-          batch: event.batch
+          batch: batch
         })
         .update({
           data: {
-            batch: event.batch,
+            batch: batch,
             money: event.money,
             round_tips: {
               team: event.team_tips,

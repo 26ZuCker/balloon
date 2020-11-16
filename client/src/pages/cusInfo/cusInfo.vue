@@ -168,7 +168,6 @@ export default {
       //先提交
       const params = {};
       for (const key in this.form) {
-
         params[key] = this.form[key].value;
       }
       this.setUserInfo(params);
@@ -178,10 +177,10 @@ export default {
       try {
         res = await this.getGameSetting({ batch: batch });
         this.isLoading = !1;
-        if (typeof res === 'string') {
-          Notify({ type: 'danger', message: res });
-          return
-        }
+        /*         if (typeof res === 'string') {
+                  Notify({ type: 'danger', message: res });
+                  return
+                } */
       } catch (error) {
         return error;
       }

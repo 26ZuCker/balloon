@@ -64,26 +64,24 @@
 
 <script>
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
-import Taro from '@tarojs/taro';
+import Taro, { connectSocket } from '@tarojs/taro';
 import { mapState, mapGetters } from 'vuex'
 //图片
 import balloon from '@img/balloon.jpg'
 import bomb from '@img/bomb.jpg'
 //组件
 import Dialog from '@com/common/Dialog.vue';
-//hook
-import { blow, accountReceive, showDialog, confirmDialog, judgeOK } from './hook/view.js'
-import {
-  changeMode,
-  changeProps,
-  takeStatistics,
-  iniOptionalMode,
-  statics_template,
-  optionalMode,
-  update,
-  statisticsMsg,
-  restart,
-} from './hook/model.js'
+import { _update, _submit } from '@api/game';
+/**
+ * title顶部标题语
+ * tip弹出框提示语
+ */
+const optionalMode = {
+  TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '确认' },
+  personal: { title: '', tip: '', btnMsg: '确认' },
+  team: { title: '', tip: '', btnMsg: '确认' },
+  OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
+};
 export default {
   inheritAttrs: false,
   name: 'game',
@@ -99,7 +97,12 @@ export default {
     //需要传给子组件的props
     contentMsg: '',
     //所需收集的数据
-    statistics: null,
+    statistics: {
+      round_income: { title: '本轮收益', value: 0 },
+      total_income: { title: '总收益', value: 0 },
+      previous_income: { title: '上一轮收益', value: 0 },
+      left_checkpoint: { title: '剩余关卡', value: 30 },
+    },
     showBtn: !0,
     mode: '',
     //展示实时数据
@@ -107,41 +110,233 @@ export default {
     average_income: 0
   }),
   methods: {
-    judgeOK () {
-      judgeOK.call(this, ...arguments)
-    },
+    /**
+     * 打气
+     */
     blow () {
-      blow.call(this, ...arguments)
+      let current_point = 0
+      if (this.mode === 'TRAIN') {
+        current_point = this.viewSettings.blast_point[this.mode][2 - this.statistics.left_checkpoint.value]
+      } else {
+        //未达到爆炸点前点击
+        current_point = this.viewSettings.blast_point[this.mode][
+          30 - this.statistics.left_checkpoint.value
+        ];
+      }
+      if (this.count < current_point) {
+        this.count += this.viewSettings.money;
+        this.statistics.round_income.value = this.count;
+        //这次点击达到爆炸点
+        if (this.count === current_point) {
+          this.isBombing = !0;
+          Notify({ type: 'warning', message: '爆炸' });
+        }
+      }
+      //再点击一次则统计本轮收益
+      else {
+        this.accountReceive();
+      }
     },
-    accountReceive () {
-      accountReceive.call(this, ...arguments)
+    /**
+     * 收账
+     */
+    async accountReceive () {
+      let previous_income = this.count;
+      if (this.isBombing) {
+        previous_income = 0;
+      }
+      //发送数据，注意不能影响下一次
+      const params = {
+        batch: this.submitSettings.batch,
+        alipay: this.userInfo.alipay,
+        group: this.userInfo.group,
+        name: this.userInfo.name,
+        phone_number: this.userInfo.phone_number,
+        school_number: this.userInfo.school_number,
+        type: this.mode === 'team' ? 1 : 0,
+        /*     submit_data: {
+          blast_point: this.statistics,
+          hit_count: 12,
+          income: 12999990,
+          is_blast: this.isBombing,
+        }, */
+      };
+      //需要统计数据
+      this.takeStatistics(previous_income);
+      //当前清零
+      this.count = 0;
+      //视图改变
+      this.isBombing = false;
+      try {
+        await _submit(params);
+      } catch (error) {
+        console.log(error);
+      }
     },
-    changeMode () {
-      changeMode.call(this, ...arguments)
+    /**
+     * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
+     */
+    showDialog (timeout = 2000, contentMsg = [''], showBtn = !0) {
+      this.isDialog = !0;
+      this.waitingSecond = timeout;
+      if (contentMsg[0] !== '') {
+        this.changeProps(contentMsg, showBtn);
+      }
     },
-    changeProps () {
-      changeProps.call(this, ...arguments)
-    },
-    iniOptionalMode () {
-      iniOptionalMode.call(this, ...arguments)
-    },
-    takeStatistics () {
-      takeStatistics.call(this, ...arguments)
-    },
-    showDialog () {
-      showDialog.call(this, ...arguments)
-    },
+    /**
+     * 监听对话框传的点击确认按钮事件
+     * 回调包括：可能改变模式，改变传入的文案
+     * 以下情况派发按钮的回调不需要改变当前模式，有两次点击时不能更改模式的
+     * 1.练习模式之前，此时在生命周期内进行初始化的changeMode即可
+     * 2.15关之后的等待
+     * 3.练习模式之后先改变，但是点击时不能进行改变
+     * 如果在正式模式后进行点击，需要进行loading处理
+     */
     confirmDialog () {
-      confirmDialog.call(this, ...arguments)
+      this.isDialog = false;
     },
-    update () {
-      update.call(this, ...arguments)
+    /**
+     * 判断是否正确获取到游戏配置
+     */
+    judgeOK () {
+      if (!this.isOk) {
+        Notify({ type: 'danger', message: '网络请求错误，请重新输入' });
+        const timer = setTimeout(() => {
+          Taro.redirectTo({
+            url: '../cusInfo/cusInfo',
+          });
+        }, 1000);
+        this.$on('beforeDestroy', () => {
+          clearTimeout(timer);
+        });
+      }
     },
+    /**
+ * 重新开始当前该用户当前批次的游戏，不必清空整个统计数据而只重置剩余关卡，不改变模式
+ */
     restart () {
-      restart.call(this, ...arguments)
+      if (this.mode === 'TRAIN') {
+      }
+      this.count = 0;
+      this.statistics.left_checkpoint.value = this.mode === 'OVER' ? 0 : 30;
     },
+    /**
+     * 改变模式，只能单向不可逆
+     */
+    changeMode () {
+      //练习模式之前
+      if (this.mode === '') {
+        console.log('1');
+        this.mode = 'TRAIN';
+        this.statistics.left_checkpoint.value = 2;
+        this.changeProps();
+      }
+      //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
+      else if (this.mode === 'TRAIN') {
+        console.log('2');
+        this.mode = 'personal';
+        this.statistics.total_income.value = 0
+        this.statistics.left_checkpoint.value = 30;
+        this.restart();
+        this.changeProps();
+      }
+      //正式模式30关结束后，包括团队此时需要回调
+      else if (this.mode === 'personal') {
+        console.log('3');
+        this.mode = this.viewSettings.game_mode === 0 ? 'team' : 'OVER';
+        this.restart();
+        const res = this.mode === 'personal' ? '个人模式' : '团队模式'
+        this.showDialog(0, [res], '继续游戏');
+        this.changeProps();
+      } else if (this.mode === 'team') {
+        console.log('4');
+        this.mode = this.viewSettings.game_mode === 0 ? 'OVER' : 'personal';
+        this.restart();
+        const res = this.mode === 'personal' ? '个人模式' : '团队模式'
+        this.showDialog(0, [res], '继续游戏');
+        this.changeProps();
+      }
+      //所有模式结束，直接离开
+      else if (this.mode === 'OVER') {
+        console.log('5');
+        const res = [
+          `总收益 : ${this.statistics.total_income.value}`
+        ]
+        this.changeProps(res, '', false);
+        this.showDialog(0);
+      }
+    },
+    /**
+     * 改变传给dialog的props
+     */
+    changeProps (contentMsg = [''], confirmBtnText = '', showBtn = !0) {
+      //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
+      this.contentMsg = contentMsg[0] === '' ? this.statisticsMsg() : contentMsg;
+      if (!showBtn) {
+        this.showBtn = showBtn;
+      }
+    },
+    /**
+     * 统计信息文本化，后期需要修改即只有当结束游戏时才会进行computed否则这会一直更新缓存
+     */
     statisticsMsg () {
-      statisticsMsg.call(this, ...arguments)
+      return this.mode === 'TRAIN'
+        ? [`${this.viewSettings.practice_tips}`]
+        : this.mode === 'personal'
+          ? [`${this.viewSettings.game_tips}`]
+          : this.statistics;
+    },
+    /**
+     * 派发收账按钮的回调，统计和收集每一轮所需的数据
+     */
+    takeStatistics (previous_income = 0) {
+      this.statistics.previous_income.value = previous_income;
+      this.statistics.round_income.value = 0;
+      this.statistics.total_income.value += this.statistics.previous_income.value;
+      this.statistics.left_checkpoint.value -= 1;
+      //如果当前为练习模式则展示即初始化
+      if (this.mode === 'TRAIN' && this.statistics.left_checkpoint.value === 0) {
+        this.changeMode();
+        this.showDialog();
+        return;
+      }
+      //如果进入16关则需要强制休息15s
+      if (this.statistics.left_checkpoint.value === 15) {
+        this.showDialog(1500, ['休息一下'], '继续游戏');
+      }
+      //正式模式及团队模式30关全部结束
+      if (this.statistics.left_checkpoint.value === 0) {
+        this.changeMode();
+        if (this.mode === 'OVER') {
+          //此处不需要等待，但需要展示按钮进行提交选项
+          this.showDialog(0, [''], '', false);
+        }
+      }
+    },
+    /**
+     * 初始化四个提示语：练习模式和正式模式dialog，个人和团队的顶部title
+     * @param {boolean} personOnGroup
+     */
+    iniOptionalMode (personOnGroup) {
+      [optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
+        this.viewSettings.practice_tips,
+        this.viewSettings.game_tips,
+      ];
+      [optionalMode.personal.title, optionalMode.team.title] = personOnGroup
+        ? [this.viewSettings.round_tips.personal, this.viewSettings.round_tips.team]
+        : [this.viewSettings.round_tips.team, this.viewSettings.round_tips.personal];
+    },
+    /**
+     * 实时更新平均收入
+     */
+    async update () {
+      let res;
+      try {
+        res = await _update();
+      } catch (error) {
+        console.log(error);
+      }
+      this.average_income = res.average_income;
     }
   },
   computed: {
@@ -170,9 +365,17 @@ export default {
       isOk: 'game/isOk'
     })
   },
+  watch: {
+    mode (n) {
+      console.log(n)
+      if (n === 'OVER') {
+        this.changeMode()
+      }
+    }
+  },
   async created () {
     this.judgeOK()
-    this.statistics = statics_template;
+    this.statistics.left_checkpoint.value = 2
     this.changeMode()
     //初始化先进行两轮练习
     this.showDialog()

@@ -30,20 +30,6 @@ const state = {
 };
 const mutations = {
   setSettings(state, res) {
-    /*     const {
-      practice_tips,
-      game_mode,
-      game_tips,
-      blast_point_distribution,
-      is_update,
-      money,
-      round_tips,
-      blast_point,
-      batch,
-      end_time,
-      group,
-    } = res; */
-    console.log(res);
     for (const key in res) {
       if (key === 'batch' || key === 'end_time' || key === 'group') {
         state.submitSettings[key] = res[key];
@@ -51,6 +37,7 @@ const mutations = {
         state.viewSettings[key] = res[key];
       }
     }
+    state.viewSettings.blast_point['TRAIN'] = [15, 15];
   },
   setPastRound(state, res) {
     state.set_past_round = res;

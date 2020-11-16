@@ -4,14 +4,15 @@ const cloud = require('wx-server-sdk')
 cloud.init()
 
 const xlsx = require('node-xlsx')
-const wxContext = cloud.getWXContext()
 const MAX_LIMIT = 100
 const db = cloud.database()
 
 // 云函数入口函数
 exports.main = async (event, context) => {
+  let batch = Number(event.batch)
   try {
-    let excel_name = '第' + event.batch + '批次数据.xlsx'
+    const wxContext = cloud.getWXContext()
+    let excel_name = '第' + batch + '批次数据.xlsx'
     let all_data = [];
     let head = ['姓名', '学号', '支付宝账号', '电话', '场次', '组次', 
       '未爆气球被吹的平均次数(为集体)',
@@ -32,7 +33,7 @@ exports.main = async (event, context) => {
     all_data.push(head);
 
     const countResult = await db.collection('game_data').where({
-      batch: event.batch,
+      batch: batch,
     }).count()
     const total = countResult.total
 
@@ -41,7 +42,7 @@ exports.main = async (event, context) => {
     const tasks = []
     for (let i = 0; i < batchTimes; i++) {
       const promise = db.collection('game_data').where({
-          batch: event.batch,
+          batch: batch,
           group: event.group
         }).skip(i * MAX_LIMIT).limit(MAX_LIMIT)
         .get()
@@ -63,7 +64,6 @@ exports.main = async (event, context) => {
       temp_array.push(agd.phone_number)
       temp_array.push(agd.batch)
       temp_array.push(agd.group)
-
       if (agd.game_data.personal.length != 30 || agd.game_data.team.length != 30) {
         all_data.push(temp_array)
         return true
