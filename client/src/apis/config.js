@@ -10,18 +10,28 @@ const promisifyHttp = (Taro, BASE_API, { url, method }) => (data = {}) =>
         data: data,
       })
       .then((res) => {
-        //console.log(res);
+        console.log(res);
         const { result } = res;
         const { code, message, data } = result;
+        //成功响应
         if (code === cusResCode.SUCCESS) {
+          console.log(url + ' success data: ' + data);
           resolve(data);
-        } else {
+        }
+        //已知错误响应
+        else if (code === cusResCode.ERROR) {
+          console.log(url + ' error : ' + message);
+          resolve(message);
+        }
+        //其余响应
+        else {
+          console.log(url + ' success msg : ' + message);
           resolve(message);
         }
       })
       .catch((error) => {
-        const { code, message } = error;
-        reject(message);
+        console.log(url + ' catch : ' + error);
+        reject(error);
       });
   });
 /**

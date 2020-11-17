@@ -37,7 +37,15 @@ const mutations = {
         state.viewSettings[key] = res[key];
       }
     }
-    state.viewSettings.blast_point['TRAIN'] = [15, 15];
+    /**
+     * 生成1~30的随机正整数
+     */
+    const genNum = () => ((Math.random() + 1) * 30 - 29) | 0;
+    /**
+     * 生成的数组
+     */
+    const arr = Array.from({ length: 2 }, () => genNum());
+    state.viewSettings.blast_point['TRAIN'] = arr;
   },
   setPastRound(state, res) {
     state.set_past_round = res;

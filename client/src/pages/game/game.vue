@@ -215,8 +215,8 @@ export default {
  * 重新开始当前该用户当前批次的游戏，不必清空整个统计数据而只重置剩余关卡，不改变模式
  */
     restart () {
-      if (this.mode === 'TRAIN') {
-      }
+      /*       if (this.mode === 'TRAIN') {
+            } */
       this.count = 0;
       this.statistics.left_checkpoint.value = this.mode === 'OVER' ? 0 : 30;
     },
@@ -226,45 +226,43 @@ export default {
     changeMode () {
       //练习模式之前
       if (this.mode === '') {
-        console.log('1');
         this.mode = 'TRAIN';
         this.statistics.left_checkpoint.value = 2;
         this.changeProps();
+        return
       }
       //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
       else if (this.mode === 'TRAIN') {
-        console.log('2');
-        this.mode = 'personal';
+        this.mode = this.viewSettings.game_mode === 0 ? 'personal' : 'team'
         this.statistics.total_income.value = 0
         this.statistics.left_checkpoint.value = 30;
         this.restart();
-        this.changeProps();
-      }
-      //正式模式30关结束后，包括团队此时需要回调
-      else if (this.mode === 'personal') {
-        console.log('3');
-        this.mode = this.viewSettings.game_mode === 0 ? 'team' : 'OVER';
-        this.restart();
-        const res = this.mode === 'personal' ? '个人模式' : '团队模式'
-        this.showDialog(0, [res], '继续游戏');
-        this.changeProps();
-      } else if (this.mode === 'team') {
-        console.log('4');
-        this.mode = this.viewSettings.game_mode === 0 ? 'OVER' : 'personal';
-        this.restart();
-        const res = this.mode === 'personal' ? '个人模式' : '团队模式'
-        this.showDialog(0, [res], '继续游戏');
-        this.changeProps();
+        this.changeProps([this.viewSettings.game_tips]);
+        //练习模式结束后开始实时更新
+        if (this.viewSettings.is_update) {
+          const timer = setInterval(() => {
+            this.update()
+          }, 2000)
+          this.$on('beforeDestroy', () => {
+            clearInterval(timer)
+          })
+        }
+        return
       }
       //所有模式结束，直接离开
       else if (this.mode === 'OVER') {
-        console.log('5');
-        const res = [
-          `总收益 : ${this.statistics.total_income.value}`
-        ]
-        this.changeProps(res, '', false);
+        this.changeProps('游戏结束', '', false);
         this.showDialog(0);
+        return
       }
+      //正式模式30关结束后，包括团队此时需要回调
+      this.mode = this.mode === 'team'
+        ? (this.viewSettings.game_mode === 0 ? 'OVER' : 'personal')
+        : (this.viewSettings.game_mode === 0 ? 'team' : 'OVER')
+      const str = this.mode === 'team' ? '下一轮为团队收益' : '下一轮为自己收益'
+      this.restart();
+      this.showDialog(1500, [str], '继续游戏');
+      this.changeProps();
     },
     /**
      * 改变传给dialog的props
@@ -282,9 +280,7 @@ export default {
     statisticsMsg () {
       return this.mode === 'TRAIN'
         ? [`${this.viewSettings.practice_tips}`]
-        : this.mode === 'personal'
-          ? [`${this.viewSettings.game_tips}`]
-          : this.statistics;
+        : [`${this.viewSettings.round_tips[this.mode]}`];
     },
     /**
      * 派发收账按钮的回调，统计和收集每一轮所需的数据
@@ -336,7 +332,7 @@ export default {
       } catch (error) {
         console.log(error);
       }
-      this.average_income = res.average_income;
+      this.average_income = res.average_income || '暂无数据';
     }
   },
   computed: {
@@ -381,15 +377,6 @@ export default {
     this.showDialog()
     //初始化optionmode
     this.iniOptionalMode(this.viewSettings.game_mode === 0)
-    //实时更新
-    /*     if (this.viewSettings.is_update) {
-          const timer = setInterval(() => {
-            this.update()
-          }, 2000)
-          this.$on('beforeDestroy', () => {
-            clearInterval(timer)
-          })
-        } */
   },
   beforeDestroy () {
 

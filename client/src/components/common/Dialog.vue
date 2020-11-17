@@ -33,7 +33,7 @@ export default {
      */
     waitingSecond: { type: Number, default: 0 },
     //以下为展示的具体内容
-    contentMsg: [Object, Array],
+    contentMsg: [Array, String],
     //当前模式，用于判断是否为正式模式的所有关卡结束
     current_mode: { type: String },
   },
