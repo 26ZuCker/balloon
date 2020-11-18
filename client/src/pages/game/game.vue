@@ -326,9 +326,10 @@ export default {
      * 实时更新平均收入
      */
     async update () {
+      const [batch, group] = [this.submitSettings.batch, this.submitSettings.group]
       let res;
       try {
-        res = await _update();
+        res = await _update({ batch: batch, group: group });
       } catch (error) {
         console.log(error);
       }
@@ -342,8 +343,10 @@ export default {
      * 图片大小改变
      */
     imgStyle () {
-      const width = this.count * 8 + 100
-      const height = this.count * 5 + 100
+      //保证每次按比例改变图片大小
+      const point = this.count / this.viewSettings.money
+      const width = point * 8 + 100
+      const height = point * 5 + 100
       return `width: ${width}px; height: ${height}px`
     },
     /**
@@ -369,7 +372,7 @@ export default {
       }
     }
   },
-  async created () {
+  mounted () {
     this.judgeOK()
     this.statistics.left_checkpoint.value = 2
     this.changeMode()

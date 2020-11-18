@@ -12,14 +12,26 @@ const regMap = {
   name: name,
 };
 /**
+ * 类型判断策略
+ */
+const typeMap = {
+  ARRAY: isArray,
+  OBJECT: isObject,
+  NUMBER,
+  STRING,
+  SYMBOL,
+  MAP,
+  SET,
+};
+/**
  * 根据传入的校验类型返回相应的校验函数，后期必须检查能否tree-shaking
  * @param {string} validType 可选：TYPE，REG
  */
-const validate = (target, eleType, validType = 'TYPE') => {
+const validate = (target, validType = 'TYPE', selfType) => {
   if (validType === 'TYPE') {
-    return regMap[eleType]?.test(target) || true;
+    return validateType(target, selfType);
   } else if (validType === 'REG') {
-    return regMap[eleType]?.test(target) || true;
+    return validateReg(target, selfType);
   }
 };
 /**
@@ -28,13 +40,18 @@ const validate = (target, eleType, validType = 'TYPE') => {
  * @param {string} type
  */
 function validateReg(target, type) {
-  return regMap[type].test(target);
+  return regMap[type]?.test(target) || true;
 }
 /**
  * 校验数据类型
  * @param {any} target
  * @param {string} type
  */
-function validateType(target, type) {}
+function validateType(target, type) {
+  if (type === 'ARRAY' || type === 'OBJECT') {
+    return typeMap[type](target);
+  }
+  return getType(target) === type;
+}
 
 export default validate;

@@ -28,6 +28,14 @@
         >
         </van-field>
         <!-- 开关判断是否需要团队模式先于个人 -->
+        <van-cell title="结束时间" v-if="permission === 1">
+          <van-datetime-picker
+            type="date"
+            :value="end_time"
+            @input="onInputTime"
+            :min-date="currentTime"
+          ></van-datetime-picker>
+        </van-cell>
         <van-cell title="实时更新" v-if="permission === 1">
           <van-switch
             active-color="#07c160"
@@ -77,9 +85,9 @@
 </template>
 
 <script>
-import Taro from '@tarojs/taro'
+import Taro, { usePullDownRefresh } from '@tarojs/taro'
 import { mapState, mapMutations } from 'vuex'
-import validate from '@util/validate'
+//import validate from '@util/validate'
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import myQRCODE from '@img/myQRCODE.jpg';
 //参与者
@@ -98,7 +106,8 @@ import { get_game_settings, _update, _submit } from '@api/game';
   getGameSettingTemplate,
   getGameSetting
 } from './hook/model.js' */
-
+const positiveInteger = /^\+?[1-9]\d*$/;
+const phone = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-7|9])|(?:5[0-3|5-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1|8|9]))\d{8}$/;
 export default {
   inheritAttrs: false,
   name: 'cusInfo',
@@ -110,10 +119,18 @@ export default {
     showOverlay: false,
     QRCODE_URL: '',
     is_update: true,
-    game_mode: true
+    game_mode: true,
+    end_time: undefined,
+    currentTime: undefined
   }),
   props: {},
   methods: {
+    /**
+     * 监听
+     */
+    onInputTime (event) {
+      this.end_time = event.detail
+    },
     /**
      * 监听表单输入，后期注意防抖
      */
@@ -132,10 +149,19 @@ export default {
       //目前只校验是否已输入
       for (const key in this.form) {
         const cur = this.form[key]
-        if (Object.keys(cur.validator) !== 0
-          && !validate(cur.value, cur.validator.eleType, cur.validator.validType)) {
-          Notify({ type: 'danger', message: '格式填写错误' })
-          return false
+        if (key === 'money' || key === 'batch' || key === 'group') {
+          const value = Number(cur.value)
+          if (!positiveInteger.test(value)) {
+            Notify({ type: 'danger', message: `${cur.title}格式填写错误` })
+            return false
+          }
+        }
+        else if (key === 'phone_number') {
+          const value = Number(cur.value)
+          if (!phone.test(value)) {
+            Notify({ type: 'danger', message: `${cur.title}格式填写错误` })
+            return false
+          }
         }
         else {
           if (this.form[key].value.length === 0) {
@@ -172,23 +198,22 @@ export default {
       }
       this.setUserInfo(params);
       //后获取此批游戏配置
-      const batch = this.form.batch.value;
+      const [batch, group] = [this.form.batch.value, this.form.group.value];
       let res;
       try {
-        res = await this.getGameSetting({ batch: batch });
+        res = await this.getGameSetting({ batch: batch, group: group });
         this.isLoading = !1;
-        /*         if (typeof res === 'string') {
-                  Notify({ type: 'danger', message: res });
-                  return
-                } */
+        if (typeof res !== 'string') {
+          this.setSettings(res);
+          Taro.navigateTo({
+            url: '../game/game',
+          });
+          return
+        }
+        Notify({ type: 'danger', message: res });
       } catch (error) {
         return error;
       }
-      this.setSettings(res);
-      //调整视图
-      Taro.navigateTo({
-        url: '../game/game',
-      });
     },
     /**
      * 提交更改配置
@@ -202,8 +227,12 @@ export default {
       params['is_update'] = this.is_update;
       params['blast_point_distribution'] = 0;
       params['game_mode'] = this.game_mode ? 0 : 1;
+      params['end_time'] = this.end_time
       try {
-        await submit_game_setting(params);
+        const res = await submit_game_setting(params);
+        if (typeof res === 'string') {
+          Notify({ type: 'danger', message: res });
+        }
       } catch (error) {
         return error;
       }
@@ -268,7 +297,8 @@ export default {
       return this.permission === 0 ? '请填写你的个人信息' : '请填写当前批次游戏的配置，随后会生成二维码'
     },
     ...mapState({
-      permission: (state) => state.user.permission
+      permission: (state) => state.user.permission,
+      submitSettings: (state) => state.game.submitSettings,
     })
   },
   /**
@@ -279,7 +309,8 @@ export default {
     * 研究生身份：提供数据导出和实验组批次设置两个url
     * 参与者身份：直接跳转至cusInfo，注意此时需要初始化研究生的模板存入vuex
     */
-  async created () {
+  async mounted () {
+    this.currentTime = new Date().getTime()
     const bool = this.permission === 0
     //填写的模板
     this.form = bool ? await this.getUserInfoTemplate() : await this.getGameSettingTemplate()

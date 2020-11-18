@@ -30,6 +30,7 @@ const state = {
 };
 const mutations = {
   setSettings(state, res) {
+    console.log(res);
     for (const key in res) {
       if (key === 'batch' || key === 'end_time' || key === 'group') {
         state.submitSettings[key] = res[key];

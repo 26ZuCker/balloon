@@ -18,7 +18,7 @@ const get_game_setting_template = () => {
     //game_mode: { title: '游戏模式', value: '', validator: {} },
     practice_tips: { title: '练习模式提示', value: '', validator: {} },
     game_tips: { title: '正式模式提示', value: '', validator: {} },
-    end_time: { title: '结束时间', value: '', validator: {} },
+    //end_time: { title: '结束时间', value: '', validator: {} },
     //is_update: { title: '批次', value: true, validator: {} },
   };
 };

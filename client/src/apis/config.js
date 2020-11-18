@@ -25,7 +25,7 @@ const promisifyHttp = (Taro, BASE_API, { url, method }) => (data = {}) =>
         }
         //其余响应
         else {
-          console.log(url + ' success msg : ' + message);
+          console.log(url + ' error msg : ' + message);
           resolve(message);
         }
       })
