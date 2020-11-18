@@ -92,7 +92,7 @@ const actions = {
    * 先判断openid的响应因为还有一次异步请求
    * 注意：由于微信网络请求的api已经配置了失败回调，所以不需要额外包一层try catch
    */
-  async login({ commit }) {
+  login({ commit }) {
     /*     const [res1, res2] = await Promise.all([getOpenid(), getWCInfo()]);
     actionsGetOpenid(res1, commit);
     actionsGetWCInfo(res2, commit); */
@@ -109,7 +109,7 @@ const actions = {
         if (code === '100') {
           commit('set_permission', 1);
           const past_round = data;
-          commit('game/setPastRound', past_round);
+          //commit('../game/setPastRound', past_round);
         } else {
           commit('set_permission', 0);
         }

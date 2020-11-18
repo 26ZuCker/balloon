@@ -127,7 +127,7 @@ export default {
         this.count += this.viewSettings.money;
         this.statistics.round_income.value = this.count;
         //这次点击达到爆炸点
-        if (this.count === current_point) {
+        if (this.count >= current_point) {
           this.isBombing = !0;
           Notify({ type: 'warning', message: '爆炸' });
         }

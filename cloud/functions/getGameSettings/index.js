@@ -1,6 +1,5 @@
 // 云函数入口文件
 const cloud = require('wx-server-sdk');
-const { default: game } = require('../../../client/src/store/game');
 cloud.init();
 
 const db = cloud.database();
@@ -49,7 +48,7 @@ exports.main = async (event, context) => {
     }
 
     let game_settings = setting_data.data[0];
-    game_settings.group = event.group;
+    game_settings.group = Number(event.group);
 
     // 判断游戏是否结束
     if (game_settings.end_time <= Date.parse(new Date()) / 1000) {
@@ -90,7 +89,6 @@ exports.main = async (event, context) => {
       personal: blast_point_list_personal,
     };
     game_settings.blast_point = blast_point;
-    game_settings.group = Number(event.group);
     return {
       code: '100',
       message: 'success',

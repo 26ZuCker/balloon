@@ -4,12 +4,11 @@
     <van-notify id="van-notify"></van-notify>
     <!-- 顶部提示语 -->
     <van-notice-bar
-      wrapable
       color="#1989fa"
       background="#ecf9ff"
       left-icon="info-o"
       style="width: 100%"
-      :text="titleNotice"
+      text="请填写当前批次游戏的配置，随后会生成二维码"
     ></van-notice-bar>
     <!-- 主体 -->
     <view class="page-y-center">
@@ -27,15 +26,7 @@
           :key="i.title"
         >
         </van-field>
-        <!-- 开关判断是否需要团队模式先于个人 -->
-        <van-cell title="结束时间" v-if="permission === 1">
-          <van-datetime-picker
-            type="date"
-            :value="end_time"
-            @input="onInputTime"
-            :min-date="currentTime"
-          ></van-datetime-picker>
-        </van-cell>
+        <!--  -->
         <van-cell title="实时更新" v-if="permission === 1">
           <van-switch
             active-color="#07c160"
@@ -51,6 +42,16 @@
           ></van-switch>
         </van-cell>
       </van-cell-group>
+      <!-- 开关判断是否需要团队模式先于个人 -->
+      <view style="justify-content: center" v-if="permission === 1"
+        >结束时间</view
+      >
+      <van-datetime-picker
+        type="date"
+        :value="end_time"
+        @confirm="onInputTime"
+        :min-date="currentTime"
+      ></van-datetime-picker>
       <view class="rca mt-3">
         <!-- 根据角色判断权限，底部交互按钮 -->
         <van-button
@@ -129,7 +130,9 @@ export default {
      * 监听
      */
     onInputTime (event) {
+      console.log('onInput')
       this.end_time = event.detail
+      console.log(this.end_time)
     },
     /**
      * 监听表单输入，后期注意防抖
@@ -254,15 +257,15 @@ export default {
     /**
      * 建议进入前根据传入一个状态值判断当前用户是否已填写过该表格避免重复填写
      */
-    async getUserInfoTemplate () {
-      const res = await get_userInfo_template();
+    getUserInfoTemplate () {
+      const res = get_userInfo_template();
       return res;
     },
     /**
      * 获取游戏配置填写模板
      */
-    async getGameSettingTemplate () {
-      const res = await get_game_setting_template();
+    getGameSettingTemplate () {
+      const res = get_game_setting_template();
       return res;
     },
     /**
@@ -294,7 +297,8 @@ export default {
      * 顶部提示框
      */
     titleNotice () {
-      return this.permission === 0 ? '请填写你的个人信息' : '请填写当前批次游戏的配置，随后会生成二维码'
+      return this.permission === 0 ? '请填写你的个人信息'
+        : '请填写当前批次游戏的配置，随后会生成二维码'
     },
     ...mapState({
       permission: (state) => state.user.permission,
@@ -309,11 +313,11 @@ export default {
     * 研究生身份：提供数据导出和实验组批次设置两个url
     * 参与者身份：直接跳转至cusInfo，注意此时需要初始化研究生的模板存入vuex
     */
-  async mounted () {
+  mounted () {
     this.currentTime = new Date().getTime()
     const bool = this.permission === 0
     //填写的模板
-    this.form = bool ? await this.getUserInfoTemplate() : await this.getGameSettingTemplate()
+    this.form = bool ? this.getUserInfoTemplate() : this.getGameSettingTemplate()
   }
 }
 </script>
