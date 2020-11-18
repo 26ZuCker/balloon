@@ -16,16 +16,6 @@
         left-icon="info-o"
         :text="titleNotice"
       ></van-notice-bar>
-      <van-notice-bar
-        v-if="permission === 1"
-        :scrollable="false"
-        :wrapable="true"
-        speed="40"
-        color="#1989fa"
-        background="#ecf9ff"
-        left-icon="info-o"
-        :text="titleNotice"
-      ></van-notice-bar>
       <!-- 主体 -->
       <view class="page-y-center">
         <!-- 输入框 -->
@@ -35,6 +25,7 @@
             :value="i.value"
             @change="onInput(key, $event)"
             required
+            autosize
             clearable
             :label="i.title"
             :placeholder="`请输入${i.title}`"
@@ -108,7 +99,10 @@
 <script>
 import Taro from '@tarojs/taro'
 import { mapState, mapMutations, mapActions } from 'vuex'
+//工具函数
 import validate from '@util/validate'
+import { formatTime } from '@util/time'
+//视图
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import myQRCODE from '@img/myQRCODE.jpg';
 //参与者
@@ -117,7 +111,6 @@ import { get_userInfo_template } from '@api/user.js';
 import { get_game_setting_template, submit_game_setting } from '@api/setting.js';
 //预加载配置
 import { get_game_settings, _update, _submit } from '@api/game';
-import { formatTime } from '@util/time'
 export default {
   inheritAttrs: false,
   name: 'cusInfo',

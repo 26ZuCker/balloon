@@ -12,10 +12,10 @@ export default {
       root: 'pages/info',
       pages: ['info'],
     },
-    {
+    /*     {
       root: 'pages/open',
       pages: ['open'],
-    },
+    }, */
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -4,10 +4,6 @@ import store from './store/index';
 
 import './app.scss';
 
-/* //由于taro使用拦截器需要额外安装taro-axios则直接全局挂载响应码即可
-import { cusResCode } from './apis/config.js';
-Vue.prototype.$cusResCode = cusResCode; */
-
 const App = new Vue({
   store,
   /**
@@ -17,72 +13,6 @@ const App = new Vue({
     if (process.env.TARO_ENV === 'weapp') {
       Taro.cloud.init();
     }
-    /*     Taro.cloud
-      .callFunction({
-        name: 'downloadExcel',
-        data: {},
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    Taro.cloud
-      .callFunction({
-        name: 'getAllBatch',
-        data: {},
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    Taro.cloud
-      .callFunction({
-        name: 'getGameSettings',
-        data: {},
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    Taro.cloud
-      .callFunction({
-        name: 'setup',
-        data: {},
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    Taro.cloud
-      .callFunction({
-        name: 'submit',
-        data: {},
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-    Taro.cloud
-      .callFunction({
-        name: 'update',
-        data: {},
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log(error);
-      }); */
   },
   onShow(options) {},
   render(h) {
