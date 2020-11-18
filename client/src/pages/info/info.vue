@@ -1,14 +1,18 @@
 <template>
-  <van-cell-group>
-    <van-cell :title="`第${i}批`" v-for="i in allBatch" :key="i">
-      <van-button
-        custom-class="van-button--round"
-        type="info"
-        @tap="download(i)"
-        >下载</van-button
-      >
-    </van-cell>
-  </van-cell-group>
+  <view>
+    <van-skeleton title row="15" v-if="isSkeleton"></van-skeleton>
+    <van-cell-group v-else>
+      <van-cell :title="`第${i}批`" v-for="i in allBatch" :key="i">
+        <van-button
+          custom-class="van-button--round"
+          type="info"
+          @tap="download(i)"
+          >下载</van-button
+        >
+      </van-cell>
+    </van-cell-group>
+  </view>
+
   <!--   </view> -->
 </template>
 
@@ -28,7 +32,8 @@ export default {
     searchVal: '',
     current_round: '3',
     selectRoundList: null,
-    allBatch: []
+    allBatch: [],
+    isSkeleton: true,
   }),
   props: {},
   methods: {
@@ -58,6 +63,7 @@ export default {
   },
   async created () {
     this.allBatch = await get_all_batch()
+    this.isSkeleton = false
   }
 }
 </script>

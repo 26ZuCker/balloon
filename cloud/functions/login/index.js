@@ -18,7 +18,7 @@ const MAX_LIMIT = 100;
 exports.main = async (event, context) => {
   try {
     const wxContext = cloud.getWXContext();
-    //if (wxContext.OPENID == "okhxZ46ZE-j-eU6JHfI-bpEGzgN") {
+    //if (wxContext.OPENID == 'okhxZ46ZE-j-eU6JHfI-bpEGzgN') {
     if (wxContext.OPENID == 'of4gw5Ur5sHGqCf0b7L0PG1x7SAg') {
       //获取所有的数据
       const countResult = await db.collection('settings').count();

@@ -27,7 +27,7 @@ exports.main = async (event, context) => {
       const promise = db
         .collection('game_data')
         .where({
-          batch: event.batch,
+          batch: batch,
           group: Number(event.group),
         })
         .skip(i * MAX_LIMIT)

@@ -1,14 +1,22 @@
 //正则入口文件
 //数字
-export { phone, positiveInteger } from './number.js';
+import { phone, positiveInteger } from './number.js';
 //名字
-export { name } from './name.js';
+import { name } from './name.js';
+/**
+ * 正则映射
+ */
+const regMap = {
+  positiveInteger: positiveInteger,
+  phone: phone,
+  name: name,
+};
 /**
  * 校验正则
  * @param {any} target
  * @param {string} type
  */
 function validateReg(target, type) {
-  return regMap[type]?.test(target) || true;
+  return regMap[type].test(target);
 }
 export default validateReg;

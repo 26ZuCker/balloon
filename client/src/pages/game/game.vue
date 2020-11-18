@@ -23,7 +23,7 @@
     <van-cell-group>
       <!-- 展示实时 -->
       <van-cell
-        v-if="viewSettings.is_update"
+        v-if="viewSettings.is_update && mode === 'team'"
         title="实时数据"
         :value="average_income"
       ></van-cell>
@@ -123,11 +123,11 @@ export default {
           30 - this.statistics.left_checkpoint.value
         ];
       }
-      if (this.count < current_point) {
+      if (this.count / this.viewSettings.money < current_point) {
         this.count += this.viewSettings.money;
         this.statistics.round_income.value = this.count;
         //这次点击达到爆炸点
-        if (this.count >= current_point) {
+        if (this.count / this.viewSettings.money >= current_point) {
           this.isBombing = !0;
           Notify({ type: 'warning', message: '爆炸' });
         }
@@ -145,6 +145,8 @@ export default {
       if (this.isBombing) {
         previous_income = 0;
       }
+      const blast_point = this.mode === 'TRAIN' ? 0
+        : this.viewSettings.blast_point[this.mode][30 - this.statistics.left_checkpoint.value]
       //发送数据，注意不能影响下一次
       const params = {
         batch: this.submitSettings.batch,
@@ -154,12 +156,16 @@ export default {
         phone_number: this.userInfo.phone_number,
         school_number: this.userInfo.school_number,
         type: this.mode === 'team' ? 1 : 0,
-        /*     submit_data: {
-          blast_point: this.statistics,
-          hit_count: 12,
-          income: 12999990,
+        submit_data: {
+          //当前爆破点
+          blast_point: blast_point,
+          //点击次数
+          hit_count: this.count / this.viewSettings.money,
+          //该次总收入
+          income: this.count,
+          //是否爆炸
           is_blast: this.isBombing,
-        }, */
+        },
       };
       //需要统计数据
       this.takeStatistics(previous_income);
@@ -167,6 +173,11 @@ export default {
       this.count = 0;
       //视图改变
       this.isBombing = false;
+      //练习模式
+      if (blast_point === 0) {
+        return
+      }
+      console.log(params)
       try {
         await _submit(params);
       } catch (error) {
@@ -313,14 +324,13 @@ export default {
      * 初始化四个提示语：练习模式和正式模式dialog，个人和团队的顶部title
      * @param {boolean} personOnGroup
      */
-    iniOptionalMode (personOnGroup) {
+    iniOptionalMode (game_mode) {
       [optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
         this.viewSettings.practice_tips,
         this.viewSettings.game_tips,
       ];
-      [optionalMode.personal.title, optionalMode.team.title] = personOnGroup
-        ? [this.viewSettings.round_tips.personal, this.viewSettings.round_tips.team]
-        : [this.viewSettings.round_tips.team, this.viewSettings.round_tips.personal];
+      [optionalMode.personal.title, optionalMode.team.title] =
+        [this.viewSettings.round_tips.personal, this.viewSettings.round_tips.team]
     },
     /**
      * 实时更新平均收入
@@ -330,10 +340,15 @@ export default {
       let res;
       try {
         res = await _update({ batch: batch, group: group });
+        if (typeof res !== 'string') {
+          this.average_income = res.average_income
+          console.log(res.average_income)
+          return
+        }
       } catch (error) {
         console.log(error);
       }
-      this.average_income = res.average_income || '暂无数据';
+      this.average_income = '暂无数据'
     }
   },
   computed: {
@@ -379,7 +394,7 @@ export default {
     //初始化先进行两轮练习
     this.showDialog()
     //初始化optionmode
-    this.iniOptionalMode(this.viewSettings.game_mode === 0)
+    this.iniOptionalMode(this.viewSettings.game_mode)
   },
   beforeDestroy () {
 

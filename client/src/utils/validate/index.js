@@ -3,14 +3,6 @@ import validateReg from './reg';
 //类型
 import validateType from './type';
 /**
- * 正则映射
- */
-const regMap = {
-  positiveInteger: positiveInteger,
-  phone: phone,
-  name: name,
-};
-/**
  * 根据传入的校验类型返回相应的校验函数，后期必须检查能否tree-shaking
  * @param {string} validType 可选：TYPE，REG
  */

@@ -17,7 +17,6 @@ const App = new Vue({
     if (process.env.TARO_ENV === 'weapp') {
       Taro.cloud.init();
     }
-    store.dispatch('user/login');
     /*     Taro.cloud
       .callFunction({
         name: 'downloadExcel',

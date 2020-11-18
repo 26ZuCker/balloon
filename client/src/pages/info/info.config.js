@@ -8,6 +8,7 @@ export default {
     'van-cell-group': '../../components/vant-weapp/dist/cell-group/index',
     'van-icon': '../../components/vant-weapp/dist/icon/index',
     'van-button': '../../components/vant-weapp/dist/button/index',
+    'van-skeleton': '../../components/vant-weapp/dist/skeleton/index',
   },
   /*   enablePullDownRefresh: true,
   backgroundTextStyle: 'dark', */

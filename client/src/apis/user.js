@@ -19,16 +19,20 @@ const get_userInfo_template = () => {
     batch: {
       title: '批次',
       value: '',
-      validator: { validType: 'REG', eleType: 'positiveInteger' },
+      validator: { validType: 'REG', selfType: 'positiveInteger' },
     },
     alipay: { title: '支付宝账号', value: '', validator: {} },
     group: {
       title: '组次',
       value: '',
-      validator: { validType: 'REG', eleType: 'positiveInteger' },
+      validator: { validType: 'REG', selfType: 'positiveInteger' },
     },
     name: { title: '姓名', value: '', validator: {} },
-    phone_number: { title: '手机号码', value: '', validator: {} },
+    phone_number: {
+      title: '手机号码',
+      value: '',
+      validator: { validType: 'REG', selfType: 'phone' },
+    },
     school_number: { title: '学号', value: '', validator: {} },
   };
 };

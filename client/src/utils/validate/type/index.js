@@ -7,11 +7,11 @@ import isObject from './isObject.js';
 const typeMap = {
   ARRAY: isArray,
   OBJECT: isObject,
-  NUMBER,
+  /*   NUMBER,
   STRING,
   SYMBOL,
   MAP,
-  SET,
+  SET, */
 };
 /**
  * 校验数据类型

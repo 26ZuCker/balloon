@@ -30,7 +30,6 @@ const state = {
 };
 const mutations = {
   setSettings(state, res) {
-    console.log(res);
     for (const key in res) {
       if (key === 'batch' || key === 'end_time' || key === 'group') {
         state.submitSettings[key] = res[key];
@@ -47,9 +46,6 @@ const mutations = {
      */
     const arr = Array.from({ length: 2 }, () => genNum());
     state.viewSettings.blast_point['TRAIN'] = arr;
-  },
-  setPastRound(state, res) {
-    state.set_past_round = res;
   },
 };
 const actions = {};

@@ -1,94 +1,114 @@
 <template>
   <view style="height: 100%; width: 100%">
-    <!-- 顶部通知条 -->
+    <!-- 顶部消息框 -->
     <van-notify id="van-notify"></van-notify>
-    <!-- 顶部提示语 -->
-    <van-notice-bar
-      color="#1989fa"
-      background="#ecf9ff"
-      left-icon="info-o"
-      style="width: 100%"
-      text="请填写当前批次游戏的配置，随后会生成二维码"
-    ></van-notice-bar>
-    <!-- 主体 -->
-    <view class="page-y-center">
-      <!-- 输入框 -->
-      <van-cell-group>
-        <!-- 基本框 -->
-        <van-field
-          :value="i.value"
-          @change="onInput(key, $event)"
-          required
-          clearable
-          :label="i.title"
-          :placeholder="`请输入${i.title}`"
-          v-for="(i, key) in form"
-          :key="i.title"
-        >
-        </van-field>
-        <!--  -->
-        <van-cell title="实时更新" v-if="permission === 1">
-          <van-switch
-            active-color="#07c160"
-            :checked="is_update"
-            @change="is_update = !is_update"
-          ></van-switch>
-        </van-cell>
-        <van-cell title="个人模式优先" v-if="permission === 1">
-          <van-switch
-            active-color="#07c160"
-            :checked="game_mode"
-            @change="game_mode = !game_mode"
-          ></van-switch>
-        </van-cell>
-      </van-cell-group>
-      <!-- 开关判断是否需要团队模式先于个人 -->
-      <view style="justify-content: center" v-if="permission === 1"
-        >结束时间</view
-      >
-      <van-datetime-picker
-        type="date"
-        :value="end_time"
-        @confirm="onInputTime"
-        :min-date="currentTime"
-      ></van-datetime-picker>
-      <view class="rca mt-3">
-        <!-- 根据角色判断权限，底部交互按钮 -->
-        <van-button
-          custom-class="van-button--round van-button--large ma-3"
-          type="primary"
-          :loading="isLoading"
-          @tap="submitChange"
-          >{{ btnTitle }}</van-button
-        >
-        <!-- 研究生权限可进入信息查看页面 -->
-        <van-button
+    <!-- 骨架屏等待 -->
+    <van-skeleton title row="15" v-if="isSkeleton"></van-skeleton>
+    <!-- 顶部通知条 -->
+    <view v-else style="height: 100%; width: 100%">
+      <!-- 顶部提示语 -->
+      <van-notice-bar
+        :scrollable="false"
+        :wrapable="true"
+        speed="40"
+        color="#1989fa"
+        background="#ecf9ff"
+        left-icon="info-o"
+        :text="titleNotice"
+      ></van-notice-bar>
+      <van-notice-bar
+        v-if="permission === 1"
+        :scrollable="false"
+        :wrapable="true"
+        speed="40"
+        color="#1989fa"
+        background="#ecf9ff"
+        left-icon="info-o"
+        :text="titleNotice"
+      ></van-notice-bar>
+      <!-- 主体 -->
+      <view class="page-y-center">
+        <!-- 输入框 -->
+        <van-cell-group>
+          <!-- 基本框 -->
+          <van-field
+            :value="i.value"
+            @change="onInput(key, $event)"
+            required
+            clearable
+            :label="i.title"
+            :placeholder="`请输入${i.title}`"
+            v-for="(i, key) in form"
+            :key="i.title"
+          >
+          </van-field>
+          <!-- 开关判断是否需要团队模式先于个人 -->
+          <van-cell title="实时更新" v-if="permission === 1">
+            <van-switch
+              active-color="#07c160"
+              :checked="is_update"
+              @change="is_update = !is_update"
+            ></van-switch>
+          </van-cell>
+          <van-cell title="个人模式优先" v-if="permission === 1">
+            <van-switch
+              active-color="#07c160"
+              :checked="game_mode"
+              @change="game_mode = !game_mode"
+            ></van-switch>
+          </van-cell>
+        </van-cell-group>
+        <!-- 选择日期 -->
+        <van-cell
+          title="结束时间"
+          :value="formatTime"
           v-if="permission === 1"
-          custom-class="van-button--round van-button--large ma-3"
-          type="success"
-          @tap="toInfo"
-          >查看记录</van-button
-        >
+        ></van-cell>
+        <van-datetime-picker
+          v-if="permission === 1"
+          type="datetime"
+          :value="end_time"
+          @confirm="onInputTime"
+          :min-date="currentTime"
+          data-type="datetime"
+        ></van-datetime-picker>
+        <!-- 根据角色判断权限，底部交互按钮 -->
+        <view class="rca my-3">
+          <van-button
+            custom-class="van-button--round van-button--large ma-3"
+            type="primary"
+            :loading="isLoading"
+            @tap="submitChange"
+            >{{ btnTitle }}</van-button
+          >
+          <van-button
+            v-if="permission === 1"
+            custom-class="van-button--round van-button--large ma-3"
+            type="success"
+            @tap="toInfo"
+            >查看记录</van-button
+          >
+        </view>
       </view>
+      <!-- 遮掩层显示二维码 -->
+      <van-overlay :show="showOverlay" @click="showOverlay = false">
+        <view class="page-y-center ccc">
+          <image
+            style="height: 350px; width: 350px; margin-bottom: 50px"
+            mode="aspectFit"
+            :src="QRCODE_URL"
+          ></image>
+          <van-icon name="close" size="40px" @tap="showOverlay = false" />
+        </view>
+      </van-overlay>
     </view>
-    <!-- 遮掩层显示二维码 -->
-    <van-overlay :show="showOverlay" @click="showOverlay = false">
-      <view class="page-y-center ccc">
-        <image
-          style="height: 350px; width: 350px; margin-bottom: 50px"
-          mode="aspectFit"
-          :src="QRCODE_URL"
-        ></image>
-        <van-icon name="close" size="40px" @tap="showOverlay = false" />
-      </view>
-    </van-overlay>
   </view>
 </template>
 
 <script>
-import Taro, { usePullDownRefresh } from '@tarojs/taro'
-import { mapState, mapMutations } from 'vuex'
-//import validate from '@util/validate'
+import Taro from '@tarojs/taro'
+import { mapState, mapMutations, mapActions } from 'vuex'
+import validate from '@util/validate'
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import myQRCODE from '@img/myQRCODE.jpg';
 //参与者
@@ -97,42 +117,33 @@ import { get_userInfo_template } from '@api/user.js';
 import { get_game_setting_template, submit_game_setting } from '@api/setting.js';
 //预加载配置
 import { get_game_settings, _update, _submit } from '@api/game';
-/* import {
-  onInput,
-  submitChange,
-  submitUserInfo,
-  getUserInfoTemplate,
-  validateForm,
-  submitSetting,
-  getGameSettingTemplate,
-  getGameSetting
-} from './hook/model.js' */
-const positiveInteger = /^\+?[1-9]\d*$/;
-const phone = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-7|9])|(?:5[0-3|5-9])|(?:6[5-7])|(?:7[0-8])|(?:8[\d])|(?:9[1|8|9]))\d{8}$/;
+import { formatTime } from '@util/time'
 export default {
   inheritAttrs: false,
   name: 'cusInfo',
-  components: {
-  },
+  components: {},
   data: () => ({
+    //表单
     form: null,
+    is_update: true,
+    game_mode: true,
+    //时间选择
+    end_time: undefined,
+    currentTime: undefined,
+    formatTime: undefined,
+    //视图
+    isSkeleton: true,
     isLoading: false,
     showOverlay: false,
     QRCODE_URL: '',
-    is_update: true,
-    game_mode: true,
-    end_time: undefined,
-    currentTime: undefined
   }),
   props: {},
   methods: {
     /**
-     * 监听
+     * 监听时间选择器
      */
     onInputTime (event) {
-      console.log('onInput')
       this.end_time = event.detail
-      console.log(this.end_time)
     },
     /**
      * 监听表单输入，后期注意防抖
@@ -142,32 +153,25 @@ export default {
     },
     /**
      * 校验表单输入值合法性：
-     * 1.是否填写完毕
-     * 2.每一块是否输入有效数值，注意即使输入number也转换为string即可
      */
     validateForm () {
       if (this.form === null) {
         return !1;
       }
-      //目前只校验是否已输入
       for (const key in this.form) {
         const cur = this.form[key]
-        if (key === 'money' || key === 'batch' || key === 'group') {
-          const value = Number(cur.value)
-          if (!positiveInteger.test(value)) {
+        const validator = cur.validator || {}
+        //如果validator存在且有值
+        if (Object.keys(validator).length !== 0) {
+          const bool = validate(cur.value, validator.validType, validator.selfType)
+          if (!bool) {
             Notify({ type: 'danger', message: `${cur.title}格式填写错误` })
             return false
           }
         }
-        else if (key === 'phone_number') {
-          const value = Number(cur.value)
-          if (!phone.test(value)) {
-            Notify({ type: 'danger', message: `${cur.title}格式填写错误` })
-            return false
-          }
-        }
+        //否则直接当做普通的文本框
         else {
-          if (this.form[key].value.length === 0) {
+          if (cur.value.length === 0) {
             Notify({ type: 'danger', message: '你尚未填写完毕' })
             return false
           }
@@ -276,7 +280,20 @@ export default {
     },
     ...mapMutations(
       { setSettings: 'game/setSettings', setUserInfo: 'user/setUserInfo' }
-    )
+    ),
+    ...mapActions({
+      login: 'user/login'
+    })
+  },
+  watch: {
+    /**
+     * 格式化时间戳
+     */
+    end_time: {
+      handler (n) {
+        this.formatTime = formatTime(n, false)
+      }, immediate: true
+    }
   },
   computed: {
     /**
@@ -298,7 +315,7 @@ export default {
      */
     titleNotice () {
       return this.permission === 0 ? '请填写你的个人信息'
-        : '请填写当前批次游戏的配置，随后会生成二维码'
+        : '请填写当前批次游戏的配置'
     },
     ...mapState({
       permission: (state) => state.user.permission,
@@ -313,11 +330,14 @@ export default {
     * 研究生身份：提供数据导出和实验组批次设置两个url
     * 参与者身份：直接跳转至cusInfo，注意此时需要初始化研究生的模板存入vuex
     */
-  mounted () {
+  async mounted () {
     this.currentTime = new Date().getTime()
+    this.end_time = new Date().getTime()
+    await this.login()
     const bool = this.permission === 0
     //填写的模板
     this.form = bool ? this.getUserInfoTemplate() : this.getGameSettingTemplate()
+    this.isSkeleton = false
   }
 }
 </script>
