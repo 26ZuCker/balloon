@@ -2,7 +2,7 @@
   <view style="height: 100%; width: 100%">
     <!-- 顶部消息框 -->
     <van-notify id="van-notify" />
-    <!-- 骨架屏等待 -->
+    <!-- 顶部消息条 -->
     <van-notice-bar
       :scrollable="false"
       :wrapable="true"
@@ -13,84 +13,78 @@
       text="请填写当前批次游戏的配置"
       custom-class="my-3"
     ></van-notice-bar>
-    <!-- 顶部通知条 -->
     <view style="height: 100%; width: 100%">
-      <!-- 顶部提示语 -->
-
-      <!-- 主体 -->
-      <view class="">
-        <!-- 输入框 -->
-        <van-cell-group>
-          <view v-for="(i, key) in form" :key="i.title">
-            <!--  -->
-            <view v-if="areaForm(key)">
-              <van-divider
-                contentPosition="center"
-                customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
-              >
-                {{ i.title }}
-              </van-divider>
-              <textarea
-                :placeholder="`请输入${i.title}`"
-                @confirm="onInput(key, $event)"
-                auto-height
-              ></textarea>
-            </view>
-            <!--  -->
-            <van-field
-              v-else
-              :value="i.value"
-              @change="onInput(key, $event)"
-              required
-              autosize
-              clearable
-              :label="i.title"
+      <!-- 输入框 -->
+      <van-cell-group>
+        <view v-for="(i, key) in form" :key="i.title">
+          <!-- 大框 -->
+          <view v-if="areaForm(key)">
+            <van-divider
+              contentPosition="center"
+              customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
+            >
+              {{ i.title }}
+            </van-divider>
+            <textarea
               :placeholder="`请输入${i.title}`"
-            ></van-field>
+              @confirm="onInput(key, $event)"
+              auto-height
+            ></textarea>
           </view>
-          <!-- 开关判断是否需要团队模式先于个人 -->
-          <van-divider customStyle=" font-size: 18px;"> </van-divider>
-          <van-cell title="实时更新">
-            <van-switch
-              active-color="#07c160"
-              :checked="is_update"
-              @change="is_update = !is_update"
-            ></van-switch>
-          </van-cell>
-          <van-cell title="个人模式优先">
-            <van-switch
-              active-color="#07c160"
-              :checked="game_mode"
-              @change="game_mode = !game_mode"
-            ></van-switch>
-          </van-cell>
-        </van-cell-group>
-        <van-divider customStyle=" font-size: 18px;"> </van-divider>
-        <!-- 选择日期 -->
-        <van-cell title="结束时间" :value="formatTime"></van-cell>
-        <van-datetime-picker
-          type="datetime"
-          :value="end_time"
-          @confirm="onInputTime"
-          :min-date="currentTime"
-          data-type="datetime"
-        ></van-datetime-picker>
-        <!-- 根据角色判断权限，底部交互按钮 -->
-        <view class="rca my-3">
-          <van-button
-            custom-class="van-button--round van-button--large ma-3"
-            type="primary"
-            :loading="isLoading"
-            @tap="submitChange"
-            >生成游戏二维码</van-button
-          >
-          <van-button
-            custom-class="van-button--round van-button--large ma-3"
-            type="success"
-            @tap="toInfo"
-            >查看记录</van-button
-          >
+          <!-- 普通框 -->
+          <van-field
+            v-else
+            :value="i.value"
+            @change="onInput(key, $event)"
+            required
+            autosize
+            clearable
+            :label="i.title"
+            :placeholder="`请输入${i.title}`"
+          ></van-field>
         </view>
+        <!-- 开关判断是否需要团队模式先于个人 -->
+        <van-divider customStyle=" font-size: 18px;"> </van-divider>
+        <van-cell title="实时更新">
+          <van-switch
+            active-color="#07c160"
+            :checked="is_update"
+            @change="is_update = !is_update"
+          ></van-switch>
+        </van-cell>
+        <van-cell title="个人模式优先">
+          <van-switch
+            active-color="#07c160"
+            :checked="game_mode"
+            @change="game_mode = !game_mode"
+          ></van-switch>
+        </van-cell>
+      </van-cell-group>
+      <van-divider customStyle=" font-size: 18px;"> </van-divider>
+      <!-- 选择日期 -->
+      <van-cell title="结束时间" :value="formatTime"></van-cell>
+      <van-datetime-picker
+        type="datetime"
+        :value="end_time"
+        @confirm="onInputTime"
+        :min-date="currentTime"
+        data-type="datetime"
+      ></van-datetime-picker>
+      <!-- 根据角色判断权限，底部交互按钮 -->
+      <view class="rca my-3">
+        <van-button
+          custom-class="van-button--round van-button--large ma-3"
+          type="primary"
+          :loading="isLoading"
+          @tap="submitChange"
+          >生成游戏二维码</van-button
+        >
+        <van-button
+          custom-class="van-button--round van-button--large ma-3"
+          type="success"
+          @tap="toInfo"
+          >查看记录</van-button
+        >
       </view>
       <!-- 遮掩层显示二维码 -->
       <van-overlay :show="showOverlay" @click="showOverlay = false">
