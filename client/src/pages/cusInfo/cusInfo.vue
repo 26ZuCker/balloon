@@ -1,9 +1,9 @@
 <template>
   <view style="height: 100%; width: 100%">
     <!-- 顶部消息框 -->
-    <van-notify id="van-notify"></van-notify>
+    <van-notify id="van-notify" />
     <!-- 骨架屏等待 -->
-    <van-skeleton title row="15" v-if="isSkeleton"></van-skeleton>
+    <van-skeleton title row="30" v-if="isSkeleton"></van-skeleton>
     <!-- 顶部通知条 -->
     <view v-else style="height: 100%; width: 100%">
       <!-- 顶部提示语 -->
@@ -15,25 +15,44 @@
         background="#ecf9ff"
         left-icon="info-o"
         :text="titleNotice"
+        custom-class="my-3"
       ></van-notice-bar>
       <!-- 主体 -->
-      <view class="page-y-center">
+      <view class="">
         <!-- 输入框 -->
         <van-cell-group>
-          <!-- 基本框 -->
-          <van-field
-            :value="i.value"
-            @change="onInput(key, $event)"
-            required
-            autosize
-            clearable
-            :label="i.title"
-            :placeholder="`请输入${i.title}`"
-            v-for="(i, key) in form"
-            :key="i.title"
-          >
-          </van-field>
+          <view v-for="(i, key) in form" :key="i.title">
+            <!--  -->
+            <view v-if="areaForm(key)">
+              <van-divider
+                contentPosition="center"
+                customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
+              >
+                {{ i.title }}
+              </van-divider>
+              <textarea
+                :placeholder="`请输入${i.title}`"
+                @confirm="onInput(key, $event)"
+                auto-height
+              ></textarea>
+            </view>
+            <!--  -->
+            <van-field
+              v-else
+              :value="i.value"
+              @change="onInput(key, $event)"
+              required
+              autosize
+              clearable
+              :label="i.title"
+              :placeholder="`请输入${i.title}`"
+            ></van-field>
+          </view>
           <!-- 开关判断是否需要团队模式先于个人 -->
+          <van-divider
+            customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
+          >
+          </van-divider>
           <van-cell title="实时更新" v-if="permission === 1">
             <van-switch
               active-color="#07c160"
@@ -49,6 +68,10 @@
             ></van-switch>
           </van-cell>
         </van-cell-group>
+        <van-divider
+          customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
+        >
+        </van-divider>
         <!-- 选择日期 -->
         <van-cell
           title="结束时间"
@@ -289,6 +312,14 @@ export default {
     }
   },
   computed: {
+    /**
+     * 是否展示大框
+     */
+    areaForm () {
+      return function (key) {
+        return key === 'team_tips' || key === 'personal_tips' || key === 'practice_tips' || key === 'game_tips'
+      }
+    },
     /**
      * 输入框提示文字
      */

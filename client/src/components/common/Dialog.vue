@@ -10,7 +10,7 @@
       </view>
       <!-- 底部关闭按钮 -->
       <van-button
-        v-if="showBtn"
+        v-if="showBtn && contentMsg !== ''"
         :type="btnColor"
         custom-class="van-button--round van-button--large"
         :loading="currentSecond !== 0"
@@ -35,7 +35,7 @@ export default {
     //以下为展示的具体内容
     contentMsg: [Array, String],
     //当前模式，用于判断是否为正式模式的所有关卡结束
-    current_mode: { type: String },
+    current_mode: { type: String, default: 'personal' },
   },
   data: () => ({
     //dialog内部属性，默认20s
@@ -43,9 +43,9 @@ export default {
   }),
   computed: {
     btnColor () {
-      if (this.current_mode === 'personal') {
-        return 'danger'
-      }
+      /*       if (this.current_mode === 'personal') {
+              return 'danger'
+            } */
       return this.currentSecond === 0 ? 'primary' : 'info'
     },
     /**

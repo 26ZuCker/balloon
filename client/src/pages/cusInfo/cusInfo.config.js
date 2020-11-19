@@ -13,6 +13,7 @@ export default {
     'van-switch': '../../components/vant-weapp/dist/switch/index',
     'van-datetime-picker': '../../components/vant-weapp/dist/datetime-picker/index',
     'van-skeleton': '../../components/vant-weapp/dist/skeleton/index',
+    'van-divider': '../../components/vant-weapp/dist/divider/index',
   },
   /*   enablePullDownRefresh: true,
   backgroundTextStyle: 'dark', */
