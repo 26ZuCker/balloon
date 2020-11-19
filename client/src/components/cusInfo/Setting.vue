@@ -27,7 +27,8 @@
             </van-divider>
             <textarea
               :placeholder="`请输入${i.title}`"
-              @confirm="onInput(key, $event)"
+              @input="onInput(key, $event)"
+              :value="i.value"
               auto-height
             ></textarea>
           </view>
@@ -76,7 +77,7 @@
           type="primary"
           :loading="isLoading"
           @tap="submitChange"
-          >生成游戏二维码</van-button
+          >提交</van-button
         >
         <van-button
           custom-class="van-button--round van-button--large ma-3"
@@ -144,7 +145,7 @@ export default {
      * 监听表单输入，后期注意防抖
      */
     onInput (key, $event) {
-      this.form[key].value = $event.detail;
+      this.form[key].value = this.areaForm(key) ? $event.detail.value : $event.detail;
     },
     /**
      * 校验表单输入值合法性：
@@ -153,6 +154,7 @@ export default {
       if (this.form === null) {
         return !1;
       }
+      console.log(this.form)
       for (const key in this.form) {
         const cur = this.form[key]
         const validator = cur.validator || {}
@@ -208,8 +210,9 @@ export default {
       }
       //改变视图
       this.isLoading = !1;
-      this.showOverlay = !0;
-      this.QRCODE_URL = myQRCODE;
+      Notify({ type: 'success', message: '可以开始新游戏' })
+      /* this.showOverlay = !0;
+      this.QRCODE_URL = myQRCODE; */
     },
     /**
      * 获取游戏配置

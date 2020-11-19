@@ -69,6 +69,7 @@ export default {
         res.push(this.contentMsg.slice(i, i + maxFont))
         currentLine += 1
       }
+      console.log(this.contentMsg)
       console.log(res)
       return res
     }

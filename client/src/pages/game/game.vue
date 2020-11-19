@@ -262,8 +262,8 @@ export default {
       }
       //所有模式结束，直接离开
       else if (this.mode === 'OVER') {
-        this.changeProps('游戏结束', '', false);
-        this.showDialog(0);
+        this.changeProps('', '', false);
+        this.showDialog(0, '游戏结束');
         return
       }
       //正式模式30关结束后，包括团队此时需要回调
