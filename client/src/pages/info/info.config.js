@@ -10,6 +10,7 @@ export default {
     'van-button': '../../components/vant-weapp/dist/button/index',
     'van-skeleton': '../../components/vant-weapp/dist/skeleton/index',
     'van-dialog': '../../components/vant-weapp/dist/dialog/index',
+    'van-toast': '../../components/vant-weapp/dist/toast/index',
   },
   /*   enablePullDownRefresh: true,
   backgroundTextStyle: 'dark', */

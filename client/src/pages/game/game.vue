@@ -187,7 +187,7 @@ export default {
     /**
      * 展示对话框，timeout后才能通过点击按钮触发事件，具体参数通过prop响应式传递给组件
      */
-    showDialog (timeout = 2000, contentMsg = [''], showBtn = !0) {
+    showDialog (timeout = 2000, contentMsg = '', showBtn = !0) {
       this.isDialog = !0;
       this.waitingSecond = timeout;
       if (contentMsg[0] !== '') {
@@ -248,7 +248,7 @@ export default {
         this.statistics.total_income.value = 0
         this.statistics.left_checkpoint.value = 30;
         this.restart();
-        this.changeProps([this.viewSettings.game_tips]);
+        this.changeProps(this.viewSettings.game_tips);
         //练习模式结束后开始实时更新
         if (this.viewSettings.is_update) {
           const timer = setInterval(() => {
@@ -272,15 +272,15 @@ export default {
         : (this.viewSettings.game_mode === 0 ? 'team' : 'OVER')
       const str = this.mode === 'team' ? '下一轮为团队收益' : '下一轮为自己收益'
       this.restart();
-      this.showDialog(1500, [str], '继续游戏');
+      this.showDialog(1500, str, '继续游戏');
       this.changeProps();
     },
     /**
      * 改变传给dialog的props
      */
-    changeProps (contentMsg = [''], confirmBtnText = '', showBtn = !0) {
+    changeProps (contentMsg = '', confirmBtnText = '', showBtn = !0) {
       //只要非练习模式，点击结束按钮都会展示该轮比赛成绩
-      this.contentMsg = contentMsg[0] === '' ? this.statisticsMsg() : contentMsg;
+      this.contentMsg = contentMsg === '' ? this.statisticsMsg() : contentMsg;
       if (!showBtn) {
         this.showBtn = showBtn;
       }
@@ -290,8 +290,8 @@ export default {
      */
     statisticsMsg () {
       return this.mode === 'TRAIN'
-        ? [`${this.viewSettings.practice_tips}`]
-        : [`${this.viewSettings.round_tips[this.mode]}`];
+        ? this.viewSettings.practice_tips
+        : this.viewSettings.round_tips[this.mode]
     },
     /**
      * 派发收账按钮的回调，统计和收集每一轮所需的数据
@@ -309,14 +309,14 @@ export default {
       }
       //如果进入16关则需要强制休息15s
       if (this.statistics.left_checkpoint.value === 15) {
-        this.showDialog(1500, ['休息一下'], '继续游戏');
+        this.showDialog(1500, '休息一下', '继续游戏');
       }
       //正式模式及团队模式30关全部结束
       if (this.statistics.left_checkpoint.value === 0) {
         this.changeMode();
         if (this.mode === 'OVER') {
           //此处不需要等待，但需要展示按钮进行提交选项
-          this.showDialog(0, [''], '', false);
+          this.showDialog(0, '', '', false);
         }
       }
     },
@@ -396,9 +396,6 @@ export default {
     //初始化optionmode
     this.iniOptionalMode(this.viewSettings.game_mode)
   },
-  beforeDestroy () {
-
-  }
 }
 </script>
 <style lang='scss'>

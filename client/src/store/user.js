@@ -23,10 +23,10 @@ const mutations = {
    * @param {any} state
    * @param {object} userInfo
    */
-  set_permission(state, permission) {
+  setPermission(state, permission) {
     state.permission = permission;
   },
-  reset_permission(state) {
+  resetPermission(state) {
     state.permission = null;
   },
   /**
@@ -102,17 +102,17 @@ const onLogin = async (commit) =>
         const { result } = res;
         const { code, message, data } = result;
         if (code === '100') {
-          commit('set_permission', 1);
+          commit('setPermission', 1);
           const past_round = data;
           commit('setPastRound', past_round);
         } else {
-          commit('set_permission', 0);
+          commit('setPermission', 0);
         }
         resolve(res);
       })
       .catch((error) => {
         console.log(error);
-        commit('set_permission', 0);
+        commit('setPermission', 0);
         reject(error);
       });
   });

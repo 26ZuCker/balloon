@@ -60,7 +60,6 @@
           ></van-switch>
         </van-cell>
       </van-cell-group>
-      <van-divider customStyle=" font-size: 18px;"> </van-divider>
       <!-- 选择日期 -->
       <van-cell title="结束时间" :value="formatTime"></van-cell>
       <van-datetime-picker
@@ -202,6 +201,7 @@ export default {
         const res = await submit_game_setting(params);
         if (typeof res === 'string') {
           Notify({ type: 'danger', message: res });
+          return
         }
       } catch (error) {
         return error;

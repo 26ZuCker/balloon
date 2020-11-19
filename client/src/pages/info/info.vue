@@ -1,7 +1,7 @@
 <template>
   <view style="height: 100%; width: 100%">
+    <van-toast id="van-toast" />
     <!-- 顶部消息框 -->
-    <!-- <van-notify id="van-notify" /> -->
     <van-dialog id="van-dialog" />
     <van-skeleton title row="30" v-if="isSkeleton"></van-skeleton>
     <!-- 后续进行长列表优化 -->
@@ -21,21 +21,27 @@
 <script>
 import Taro from '@tarojs/taro'
 import Dialog from '@com/vant-weapp/dist/Dialog/Dialog.js';
+import Toast from '@com/vant-weapp/dist/toast/toast.js';
 import { get_all_batch, download_excel } from '@api/info.js'
 /**
  * 缓存已请求的数据长列表
  */
 const hash = new Map()
+/**
+ * 已请求的url
+ */
+let viewUrl = []
 const allBatch = []
 export default {
   inheritAttrs: false,
   name: 'info',
   data: () => ({
+    /**
+     * 可视区内所有
+     */
     viewBatch: [],
     isSkeleton: true,
-    viewUrl: null,
     isDialog: false,
-    contentMsg: ''
   }),
   props: {},
   methods: {
@@ -44,45 +50,48 @@ export default {
      */
     onSearch () { },
     /**
-     * 下载
+     * 响应点击下载按钮
      */
     async download (i) {
-      /*       let path
-            if (hash.has(i)) {
-              hash.set(i, { path: hash.get(i).path, isDownloading: false })
-            }
-            //如果不存在则重新获取
-            else {
-              hash.set(i, { path: '', isDownloading: true })
-              //如果存在
-              const params = { batch: i }
-              const res = await download_excel(params)
-              path = res.path
-              this.viewUrl[i] = path
-              hash.set(i, { path: path, isDownloading: false })
-            }
-            Notify({ type: 'primary', message: '复制左侧链接至浏览器以下载excel', selector: '#van-notify', })
-            //清除isDownloading以GC因为不会再使用
-            hash.set(i, { path: path, isDownloading: null }) */
-      const params = { batch: i }
-      const res = await download_excel(params)
-      const path = res.path
-      this.viewUrl[i] = path
+      if (viewUrl[i] !== '') {
+        this.showDialog(viewUrl[i])
+        return
+      }
+      Toast.loading({
+        message: '获取中',
+        forbidClick: true,
+        loadingType: 'spinner',
+      });
+      //const params = { batch: i }
+      const res = await download_excel({ batch: i })
+      const { path } = res
+      viewUrl[i] = path
+      Toast.clear()
+      this.showDialog(path)
+    },
+    /**
+     * 展示弹窗
+     */
+    showDialog (path) {
       Dialog.alert({
         title: '复制链接至浏览器以下载excel',
         message: path,
-        confirmButtonText: '复制链接至您的剪贴板',
+        confirmButtonText: '复制链接至剪贴板',
+        showCancelButton: true,
+        cancelButtonText: '取消'
       }).then(() => {
+        //复制至剪贴板
         Taro.setClipboardData({
           data: path,
           success: function (res) {
             Taro.getClipboardData({
               success: function (res) {
-                console.log(res)
+                //console.log(res)
               }
             })
           }
         })
+        //关闭
         Dialog.close()
       });
     }
@@ -94,7 +103,7 @@ export default {
     hasUrl () {
       return function (i) {
         //return hash.has(i) && hash.get(i).path !== ''
-        return this.viewUrl[i] !== ''
+        return viewUrl[i] !== ''
       }
     },
     /**
@@ -103,7 +112,7 @@ export default {
     excelUrl () {
       return function (i) {
         //return hash.has(i) ? hash.get(i).path : '不存在'
-        return this.viewUrl[i] === '' ? '不存在' : this.viewUrl[i]
+        return viewUrl[i] === '' ? '不存在' : viewUrl[i]
       }
     },
     /**
@@ -118,7 +127,7 @@ export default {
   async created () {
     const res = await get_all_batch()
     this.viewBatch = Object.freeze(res)
-    this.viewUrl = Array(this.viewBatch.length + 1).fill('')
+    viewUrl = Array(this.viewBatch.length + 1).fill('')
     this.isSkeleton = false
   }
 }

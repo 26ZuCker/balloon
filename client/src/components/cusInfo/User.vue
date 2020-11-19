@@ -16,6 +16,8 @@
       <!-- 顶部提示语 -->
       <van-cell-group>
         <van-field
+          v-for="(i, key) in form"
+          :key="i.title"
           :value="i.value"
           @change="onInput(key, $event)"
           required

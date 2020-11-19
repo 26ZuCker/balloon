@@ -5,8 +5,8 @@
       style="width: 60%; padding: 20px"
     >
       <!-- 主体tip -->
-      <view v-for="i in contentMsg" :key="i.title">
-        {{ content(i) }}
+      <view v-for="i in content" :key="i.title">
+        {{ i }}
       </view>
       <!-- 底部关闭按钮 -->
       <van-button
@@ -33,7 +33,7 @@ export default {
      */
     waitingSecond: { type: Number, default: 0 },
     //以下为展示的具体内容
-    contentMsg: [Array, String],
+    contentMsg: { type: String, default: '' },
     //当前模式，用于判断是否为正式模式的所有关卡结束
     current_mode: { type: String, default: 'personal' },
   },
@@ -49,12 +49,28 @@ export default {
       return this.currentSecond === 0 ? 'primary' : 'info'
     },
     /**
-     * 主体内容，可能传入字符串数组或对象
+     * 主体内容，分割传入的字符串，每一行规定n个字符，每n行规定自动自动加一整行空格
      */
     content () {
-      return function (i) {
-        return typeof i === 'string' ? i : `${i.title} : ${i.value}`
+      //return typeof i === 'string' ? i : `${i.title} : ${i.value}`
+      const maxLine = 4
+      let currentLine = 0
+      const maxFont = 25
+      const res = []
+      const length = this.contentMsg.length
+      for (let i = 0; i < length; i += maxFont) {
+        if (i >= length) {
+          break
+        }
+        if (currentLine === maxLine) {
+          res.push('\n')
+          currentLine = 0
+        }
+        res.push(this.contentMsg.slice(i, i + maxFont))
+        currentLine += 1
       }
+      console.log(res)
+      return res
     }
   },
   methods: {
