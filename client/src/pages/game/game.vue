@@ -3,12 +3,12 @@
     <!-- 顶部通知条 -->
     <van-notify id="van-notify" />
     <!-- 顶部提示语 -->
-    <van-notice-bar
-      color="#1989fa"
-      background="#ecf9ff"
-      left-icon="info-o"
-      :text="titleNotice"
-    ></van-notice-bar>
+    <van-divider
+      contentPosition="center"
+      customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
+    >
+      {{ titleNotice }}
+    </van-divider>
     <!-- 气球主体，建议限制高度为百分比 -->
     <view class="img-container">
       <image
@@ -101,7 +101,7 @@ export default {
       round_income: { title: '本轮收益', value: 0 },
       total_income: { title: '总收益', value: 0 },
       previous_income: { title: '上一轮收益', value: 0 },
-      left_checkpoint: { title: '剩余关卡', value: 30 },
+      left_checkpoint: { title: '剩余关卡', value: 20 },
     },
     showBtn: !0,
     mode: '',
@@ -120,7 +120,7 @@ export default {
       } else {
         //未达到爆炸点前点击
         current_point = this.viewSettings.blast_point[this.mode][
-          30 - this.statistics.left_checkpoint.value
+          20 - this.statistics.left_checkpoint.value
         ];
       }
       if (this.count / this.viewSettings.money < current_point) {
@@ -146,7 +146,7 @@ export default {
         previous_income = 0;
       }
       const blast_point = this.mode === 'TRAIN' ? 0
-        : this.viewSettings.blast_point[this.mode][30 - this.statistics.left_checkpoint.value]
+        : this.viewSettings.blast_point[this.mode][20 - this.statistics.left_checkpoint.value]
       //发送数据，注意不能影响下一次
       const params = {
         batch: this.submitSettings.batch,
@@ -229,7 +229,7 @@ export default {
       /*       if (this.mode === 'TRAIN') {
             } */
       this.count = 0;
-      this.statistics.left_checkpoint.value = this.mode === 'OVER' ? 0 : 30;
+      this.statistics.left_checkpoint.value = this.mode === 'OVER' ? 0 : 20;
     },
     /**
      * 改变模式，只能单向不可逆
@@ -246,7 +246,7 @@ export default {
       else if (this.mode === 'TRAIN') {
         this.mode = this.viewSettings.game_mode === 0 ? 'personal' : 'team'
         this.statistics.total_income.value = 0
-        this.statistics.left_checkpoint.value = 30;
+        this.statistics.left_checkpoint.value = 20;
         this.restart();
         this.changeProps(this.viewSettings.game_tips);
         //练习模式结束后开始实时更新
@@ -263,13 +263,14 @@ export default {
       //所有模式结束，直接离开
       else if (this.mode === 'OVER') {
         this.changeProps('', '', false);
-        this.showDialog(0, '游戏结束');
+        this.showDialog(0, `请复制链接并填写以下问卷星${this.viewSettings.questionnaire_link}`);
         return
       }
       //正式模式30关结束后，包括团队此时需要回调
-      this.mode = this.mode === 'team'
+      /* this.mode = this.mode === 'team'
         ? (this.viewSettings.game_mode === 0 ? 'OVER' : 'personal')
-        : (this.viewSettings.game_mode === 0 ? 'team' : 'OVER')
+        : (this.viewSettings.game_mode === 0 ? 'team' : 'OVER') */
+      this.mode = 'OVER'
       const str = this.mode === 'team' ? '下一轮为团队收益' : '下一轮为自己收益'
       this.restart();
       this.showDialog(1500, str, '继续游戏');
@@ -308,7 +309,7 @@ export default {
         return;
       }
       //如果进入16关则需要强制休息15s
-      if (this.statistics.left_checkpoint.value === 15) {
+      if (this.statistics.left_checkpoint.value === 10) {
         this.showDialog(1500, '休息一下', '继续游戏');
       }
       //正式模式及团队模式30关全部结束

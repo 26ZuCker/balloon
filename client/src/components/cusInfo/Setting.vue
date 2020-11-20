@@ -53,13 +53,13 @@
             @change="is_update = !is_update"
           ></van-switch>
         </van-cell>
-        <van-cell title="个人模式优先">
+        <!--         <van-cell title="个人模式优先">
           <van-switch
             active-color="#07c160"
             :checked="game_mode"
             @change="game_mode = !game_mode"
           ></van-switch>
-        </van-cell>
+        </van-cell> -->
       </van-cell-group>
       <!-- 选择日期 -->
       <van-cell title="结束时间" :value="formatTime"></van-cell>
@@ -122,7 +122,7 @@ export default {
     //表单
     form: null,
     is_update: true,
-    game_mode: true,
+    //game_mode: true,
     //时间选择
     end_time: undefined,
     currentTime: undefined,
@@ -197,7 +197,7 @@ export default {
       }
       params['is_update'] = this.is_update;
       params['blast_point_distribution'] = 0;
-      params['game_mode'] = this.game_mode ? 0 : 1;
+      //params['game_mode'] = this.game_mode ? 0 : 1;
       params['end_time'] = this.end_time
       try {
         const res = await submit_game_setting(params);

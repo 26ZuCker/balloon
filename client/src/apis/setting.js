@@ -20,6 +20,11 @@ const get_game_setting_template = () => {
       value: '',
       validator: { validType: 'REG', selfType: 'positiveInteger' },
     },
+    questionnaire_link: {
+      title: '问卷星链接',
+      value: '',
+      validator: { validType: 'REG', selfType: 'url' },
+    },
     //blast_point_distribution: { title: '爆破点分布方式', value: '', validator: {} },
     //game_mode: { title: '游戏模式', value: '', validator: {} },
     //end_time: { title: '结束时间', value: '', validator: {} },

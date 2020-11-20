@@ -16,6 +16,7 @@ const state = {
     blast_point_distribution: 0,
     is_update: true,
     money: Number.MIN_SAFE_INTEGER,
+    questionnaire_link: '',
     blast_point: {
       team: [],
       personal: [],
@@ -38,9 +39,9 @@ const mutations = {
       }
     }
     /**
-     * 生成1~30的随机正整数
+     * 生成1~20的随机正整数
      */
-    const genNum = () => ((Math.random() + 1) * 30 - 29) | 0;
+    const genNum = () => ((Math.random() + 1) * 20 - 19) | 0;
     /**
      * 生成的数组
      */
