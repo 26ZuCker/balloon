@@ -8,7 +8,7 @@ const db = cloud.database();
 function generate_blast_point_list(type) {
   // 生成数组
   if (type == 0) {
-    var list_length = 30;
+    var list_length = 20;
     var blast_point_list = [];
     for (var i = 1; i <= list_length; i++) {
       blast_point_list.push(i);
@@ -48,7 +48,7 @@ exports.main = async (event, context) => {
     }
 
     let game_settings = setting_data.data[0];
-    game_settings.group = Number(event.group);
+    game_settings.group = event.group;
 
     // 判断游戏是否结束
     if (game_settings.end_time <= Date.parse(new Date()) / 1000) {
@@ -89,6 +89,26 @@ exports.main = async (event, context) => {
       personal: blast_point_list_personal,
     };
     game_settings.blast_point = blast_point;
+
+    // 更新游戏模式
+    let new_game_mode = 0;
+    if (game_settings.game_mode == 1) {
+      new_game_mode = 0;
+    } else {
+      new_game_mode = 1;
+    }
+
+    await db
+      .collection('settings')
+      .where({
+        batch: batch,
+      })
+      .update({
+        data: {
+          game_mode: new_game_mode,
+        },
+      });
+
     return {
       code: '100',
       message: 'success',

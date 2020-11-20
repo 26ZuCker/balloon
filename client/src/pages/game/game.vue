@@ -204,6 +204,20 @@ export default {
      * 如果在正式模式后进行点击，需要进行loading处理
      */
     confirmDialog () {
+      if (this.mode === 'OVER') {
+        //复制至剪贴板
+        Taro.setClipboardData({
+          data: this.viewSettings.questionnaire_link,
+          success: function (res) {
+            Taro.getClipboardData({
+              success: function (res) {
+                //console.log(res)
+              }
+            })
+          }
+        })
+        return
+      }
       this.isDialog = false;
     },
     /**
@@ -262,8 +276,8 @@ export default {
       }
       //所有模式结束，直接离开
       else if (this.mode === 'OVER') {
-        this.changeProps('', '', false);
-        this.showDialog(0, `请复制链接并填写以下问卷星${this.viewSettings.questionnaire_link}`);
+        this.changeProps('', '');
+        this.showDialog(0, [`请点击按钮复制以下链接，以填写问卷星`, `${this.viewSettings.questionnaire_link}`]);
         return
       }
       //正式模式30关结束后，包括团队此时需要回调

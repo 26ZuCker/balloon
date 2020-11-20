@@ -21,6 +21,7 @@
   </van-overlay>
 </template>
 <script>
+import validate from '@util/validate'
 export default {
   inheritAttrs: false,
   name: 'Dialog',
@@ -33,7 +34,7 @@ export default {
      */
     waitingSecond: { type: Number, default: 0 },
     //以下为展示的具体内容
-    contentMsg: { type: String, default: '' },
+    contentMsg: [String, Array],
     //当前模式，用于判断是否为正式模式的所有关卡结束
     current_mode: { type: String, default: 'personal' },
   },
@@ -53,6 +54,9 @@ export default {
      */
     content () {
       //return typeof i === 'string' ? i : `${i.title} : ${i.value}`
+      if (validate(this.contentMsg, 'TYPE', 'ARRAY')) {
+        return this.contentMsg
+      }
       const maxLine = 4
       let currentLine = 0
       const maxFont = 25
@@ -69,8 +73,8 @@ export default {
         res.push(this.contentMsg.slice(i, i + maxFont))
         currentLine += 1
       }
-      console.log(this.contentMsg)
-      console.log(res)
+      /*       console.log(this.contentMsg)
+            console.log(res) */
       return res
     }
   },

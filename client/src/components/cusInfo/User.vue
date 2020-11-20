@@ -2,7 +2,7 @@
   <view style="height: 100%; width: 100%">
     <!-- 顶部消息框 -->
     <van-notify id="van-notify" />
-    <van-notice-bar
+    <!--     <van-notice-bar
       :scrollable="false"
       :wrapable="true"
       speed="40"
@@ -11,7 +11,13 @@
       left-icon="info-o"
       text="请填写你的个人信息"
       custom-class="my-3"
-    ></van-notice-bar>
+    ></van-notice-bar> -->
+    <van-divider
+      contentPosition="center"
+      customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
+    >
+      请填写你的个人信息
+    </van-divider>
     <view style="height: 100%; width: 100%">
       <!-- 顶部提示语 -->
       <van-cell-group>

@@ -21,7 +21,7 @@ const get_userInfo_template = () => {
       value: '',
       validator: { validType: 'REG', selfType: 'positiveInteger' },
     },
-    alipay: { title: '支付宝账号', value: '', validator: {} },
+    alipay: { title: '账号', value: '', validator: {} },
     group: {
       title: '组次',
       value: '',
@@ -29,7 +29,7 @@ const get_userInfo_template = () => {
     },
     name: { title: '姓名', value: '', validator: {} },
     phone_number: {
-      title: '手机号码',
+      title: '号码',
       value: '',
       validator: { validType: 'REG', selfType: 'phone' },
     },
