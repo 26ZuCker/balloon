@@ -18,14 +18,25 @@ const MAX_LIMIT = 100;
 exports.main = async (event, context) => {
   try {
     const wxContext = cloud.getWXContext();
-    //return wxContext.OPENID
-    if (
-      wxContext.OPENID === 'ospJc5Kdv7Rbh592uFMhDQE1T6xs' ||
-      wxContext.OPENID === 'ospJc5I-nTU3cTLJwh6M85eFxY8E'
-    ) {
+    const admin = [
+      'okhxZ46ZE-j-eU6JHfI-bpEGzgNc',
+      'ospJc5Kdv7Rbh592uFMhDQE1T6xs',
+      'of4gw5Ur5sHGqCf0b7L0PG1x7SAg',
+      'nTU3cTLJwh6M85eFxY8E',
+    ];
+    if (admin.includes(wxContext.OPENID)) {
       //获取所有的数据
       const countResult = await db.collection('settings').count();
+
       const total = countResult.total;
+
+      if (total == 0) {
+        return {
+          code: '100',
+          message: 'success',
+          data: [],
+        };
+      }
 
       const batchTimes = Math.ceil(total / 100);
 
