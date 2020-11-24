@@ -91,12 +91,12 @@ const actionsGetWCInfo = async ({ code, data }, commit) => {
 /**
  * 登录
  */
-const onLogin = async (commit) =>
+const onLogin = async (commit, params) =>
   new Promise((resolve, reject) => {
     Taro.cloud
       .callFunction({
         name: 'login',
-        data: {},
+        data: params,
       })
       .then((res) => {
         const { result } = res;
@@ -123,8 +123,8 @@ const actions = {
    * 先判断openid的响应因为还有一次异步请求
    * 注意：由于微信网络请求的api已经配置了失败回调，所以不需要额外包一层try catch
    */
-  async login({ commit }) {
-    const res = await onLogin(commit);
+  async login({ commit }, params) {
+    const res = await onLogin(commit, params);
     console.log(res);
   },
 };

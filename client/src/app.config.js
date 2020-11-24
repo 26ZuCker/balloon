@@ -2,8 +2,7 @@ export default {
   /**
    * 相当于首屏渲染
    */
-  pages: ['pages/cusInfo/cusInfo', 'pages/game/game'],
-  //pages: ['pages/game/game', 'pages/cusInfo/cusInfo'],
+  pages: ['pages/open/open', 'pages/cusInfo/cusInfo'],
   /**
    * 分包加载相当于预加载
    */
@@ -12,15 +11,15 @@ export default {
       root: 'pages/info',
       pages: ['info'],
     },
-    /*     {
-      root: 'pages/open',
-      pages: ['open'],
-    }, */
+    {
+      root: 'pages/game',
+      pages: ['game'],
+    },
   ],
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#fff',
-    navigationBarTitleText: 'WeChat',
+    navigationBarTitleText: '仿真气球实验',
     navigationBarTextStyle: 'black',
   },
   cloud: true,

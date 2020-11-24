@@ -3,16 +3,6 @@
     <!-- 顶部消息框 -->
     <van-notify id="van-notify" />
     <!-- 顶部消息条 -->
-    <!--     <van-notice-bar
-      :scrollable="false"
-      :wrapable="true"
-      speed="40"
-      color="#1989fa"
-      background="#ecf9ff"
-      left-icon="info-o"
-      text="请填写当前批次游戏的配置"
-      custom-class="my-3"
-    ></van-notice-bar> -->
     <van-divider
       contentPosition="center"
       customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
@@ -59,13 +49,6 @@
             @change="is_update = !is_update"
           ></van-switch>
         </van-cell>
-        <!--         <van-cell title="个人模式优先">
-          <van-switch
-            active-color="#07c160"
-            :checked="game_mode"
-            @change="game_mode = !game_mode"
-          ></van-switch>
-        </van-cell> -->
       </van-cell-group>
       <!-- 选择日期 -->
       <van-cell title="结束时间" :value="formatTime"></van-cell>
@@ -92,17 +75,6 @@
           >查看记录</van-button
         >
       </view>
-      <!-- 遮掩层显示二维码 -->
-      <van-overlay :show="showOverlay" @click="showOverlay = false">
-        <view class="page-y-center ccc">
-          <image
-            style="height: 350px; width: 350px; margin-bottom: 50px"
-            mode="aspectFit"
-            :src="QRCODE_URL"
-          ></image>
-          <van-icon name="close" size="40px" @tap="showOverlay = false" />
-        </view>
-      </van-overlay>
     </view>
   </view>
 </template>
@@ -111,10 +83,9 @@
 import Taro from '@tarojs/taro'
 //工具函数
 import validate from '@util/validate'
-import { formatTime } from '@util/time'
+import { formatTime } from '@util/day'
 //视图
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
-import myQRCODE from '@img/myQRCODE.jpg';
 //管理者
 import { get_game_setting_template, submit_game_setting } from '@api/setting.js';
 //预加载配置
@@ -136,8 +107,6 @@ export default {
     //视图
     isSkeleton: true,
     isLoading: false,
-    showOverlay: false,
-    QRCODE_URL: '',
   }),
   props: {},
   methods: {
@@ -217,8 +186,7 @@ export default {
       //改变视图
       this.isLoading = !1;
       Notify({ type: 'success', message: '可以开始新游戏' })
-      /* this.showOverlay = !0;
-      this.QRCODE_URL = myQRCODE; */
+      this.$emit('onShowOR')
     },
     /**
      * 获取游戏配置

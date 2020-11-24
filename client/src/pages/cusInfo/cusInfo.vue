@@ -3,21 +3,18 @@
     <!-- 骨架屏等待 -->
     <van-skeleton title row="30" v-if="isSkeleton"></van-skeleton>
     <!-- 顶部通知条 -->
-    <view v-else style="height: 100%; width: 100%">
-      <User v-if="permission === 0"></User>
-      <Setting v-else></Setting>
-    </view>
+    <User v-else></User>
   </view>
 </template>
 
 <script>
 import { mapActions, mapState } from 'vuex'
+import User from '@com/cusInfo/User.vue'
 export default {
   inheritAttrs: false,
   name: 'cusInfo',
   components: {
-    Setting: () => import('@com/cusInfo/Setting.vue'),
-    User: () => import('@com/cusInfo/User.vue'),
+    User: User
   },
   data: () => ({
     isSkeleton: true,
@@ -33,13 +30,7 @@ export default {
       permission: (state) => state.user.permission
     })
   },
-  async mounted () {
-    /* this.currentTime = new Date().getTime()
-    this.end_time = new Date().getTime() */
-    await this.login()
-    //const bool = this.permission === 0
-    //填写的模板
-    //this.form = bool ? this.getUserInfoTemplate() : this.getGameSettingTemplate()
+  mounted () {
     this.isSkeleton = false
   }
 }

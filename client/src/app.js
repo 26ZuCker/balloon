@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Taro from '@tarojs/taro';
 import store from './store/index';
-//mport { getOpenid } from '@util/WeChat';
+import { getOpenid } from '@util/WeChat';
 
 import './app.scss';
 
@@ -14,7 +14,7 @@ const App = new Vue({
     if (process.env.TARO_ENV === 'weapp') {
       Taro.cloud.init();
     }
-    /*     const res = await getOpenid();
+    /* const res = await getOpenid();
     console.log(res); */
   },
   onShow(options) {},

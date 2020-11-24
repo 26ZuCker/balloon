@@ -18,13 +18,16 @@ const MAX_LIMIT = 100;
 exports.main = async (event, context) => {
   try {
     const wxContext = cloud.getWXContext();
-    const admin = [
+    /* const admin = [
       'okhxZ46ZE-j-eU6JHfI-bpEGzgNc',
       'ospJc5Kdv7Rbh592uFMhDQE1T6xs',
-      'of4gw5Ur5sHGqCf0b7L0PG1x7SAg',
+      'ospJc5ByBwmWU1jVCZpN6WqDJ238',
       'nTU3cTLJwh6M85eFxY8E',
-    ];
-    if (admin.includes(wxContext.OPENID)) {
+    ]; */
+    const password = event.password;
+    const Pass = 'Gdut123456@';
+    //if (admin.includes(wxContext.OPENID)) {
+    if (password === Pass) {
       //获取所有的数据
       const countResult = await db.collection('settings').count();
 
