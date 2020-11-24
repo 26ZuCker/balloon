@@ -356,8 +356,7 @@ export default {
       try {
         res = await _update({ batch: batch, group: group });
         if (typeof res !== 'string') {
-          this.average_income = res.average_income
-          console.log(res.average_income)
+          this.average_income = res.average_income || '暂无数据'
           return
         }
       } catch (error) {

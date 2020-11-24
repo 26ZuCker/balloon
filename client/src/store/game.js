@@ -33,8 +33,14 @@ const mutations = {
   setSettings(state, res) {
     for (const key in res) {
       if (key === 'batch' || key === 'end_time' || key === 'group') {
+        if (key === 'batch' || key === 'group') {
+          res[key] = Number(res[key]);
+        }
         state.submitSettings[key] = res[key];
       } else {
+        if (key === 'money') {
+          res[key] = Number(res[key]);
+        }
         state.viewSettings[key] = res[key];
       }
     }
