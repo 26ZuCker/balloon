@@ -16,37 +16,25 @@
       >
         请输入密码进入管理模式
       </van-divider>
-      <van-field
-        v-show="isShowField"
-        @change="onInput($event)"
-        :value="password"
-        type="password"
-        label="管理员密码"
-        required
-        autosize
-        clearable
+      <input
+        password
+        type="text"
         placeholder="请输入管理员密码"
-      ></van-field>
-      <view class="rcc">
-        <van-button
-          custom-class="van-button--round van-button--large ma-3"
-          type="primary"
-          :loading="isLoading"
-          @tap="submitOpen"
-          >校验密码</van-button
-        >
-        <van-button
-          custom-class="van-button--round van-button--large ma-3"
-          type="info"
-          @tap="toCus"
-          >参与游戏</van-button
-        >
-      </view>
+        :value="password"
+        @input="onInput($event)"
+      />
+      <van-button
+        custom-class="van-button--round van-button--large ma-3"
+        type="primary"
+        :loading="isLoading"
+        @tap="submitOpen"
+        >校验密码</van-button
+      >
     </view>
     <!-- 填写表单 -->
     <Setting v-if="permission === 1" @onShowOR="showOR"></Setting>
     <!-- 遮掩层显示二维码 -->
-    <van-overlay :show="showOverlay" z-index="99">
+    <van-overlay :show="showOverlay" z-index="5">
       <view class="page-y-center ccc">
         <image
           style="height: 350px; width: 350px; margin-bottom: 50px"
@@ -85,17 +73,10 @@ export default {
   },
   methods: {
     /**
-     * 关闭遮掩层
-     */
-    closeOverlay () {
-      console.log('closeOverlay')
-      this.showOverlay = false
-    },
-    /**
      * 监听表单输入，后期注意防抖
      */
     onInput ($event) {
-      this.password = $event.detail;
+      this.password = $event.detail.value;
     },
     /**
      * 发送请求至云服务器校验密码
@@ -116,14 +97,6 @@ export default {
     showOR () {
       this.showOverlay = !0;
       this.QRCODE_URL = myQRCODE;
-    },
-    /**
-     * 参与游戏
-     */
-    toCus () {
-      Taro.redirectTo({
-        url: '../cusInfo/cusInfo'
-      })
     },
     ...mapActions({
       login: 'user/login'

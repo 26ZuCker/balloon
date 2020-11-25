@@ -277,7 +277,7 @@ export default {
       //所有模式结束，直接离开
       else if (this.mode === 'OVER') {
         this.changeProps('', '');
-        this.showDialog(0, [`请点击按钮复制以下链接，以填写问卷星`, `${this.viewSettings.questionnaire_link}`]);
+        this.showDialog(0, '请点击按钮复制以下链接，以填写问卷');
         return
       }
       //正式模式30关结束后，包括团队此时需要回调
