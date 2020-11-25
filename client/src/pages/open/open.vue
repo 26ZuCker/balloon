@@ -17,7 +17,8 @@
         请输入密码进入管理模式
       </van-divider>
       <input
-        password
+        :password="true"
+        :focus="true"
         type="text"
         placeholder="请输入管理员密码"
         :value="password"
