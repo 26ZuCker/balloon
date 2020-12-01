@@ -2,47 +2,43 @@
   <view style="height: 100%; width: 100%">
     <!-- 顶部消息框 -->
     <van-notify id="van-notify" />
-    <!--     <van-notice-bar
-      :scrollable="false"
-      :wrapable="true"
-      speed="40"
-      color="#1989fa"
-      background="#ecf9ff"
-      left-icon="info-o"
-      text="请填写你的个人信息"
-      custom-class="my-3"
-    ></van-notice-bar> -->
     <van-divider
       contentPosition="center"
       customStyle="color: #1989fa; border-color: #1989fa; font-size: 18px;"
     >
       请填写你的个人信息
     </van-divider>
-    <view style="height: 100%; width: 100%">
-      <!-- 顶部提示语 -->
-      <van-cell-group>
-        <van-field
-          v-for="(i, key) in form"
-          :key="i.title"
-          :value="i.value"
-          @change="onInput(key, $event)"
-          required
-          autosize
-          clearable
-          :label="i.title"
-          :placeholder="`请输入${i.title}`"
-        ></van-field>
-      </van-cell-group>
-      <!-- 根据角色判断权限，底部交互按钮 -->
-      <view class="rca my-3">
-        <van-button
-          custom-class="van-button--round van-button--large ma-3"
-          type="primary"
-          :loading="isLoading"
-          @tap="submitChange"
-          >提交</van-button
+    <!-- 顶部提示语 -->
+    <view v-for="(i, key) in form" :key="i.title">
+      <view class="rsc" style="width: 100%">
+        <view
+          style="
+            color: #1989fa;
+            font-size: 25px;
+            font-weight: 200;
+            margin-right: 10px;
+            width: 13%;
+          "
+          >{{ i.title }}</view
         >
+        <input
+          style="width: 87%"
+          :maxlength="-1"
+          type="text"
+          :placeholder="placeholderTitle(i.title)"
+          @input="onInput(key, $event)"
+        />
       </view>
+      <van-divider dashed />
+    </view>
+    <view class="ccc">
+      <van-button
+        custom-class="van-button--round van-button--large ma-3"
+        type="primary"
+        :loading="isLoading"
+        @tap="submitChange"
+        >提交</van-button
+      >
     </view>
   </view>
 </template>
@@ -51,6 +47,8 @@
 import Taro from '@tarojs/taro'
 import { mapMutations } from 'vuex'
 //工具函数
+import { debounce } from '@util/HOC'
+
 import validate from '@util/validate'
 //视图
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
@@ -74,7 +72,8 @@ export default {
      * 监听表单输入，后期注意防抖
      */
     onInput (key, $event) {
-      this.form[key].value = $event.detail;
+      const cb = () => { this.form[key].value = $event.detail.value; }
+      return debounce(cb)()
     },
     /**
      * 校验表单输入值合法性：
@@ -170,7 +169,7 @@ export default {
      */
     placeholderTitle () {
       return function (title) {
-        return `请输入${title}`
+        return title === '评分' ? '请您为自己在班级中的地位打分，满分为100' : `请输入${title}`
       }
     },
   },

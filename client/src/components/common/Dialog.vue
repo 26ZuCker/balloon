@@ -59,22 +59,21 @@ export default {
       }
       const maxLine = 4
       let currentLine = 0
-      const maxFont = 25
+      const maxFont = 30
       const res = []
+      this.contentMsg = this.contentMsg.trim()
       const length = this.contentMsg.length
       for (let i = 0; i < length; i += maxFont) {
-        if (i >= length) {
-          break
-        }
-        if (currentLine === maxLine) {
-          res.push('\n')
-          currentLine = 0
-        }
+        /*         if (i >= length) {
+                  break
+                }
+                if (currentLine === maxLine) {
+                  res.push('\n')
+                  currentLine = 0
+                } */
         res.push(this.contentMsg.slice(i, i + maxFont))
         currentLine += 1
       }
-      /*       console.log(this.contentMsg)
-            console.log(res) */
       return res
     }
   },
@@ -113,6 +112,11 @@ export default {
     isDialog (n) {
       this.showSelf()
     },
+    contentMsg: {
+      handler (n) {
+        console.log(typeof n)
+      }, immediate: true
+    }
   },
   created () {
     this.showSelf()

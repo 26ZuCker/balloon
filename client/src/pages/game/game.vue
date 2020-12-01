@@ -19,23 +19,20 @@
       ></image
       ><image :style="imgStyle" mode="aspectFit" v-else :src="balloon"></image>
     </view>
-    <!-- 状态单元格 -->
-    <van-cell-group>
-      <!-- 展示实时 -->
-      <van-cell
-        v-if="viewSettings.is_update && mode === 'team'"
-        title="实时数据"
-        :value="average_income"
-      ></van-cell>
-      <!-- 主体 -->
-      <van-cell
-        class="statistic-main"
-        v-for="i in statistics"
-        :key="i.title"
-        :title="i.title"
-        :value="i.value"
-      ></van-cell>
-    </van-cell-group>
+    <!-- 实时数据显示 -->
+    <view class="rbc ma-2" v-if="viewSettings.is_update && mode === 'team'">
+      <view>实时数据</view>
+      <view style="font-size: 20px; font-weight: 400; color: #1989fa">{{
+        average_income
+      }}</view>
+    </view>
+    <!-- 主体 -->
+    <view v-for="i in statistics" :key="i.title" class="rbc ma-2">
+      <view>{{ i.title }}</view>
+      <view style="font-size: 20px; font-weight: 400; color: #07c160">{{
+        i.value
+      }}</view>
+    </view>
     <!-- 按钮组 -->
     <view class="rac">
       <van-button
@@ -77,11 +74,15 @@ import { _update, _submit } from '@api/game';
  * tip弹出框提示语
  */
 const optionalMode = {
-  TRAIN: { title: '练习模式', tip: '当前为练习模式', btnMsg: '确认' },
-  personal: { title: '', tip: '', btnMsg: '确认' },
-  team: { title: '', tip: '', btnMsg: '确认' },
+  TRAIN: { title: '练习模式', tip: '', btnMsg: '确认' },
+  personal: { title: '个人模式', tip: '', btnMsg: '确认' },
+  team: { title: '团队模式', tip: '', btnMsg: '确认' },
   OVER: { title: '为队伍收账', tip: '当前为队伍模式', btnMsg: '确认' },
 };
+/**
+ * 暂定一个定时器
+ */
+let timerInter = null
 export default {
   inheritAttrs: false,
   name: 'game',
@@ -258,16 +259,17 @@ export default {
       }
       //练习模式之后，正式模式之前，注意这里由于dialog关闭存在动画即非即时关闭所以只能设置一个定时器进行数据更新
       else if (this.mode === 'TRAIN') {
-        this.mode = this.viewSettings.game_mode === 0 ? 'personal' : 'team'
+        const str = this.userInfo.school_number
+        this.mode = (Number(str.charAt(str.length - 1)) & 1) === 1 ? 'personal' : 'team'
         this.statistics.total_income.value = 0
         this.statistics.left_checkpoint.value = 20;
         this.restart();
         this.changeProps(this.viewSettings.game_tips);
         //练习模式结束后开始实时更新
         if (this.viewSettings.is_update) {
-          const timer = setInterval(() => {
+          timerInter = setInterval(() => {
             this.update()
-          }, 2000)
+          }, 3000)
           this.$on('beforeDestroy', () => {
             clearInterval(timer)
           })
@@ -281,9 +283,6 @@ export default {
         return
       }
       //正式模式30关结束后，包括团队此时需要回调
-      /* this.mode = this.mode === 'team'
-        ? (this.viewSettings.game_mode === 0 ? 'OVER' : 'personal')
-        : (this.viewSettings.game_mode === 0 ? 'team' : 'OVER') */
       this.mode = 'OVER'
       const str = this.mode === 'team' ? '下一轮为团队收益' : '下一轮为自己收益'
       this.restart();
@@ -306,7 +305,7 @@ export default {
     statisticsMsg () {
       return this.mode === 'TRAIN'
         ? this.viewSettings.practice_tips
-        : this.viewSettings.round_tips[this.mode]
+        : optionalMode[this.mode].tip
     },
     /**
      * 派发收账按钮的回调，统计和收集每一轮所需的数据
@@ -336,16 +335,13 @@ export default {
       }
     },
     /**
-     * 初始化四个提示语：练习模式和正式模式dialog，个人和团队的顶部title
+     * 初始化四个提示语
      * @param {boolean} personOnGroup
      */
     iniOptionalMode (game_mode) {
-      [optionalMode.TRAIN.tip, optionalMode.personal.tip] = [
-        this.viewSettings.practice_tips,
-        this.viewSettings.game_tips,
-      ];
-      [optionalMode.personal.title, optionalMode.team.title] =
-        [this.viewSettings.round_tips.personal, this.viewSettings.round_tips.team]
+      optionalMode.TRAIN.tip = this.viewSettings.practice_tips
+      optionalMode.personal.tip = this.viewSettings.game_tips + '\n\n' + this.viewSettings.round_tips.personal
+      optionalMode.team.tip = this.viewSettings.game_tips + '\n\n' + this.viewSettings.round_tips.team
     },
     /**
      * 实时更新平均收入
@@ -410,6 +406,9 @@ export default {
     //初始化optionmode
     this.iniOptionalMode(this.viewSettings.game_mode)
   },
+  beforeDestroy () {
+    clearInterval(timerInter)
+  }
 }
 </script>
 <style lang='scss'>

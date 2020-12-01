@@ -21,7 +21,6 @@ const get_userInfo_template = () => {
       value: '',
       validator: { validType: 'REG', selfType: 'positiveInteger' },
     },
-    alipay: { title: '账号', value: '', validator: {} },
     group: {
       title: '组次',
       value: '',
@@ -34,6 +33,11 @@ const get_userInfo_template = () => {
       validator: { validType: 'REG', selfType: 'phone' },
     },
     school_number: { title: '学号', value: '', validator: {} },
+    alipay: {
+      title: '评分',
+      value: '',
+      validator: { validType: 'REG', selfType: 'rate100' },
+    },
   };
 };
 /**

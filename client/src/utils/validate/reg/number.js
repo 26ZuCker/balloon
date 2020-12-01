@@ -6,5 +6,8 @@ const phone = /^(?:(?:\+|00)86)?1(?:(?:3[\d])|(?:4[5-7|9])|(?:5[0-3|5-9])|(?:6[5
  * 不限个数的正整数
  */
 const positiveInteger = /^\+?[1-9]\d*$/;
-
-export { phone, positiveInteger };
+/**
+ * 0~100内整数
+ */
+const rate100 = /^([0-9]{1,2}|100)$/;
+export { phone, positiveInteger, rate100 };

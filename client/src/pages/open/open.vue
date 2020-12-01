@@ -18,10 +18,8 @@
       </van-divider>
       <input
         :password="true"
-        :focus="true"
         type="text"
         placeholder="请输入管理员密码"
-        :value="password"
         @input="onInput($event)"
       />
       <van-button
@@ -31,6 +29,13 @@
         @tap="submitOpen"
         >校验密码</van-button
       >
+      <!--       <van-button
+        custom-class="van-button--round van-button--large ma-3"
+        type="primary"
+        :loading="isLoading"
+        @tap="toGame"
+        >游戏</van-button
+      > -->
     </view>
     <!-- 填写表单 -->
     <Setting v-if="permission === 1" @onShowOR="showOR"></Setting>
@@ -57,6 +62,7 @@
 import Taro from '@tarojs/taro'
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 import { mapActions, mapState } from 'vuex'
+import { debounce } from '@util/HOC'
 import myQRCODE from '@img/QRcode.jpg';
 
 export default {
@@ -73,11 +79,15 @@ export default {
     Setting: () => import('@com/open/Setting.vue'),
   },
   methods: {
+    toGame () {
+      Taro.redirectTo({ url: '../cusInfo/cusInfo' })
+    },
     /**
      * 监听表单输入，后期注意防抖
      */
     onInput ($event) {
-      this.password = $event.detail.value;
+      const cb = () => { this.password = $event.detail.value; }
+      return debounce(cb)()
     },
     /**
      * 发送请求至云服务器校验密码

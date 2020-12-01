@@ -33,3 +33,12 @@ page {
   margin-top: 28px;
   margin-bottom: 28px;
 }
+.rsc{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+.van-divider--dashed{
+  border-style:dashed !important;
+}

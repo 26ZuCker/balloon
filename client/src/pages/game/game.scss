@@ -27,3 +27,12 @@ page {
 .statistic-main {
   width: 100%;
 }
+.rbc{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.ma-2{
+  margin: 20px;
+}

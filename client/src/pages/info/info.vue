@@ -46,13 +46,13 @@ export default {
   props: {},
   methods: {
     /**
-     * 防抖处理
-     */
-    onSearch () { },
-    /**
      * 响应点击下载按钮
      */
     async download (i) {
+      const errCb = () => {
+        Toast.clear()
+        Toast('网络请求出错');
+      }
       if (viewUrl[i] !== '') {
         this.showDialog(viewUrl[i])
         return
@@ -62,12 +62,19 @@ export default {
         forbidClick: true,
         loadingType: 'spinner',
       });
-      //const params = { batch: i }
-      const res = await download_excel({ batch: i })
-      const { path } = res
-      viewUrl[i] = path
-      Toast.clear()
-      this.showDialog(path)
+      try {
+        const res = await download_excel({ batch: i })
+        if (typeof res === 'string') {
+          errCb()
+          return
+        }
+        const { path } = res
+        viewUrl[i] = path
+        Toast.clear()
+        this.showDialog(path)
+      } catch (error) {
+        errCb()
+      }
     },
     /**
      * 展示弹窗
@@ -85,9 +92,7 @@ export default {
           data: path,
           success: function (res) {
             Taro.getClipboardData({
-              success: function (res) {
-                //console.log(res)
-              }
+              success: function (res) { }
             })
           }
         })

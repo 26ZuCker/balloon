@@ -22,23 +22,31 @@
               {{ i.title }}
             </van-divider>
             <textarea
+              :maxlength="-1"
               :placeholder="`请输入${i.title}`"
               @input="onInput(key, $event)"
-              :value="i.value"
               auto-height
             ></textarea>
           </view>
           <!-- 普通框 -->
-          <van-field
-            v-else
-            :value="i.value"
-            @change="onInput(key, $event)"
-            required
-            autosize
-            clearable
-            :label="i.title"
-            :placeholder="`请输入${i.title}`"
-          ></van-field>
+          <view v-else class="rsc">
+            <view
+              class="ma-1"
+              style="
+                color: #1989fa;
+                font-size: 20px;
+                font-weight: 200;
+                width: 45%;
+              "
+              >{{ i.title }}</view
+            >
+            <input
+              style="width: 100%"
+              type="text"
+              :placeholder="`请输入${i.title}`"
+              @input="onInput(key, $event)"
+            />
+          </view>
         </view>
         <!-- 开关判断是否需要团队模式先于个人 -->
         <van-divider customStyle=" font-size: 18px;"> </van-divider>
@@ -84,6 +92,7 @@ import Taro from '@tarojs/taro'
 //工具函数
 import validate from '@util/validate'
 import { formatTime } from '@util/day'
+import { debounce } from '@util/HOC'
 //视图
 import Notify from '@com/vant-weapp/dist/notify/notify.js';
 //管理者
@@ -120,7 +129,8 @@ export default {
      * 监听表单输入，后期注意防抖
      */
     onInput (key, $event) {
-      this.form[key].value = this.areaForm(key) ? $event.detail.value : $event.detail;
+      const cb = () => { this.form[key].value = $event.detail.value }
+      return debounce(cb)()
     },
     /**
      * 校验表单输入值合法性：

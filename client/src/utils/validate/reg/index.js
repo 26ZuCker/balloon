@@ -1,6 +1,6 @@
 //正则入口文件
 //数字
-import { phone, positiveInteger } from './number.js';
+import { phone, positiveInteger, rate100 } from './number.js';
 //名字
 import { name } from './name.js';
 const url = /^(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?$/;
@@ -9,6 +9,7 @@ const url = /^(((ht|f)tps?):\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*[\w@?^=%&
  */
 const regMap = {
   positiveInteger: positiveInteger,
+  rate100: rate100,
   phone: phone,
   name: name,
   url: url,
