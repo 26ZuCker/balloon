@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 import User from '@com/cusInfo/User.vue'
 export default {
   inheritAttrs: false,
@@ -20,11 +20,6 @@ export default {
     isSkeleton: true,
   }),
   props: {},
-  methods: {
-    ...mapActions({
-      login: 'user/login'
-    })
-  },
   computed: {
     ...mapState({
       permission: (state) => state.user.permission

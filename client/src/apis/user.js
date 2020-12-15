@@ -16,6 +16,18 @@ const errorMsgApiMap = {
 ); */
 const get_userInfo_template = () => {
   return {
+    /*  name: { title: '姓名', value: '', validator: {} },
+    phone_number: {
+      title: '号码',
+      value: '',
+      validator: { validType: 'REG', selfType: 'phone' },
+    },
+    alipay: {
+      title: '评分',
+      value: '',
+      validator: { validType: 'REG', selfType: 'rate100' },
+    }, */
+    school_number: { title: '学号', value: '', validator: {} },
     batch: {
       title: '批次',
       value: '',
@@ -25,18 +37,6 @@ const get_userInfo_template = () => {
       title: '组次',
       value: '',
       validator: { validType: 'REG', selfType: 'positiveInteger' },
-    },
-    name: { title: '姓名', value: '', validator: {} },
-    phone_number: {
-      title: '号码',
-      value: '',
-      validator: { validType: 'REG', selfType: 'phone' },
-    },
-    school_number: { title: '学号', value: '', validator: {} },
-    alipay: {
-      title: '评分',
-      value: '',
-      validator: { validType: 'REG', selfType: 'rate100' },
     },
   };
 };

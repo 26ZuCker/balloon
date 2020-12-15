@@ -4,10 +4,11 @@
       class="page-y-center page-x-center ccc bg-white text-black border"
       style="width: 60%; padding: 20px"
     >
-      <!-- 主体tip -->
-      <view v-for="i in content" :key="i.title">
-        {{ i }}
+      <!-- 主体tip v-for="i in content" :key="i.title" Gdut123456@-->
+      <view class="s-font">
+        {{ contentMsg }}
       </view>
+
       <!-- 底部关闭按钮 -->
       <van-button
         v-if="showBtn && contentMsg !== ''"
@@ -139,14 +140,11 @@ export default {
   top: 20%;
   transform: translateY(50%);
 }
-@mixin md($direction, $justify-content) {
-  display: flex;
-  flex-direction: $direction;
-  justify-content: $justify-content;
-  align-items: center;
-}
 .ccc {
-  @include md(column, center);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .bg-white {
   background-color: #ffffff;
@@ -158,5 +156,10 @@ export default {
   position: relative;
   left: 50%;
   transform: translateX(-50%);
+}
+.s-font {
+  font-size: 27px;
+  font-weight: 500;
+  color: #1989fa;
 }
 </style>

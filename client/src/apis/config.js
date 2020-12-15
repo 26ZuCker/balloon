@@ -21,7 +21,7 @@ const promisifyHttp = (Taro, BASE_API, { url, method }) => (data = {}) =>
         //已知错误响应
         else if (code === cusResCode.ERROR) {
           console.log(url + ' error : ' + message);
-          resolve(message);
+          reject(message);
         }
         //其余响应
         else {

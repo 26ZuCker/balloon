@@ -16,13 +16,13 @@
             color: #1989fa;
             font-size: 25px;
             font-weight: 200;
-            margin-right: 10px;
-            width: 13%;
+            margin: 0px 0px 0px 10px;
+            width: 17%;
           "
           >{{ i.title }}</view
         >
         <input
-          style="width: 87%"
+          style="width: 83%"
           :maxlength="-1"
           type="text"
           :placeholder="placeholderTitle(i.title)"
@@ -55,7 +55,7 @@ import Notify from '@com/vant-weapp/dist/notify/notify.js';
 //参与者
 import { get_userInfo_template } from '@api/user.js';
 //预加载配置
-import { get_game_settings, _update, _submit } from '@api/game';
+import { get_game_settings } from '@api/game';
 export default {
   inheritAttrs: false,
   name: 'User',
@@ -169,7 +169,7 @@ export default {
      */
     placeholderTitle () {
       return function (title) {
-        return title === '评分' ? '请您为自己在班级中的地位打分，满分为100' : `请输入${title}`
+        return title === '批次' || title === '组次' ? '请填写1' : `请输入${title}`
       }
     },
   },

@@ -5,6 +5,14 @@
     <van-dialog id="van-dialog" />
     <van-skeleton title row="30" v-if="isSkeleton"></van-skeleton>
     <!-- 后续进行长列表优化 -->
+    <view
+      v-if="viewBatch.length === 0 && !isSkeleton"
+      style="height: 100%; width: 100%"
+    >
+      <view style="font-size: 30px; font-weight: 400" class="ccc"
+        >暂无数据</view
+      >
+    </view>
     <van-cell-group v-else>
       <van-cell :title="`第${i}批`" v-for="i in viewBatch" :key="i">
         <van-button
@@ -19,6 +27,7 @@
 </template>
 
 <script>
+//Gdut123456@
 import Taro from '@tarojs/taro'
 import Dialog from '@com/vant-weapp/dist/Dialog/Dialog.js';
 import Toast from '@com/vant-weapp/dist/toast/toast.js';
@@ -31,7 +40,6 @@ const hash = new Map()
  * 已请求的url
  */
 let viewUrl = []
-const allBatch = []
 export default {
   inheritAttrs: false,
   name: 'info',
@@ -49,21 +57,28 @@ export default {
      * 响应点击下载按钮
      */
     async download (i) {
-      const errCb = () => {
+      const errCb = (error) => {
         Toast.clear()
-        Toast('网络请求出错');
+        Toast(error + '网络请求出错');
       }
-      if (viewUrl[i] !== '') {
-        this.showDialog(viewUrl[i])
-        return
-      }
+
+      /*       if (viewUrl[i] !== '') {
+              console.log('err')
+              console.log(viewUrl)
+              this.showDialog(viewUrl[i])
+              return
+            } */
+
       Toast.loading({
         message: '获取中',
         forbidClick: true,
         loadingType: 'spinner',
       });
+
+      //获取
       try {
         const res = await download_excel({ batch: i })
+        console.log(res)
         if (typeof res === 'string') {
           errCb()
           return
@@ -73,7 +88,7 @@ export default {
         Toast.clear()
         this.showDialog(path)
       } catch (error) {
-        errCb()
+        errCb(error)
       }
     },
     /**
@@ -103,20 +118,10 @@ export default {
   },
   computed: {
     /**
-     * 判断是否已获取过下载链接
-     */
-    hasUrl () {
-      return function (i) {
-        //return hash.has(i) && hash.get(i).path !== ''
-        return viewUrl[i] !== ''
-      }
-    },
-    /**
      * 返回下载链接字符串
      */
     excelUrl () {
       return function (i) {
-        //return hash.has(i) ? hash.get(i).path : '不存在'
         return viewUrl[i] === '' ? '不存在' : viewUrl[i]
       }
     },
@@ -130,10 +135,16 @@ export default {
     }
   },
   async created () {
-    const res = await get_all_batch()
-    this.viewBatch = Object.freeze(res)
-    viewUrl = Array(this.viewBatch.length + 1).fill('')
-    this.isSkeleton = false
+    try {
+      const res = await get_all_batch()
+      this.viewBatch = Object.freeze(res)
+      viewUrl = Array(this.viewBatch.length + 1).fill('')
+    } catch (error) {
+      this.viewBatch.length = 0
+      viewUrl.length = 0
+    } finally {
+      this.isSkeleton = false
+    }
   }
 }
 </script>
@@ -141,5 +152,11 @@ export default {
 <style lang='scss' >
 .van-button--round {
   border-radius: 999px !important;
+}
+.ccc {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>

@@ -66,11 +66,15 @@ exports.main = async (event, context) => {
         open_id: wxContext.OPENID,
       })
       .get();
+
     if (game_data.data.length != 0) {
-      return {
-        code: '104',
-        message: 'Already participated in the game',
-      };
+      await db
+        .collection('game_data')
+        .where({
+          batch: batch,
+          open_id: wxContext.OPENID,
+        })
+        .remove();
     }
     // 生成爆破点
     try {

@@ -50,13 +50,13 @@
         </view>
         <!-- 开关判断是否需要团队模式先于个人 -->
         <van-divider customStyle=" font-size: 18px;"> </van-divider>
-        <van-cell title="实时更新">
+        <!--         <van-cell title="实时更新">
           <van-switch
             active-color="#07c160"
             :checked="is_update"
             @change="is_update = !is_update"
           ></van-switch>
-        </van-cell>
+        </van-cell> -->
       </van-cell-group>
       <!-- 选择日期 -->
       <van-cell title="结束时间" :value="formatTime"></van-cell>
@@ -107,7 +107,7 @@ export default {
   data: () => ({
     //表单
     form: null,
-    is_update: true,
+    is_update: false,
     //game_mode: true,
     //时间选择
     end_time: undefined,

@@ -1,5 +1,3 @@
-import { getOpenid, getWCInfo } from '@util/WeChat';
-import { login } from '@api/user.js';
 import Taro from '@tarojs/taro';
 
 const state = {
@@ -59,34 +57,6 @@ const mutations = {
   setPastRound(state, res) {
     state.set_past_round = res;
   },
-};
-/**
- * 处理getOpenid响应
- */
-const actionsGetOpenid = async ({ code, data }, commit) => {
-  if (code !== -1) {
-    const { openid } = data;
-    const { code, data } = await login({ openid });
-    if (code !== -1) {
-      const { permission } = data;
-      commit('set_permission', permission);
-      return Promise.resolve();
-    } else {
-      return Promise.reject(data);
-    }
-  }
-};
-/**
- * 处理getWCInfo响应
- */
-const actionsGetWCInfo = async ({ code, data }, commit) => {
-  if (code !== -1) {
-    const { userInfo } = data;
-    commit('set_WCUserInfo', userInfo);
-    return Promise.resolve(userInfo);
-  } else {
-    return Promise.reject(data2);
-  }
 };
 /**
  * 登录

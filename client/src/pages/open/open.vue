@@ -93,6 +93,10 @@ export default {
      * 发送请求至云服务器校验密码
      */
     async submitOpen () {
+      if (this.password.length === 0) {
+        Notify({ type: 'danger', message: '请输入密码' });
+        return
+      }
       this.isLoading = true
       await this.login({ password: this.password })
       if (this.permission === 0) {
